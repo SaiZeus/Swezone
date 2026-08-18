@@ -1,0 +1,80 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\EventController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminEventController;
+use App\Models\Attendee;
+use App\Models\PromoCode;
+use App\Mail\TicketConfirmationMail;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
+
+// Public Event Routes
+Route::get('/', [EventController::class, 'index'])->name('home');
+Route::get('/events/{id}', [EventController::class, 'show'])->name('events.show');
+
+// Promo Code Verification API Route
+Route::get('/api/check-promo', function (Request $request) {
+    $code = strtoupper(trim($request->query('code')));
+    $eventId = $request->query('event_id');
+
+    if (!$code || !$eventId) {
+        return response()->json([
+            'valid' => false,
+            'message' => 'Invalid request details.'
+        ]);
+    }
+
+    $promo = PromoCode::where('event_id', $eventId)
+        ->where(DB::raw('BINARY code'), $code)
+        ->first();
+
+    if (!$promo) {
+        return response()->json([
+            'valid' => false,
+            'message' => 'Invalid promo code for this event.'
+        ]);
+    }
+
+    return response()->json([
+        'valid' => true,
+        'discount_type' => $promo->discount_type, // 'fixed' or 'percentage'
+        'discount_value' => (float) $promo->discount_value,
+    ]);
+});
+
+// Checkout & MMQR Payment Routes
+Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
+Route::get('/checkout/payment/{order}', [CheckoutController::class, 'showPayment'])->name('checkout.payment');
+Route::post('/checkout/complete/{order}', [CheckoutController::class, 'completePayment'])->name('checkout.complete');
+Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
+
+// Admin Routes
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
+    
+    // Event Routes
+    Route::get('/events', [AdminEventController::class, 'index'])->name('events.index');
+    Route::get('/events/create', [AdminEventController::class, 'create'])->name('events.create');
+    Route::post('/events', [AdminEventController::class, 'store'])->name('events.store');
+    Route::get('/events/{id}/edit', [AdminEventController::class, 'edit'])->name('events.edit');
+    Route::put('/events/{id}', [AdminEventController::class, 'update'])->name('events.update');
+    Route::delete('/events/{id}', [AdminEventController::class, 'destroy'])->name('events.destroy');
+    
+    // Attendee Routes
+    Route::get('/events/{id}/attendees', [AdminEventController::class, 'attendees'])->name('events.attendees');
+    Route::put('/attendees/{id}', [AdminEventController::class, 'updateAttendee'])->name('attendees.update');
+    Route::delete('/attendees/{id}', [AdminEventController::class, 'destroyAttendee'])->name('attendees.destroy');
+});
+
+// Test Email Route
+Route::get('/test-email', function () {
+    $attendee = Attendee::first();
+    if (!$attendee) return "No attendee found in DB.";
+
+    Mail::to('zeuspower200@gmail.com')->send(new TicketConfirmationMail($attendee));
+    return "Test email sent!";
+});
