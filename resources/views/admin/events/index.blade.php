@@ -8,7 +8,6 @@
 <style>
     /* =========================================================
        EVENTS DIRECTORY - MODERN ADMIN UI
-       Visual styling only. Functionality remains unchanged.
        ========================================================= */
 
     .events-directory {
@@ -180,6 +179,7 @@
 
     .events-table {
         width: 100%;
+        min-width: 1200px;
         border-collapse: collapse;
     }
 
@@ -345,6 +345,78 @@
     }
 
     .no-categories {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        color: #a0a7b3;
+        font-size: 0.68rem;
+        font-style: italic;
+    }
+
+    /* =========================================
+       EVENT ITEMS
+       ========================================= */
+
+    .event-items-wrapper {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 7px;
+        min-width: 250px;
+        max-width: 360px;
+    }
+
+    .event-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 5px 8px 5px 5px;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        background: #ffffff;
+        box-shadow: 0 2px 8px rgba(20, 30, 50, 0.04);
+        white-space: nowrap;
+    }
+
+    .event-item-image {
+        width: 30px;
+        height: 30px;
+        object-fit: cover;
+        border-radius: 7px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .event-item-no-image {
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 7px;
+        background: #eef2ff;
+        color: #6366f1;
+        font-size: 0.65rem;
+    }
+
+    .event-item-title {
+        color: #344054;
+        font-size: 0.65rem;
+        font-weight: 750;
+    }
+
+    .event-items-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 9px;
+        border-radius: 8px;
+        background: #eef2ff;
+        color: #4f46e5;
+        font-size: 0.64rem;
+        font-weight: 800;
+    }
+
+    .no-items {
         display: inline-flex;
         align-items: center;
         gap: 5px;
@@ -562,8 +634,10 @@
 
             <div>
                 <h2>All Marathon Events</h2>
+
                 <p>
-                    Manage your marathon events, ticket categories and attendees.
+                    Manage your marathon events, ticket categories,
+                    event items and attendees.
                 </p>
             </div>
 
@@ -606,16 +680,20 @@
          ========================================= --}}
     <div class="events-table-card">
 
-        {{-- Table Header --}}
         <div class="events-table-top">
 
             <div class="events-table-title">
+
                 <i class="fa-solid fa-calendar-days"></i>
+
                 Event Directory
+
             </div>
 
             <span class="events-count-label">
-                Marathon Events
+
+                {{ $events->count() }} Marathon Events
+
             </span>
 
         </div>
@@ -642,6 +720,10 @@
                         </th>
 
                         <th>
+                            Event Items
+                        </th>
+
+                        <th>
                             Status
                         </th>
 
@@ -658,234 +740,332 @@
 
                     @forelse($events as $event)
 
-                    <tr>
+                        <tr>
 
-                        {{-- =========================================
-                             EVENT
-                             ========================================= --}}
-                        <td>
+                            {{-- =========================================
+                                 EVENT
+                                 ========================================= --}}
+                            <td>
 
-                            <div class="event-info">
+                                <div class="event-info">
 
-                                <div class="event-image-wrapper">
+                                    <div class="event-image-wrapper">
 
-                                    <img
-                                        src="{{ $event->image ? asset('storage/' . $event->image) : asset('assets/img/about/img06.jpg') }}"
-                                        alt=""
-                                        class="event-image"
-                                    >
+                                        <img
+                                            src="{{ $event->image
+                                                ? asset('storage/' . $event->image)
+                                                : asset('assets/img/about/img06.jpg') }}"
+                                            alt="{{ $event->title }}"
+                                            class="event-image"
+                                        >
+
+                                    </div>
+
+
+                                    <div class="event-info-text">
+
+                                        <p class="event-title">
+                                            {{ $event->title }}
+                                        </p>
+
+                                        <p class="event-description">
+                                            {{ Str::limit($event->description, 40) }}
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                            </td>
+
+
+                            {{-- =========================================
+                                 LOCATION & DATE
+                                 ========================================= --}}
+                            <td>
+
+                                <div class="event-location">
+
+                                    <i class="fa-solid fa-location-dot"></i>
+
+                                    <span>
+                                        {{ $event->location }}
+                                    </span>
 
                                 </div>
 
 
-                                <div class="event-info-text">
+                                <div class="event-date">
 
-                                    <p class="event-title">
-                                        {{ $event->title }}
-                                    </p>
+                                    <i class="fa-regular fa-calendar"></i>
 
-                                    <p class="event-description">
-                                        {{ Str::limit($event->description, 40) }}
-                                    </p>
+                                    <span>
+                                        {{ \Carbon\Carbon::parse($event->event_date)->format('M d, Y - h:i A') }}
+                                    </span>
 
                                 </div>
 
-                            </div>
-
-                        </td>
+                            </td>
 
 
-                        {{-- =========================================
-                             LOCATION & DATE
-                             ========================================= --}}
-                        <td>
+                            {{-- =========================================
+                                 TICKET CATEGORIES
+                                 ========================================= --}}
+                            <td>
 
-                            <div class="event-location">
+                                <div class="categories-wrapper">
 
-                                <i class="fa-solid fa-location-dot"></i>
+                                    @if($event->ticketCategories->count() > 0)
 
-                                <span>
-                                    {{ $event->location }}
-                                </span>
+                                        @foreach($event->ticketCategories as $category)
 
-                            </div>
+                                            <span class="category-badge">
 
-                            <div class="event-date">
+                                                <i class="fa-solid fa-ticket"></i>
 
-                                <i class="fa-regular fa-calendar"></i>
+                                                {{ $category->name }}
 
-                                <span>
-                                    {{ \Carbon\Carbon::parse($event->event_date)->format('M d, Y - h:i A') }}
-                                </span>
+                                                ({{ $category->tickets_sold }}/{{ $category->capacity ?? '∞' }})
 
-                            </div>
+                                            </span>
 
-                        </td>
+                                        @endforeach
 
+                                    @else
 
-                        {{-- =========================================
-                             CATEGORIES
-                             ========================================= --}}
-                        <td>
+                                        <span class="no-categories">
 
-                            <div class="categories-wrapper">
+                                            <i class="fa-solid fa-circle-info"></i>
 
-                                @if($event->ticketCategories->count() > 0)
-
-                                    @foreach($event->ticketCategories as $category)
-
-                                        <span class="category-badge">
-
-                                            <i class="fa-solid fa-ticket"></i>
-
-                                            {{ $category->name }}
-
-                                            ({{ $category->tickets_sold }}/{{ $category->capacity ?? '∞' }})
+                                            No categories
 
                                         </span>
 
-                                    @endforeach
+                                    @endif
+
+                                </div>
+
+                            </td>
+
+
+                            {{-- =========================================
+                                 EVENT ITEMS
+                                 ========================================= --}}
+                            <td>
+
+                                <div class="event-items-wrapper">
+
+                                    @if($event->items->count() > 0)
+
+                                        @foreach($event->items->take(4) as $item)
+
+                                            <div
+                                                class="event-item"
+                                                title="{{ $item->title }}"
+                                            >
+
+                                                @if($item->image)
+
+                                                    <img
+                                                        src="{{ asset('storage/' . $item->image) }}"
+                                                        alt="{{ $item->title }}"
+                                                        class="event-item-image"
+                                                    >
+
+                                                @else
+
+                                                    <div class="event-item-no-image">
+
+                                                        <i class="fa-solid fa-gift"></i>
+
+                                                    </div>
+
+                                                @endif
+
+
+                                                <span class="event-item-title">
+
+                                                    {{ Str::limit($item->title, 18) }}
+
+                                                </span>
+
+                                            </div>
+
+                                        @endforeach
+
+
+                                        @if($event->items->count() > 4)
+
+                                            <span class="event-items-count">
+
+                                                <i class="fa-solid fa-plus"></i>
+
+                                                {{ $event->items->count() - 4 }} more
+
+                                            </span>
+
+                                        @endif
+
+                                    @else
+
+                                        <span class="no-items">
+
+                                            <i class="fa-solid fa-circle-info"></i>
+
+                                            No items
+
+                                        </span>
+
+                                    @endif
+
+                                </div>
+
+                            </td>
+
+
+                            {{-- =========================================
+                                 STATUS
+                                 ========================================= --}}
+                            <td>
+
+                                @if($event->status === 'live')
+
+                                    <span class="event-status status-live">
+
+                                        <span class="event-status-dot"></span>
+
+                                        Live Now
+
+                                    </span>
+
+                                @elseif($event->status === 'upcoming')
+
+                                    <span class="event-status status-upcoming">
+
+                                        <span class="event-status-dot"></span>
+
+                                        Upcoming
+
+                                    </span>
 
                                 @else
 
-                                    <span class="no-categories">
-                                        <i class="fa-solid fa-circle-info"></i>
-                                        No categories
+                                    <span class="event-status status-past">
+
+                                        <span class="event-status-dot"></span>
+
+                                        Past
+
                                     </span>
 
                                 @endif
 
-                            </div>
-
-                        </td>
+                            </td>
 
 
-                        {{-- =========================================
-                             STATUS
-                             ========================================= --}}
-                        <td>
+                            {{-- =========================================
+                                 ACTIONS
+                                 ========================================= --}}
+                            <td>
 
-                            @if($event->status === 'live')
+                                <div class="event-actions">
 
-                                <span class="event-status status-live">
-
-                                    <span class="event-status-dot"></span>
-
-                                    Live Now
-
-                                </span>
-
-                            @elseif($event->status === 'upcoming')
-
-                                <span class="event-status status-upcoming">
-
-                                    <span class="event-status-dot"></span>
-
-                                    Upcoming
-
-                                </span>
-
-                            @else
-
-                                <span class="event-status status-past">
-
-                                    <span class="event-status-dot"></span>
-
-                                    Past
-
-                                </span>
-
-                            @endif
-
-                        </td>
-
-
-                        {{-- =========================================
-                             ACTIONS
-                             ========================================= --}}
-                        <td>
-
-                            <div class="event-actions">
-
-                                {{-- Attendees --}}
-                                <a
-                                    href="{{ route('admin.events.attendees', $event->id) }}"
-                                    class="event-action-button attendees-button"
-                                >
-                                    <i class="fa-solid fa-users"></i>
-                                    Attendees
-                                </a>
-
-
-                                {{-- Edit --}}
-                                <a
-                                    href="{{ route('admin.events.edit', $event->id) }}"
-                                    class="event-action-button edit-button"
-                                >
-                                    <i class="fa-solid fa-pen-to-square"></i>
-                                    Edit
-                                </a>
-
-
-                                {{-- Delete --}}
-                                <form
-                                    action="{{ route('admin.events.destroy', $event->id) }}"
-                                    method="POST"
-                                    class="inline-block"
-                                    onsubmit="return confirm('Are you sure you want to delete this event?');"
-                                >
-
-                                    @csrf
-
-                                    @method('DELETE')
-
-                                    <button
-                                        type="submit"
-                                        class="event-action-button delete-button"
+                                    {{-- Attendees --}}
+                                    <a
+                                        href="{{ route('admin.events.attendees', $event->id) }}"
+                                        class="event-action-button attendees-button"
                                     >
-                                        <i class="fa-solid fa-trash"></i>
-                                        Delete
-                                    </button>
 
-                                </form>
+                                        <i class="fa-solid fa-users"></i>
 
-                            </div>
+                                        Attendees
 
-                        </td>
+                                    </a>
 
-                    </tr>
+
+                                    {{-- Edit --}}
+                                    <a
+                                        href="{{ route('admin.events.edit', $event->id) }}"
+                                        class="event-action-button edit-button"
+                                    >
+
+                                        <i class="fa-solid fa-pen-to-square"></i>
+
+                                        Edit
+
+                                    </a>
+
+
+                                    {{-- Delete --}}
+                                    <form
+                                        action="{{ route('admin.events.destroy', $event->id) }}"
+                                        method="POST"
+                                        class="inline-block"
+                                        onsubmit="return confirm('Are you sure you want to delete this event?');"
+                                    >
+
+                                        @csrf
+
+                                        @method('DELETE')
+
+
+                                        <button
+                                            type="submit"
+                                            class="event-action-button delete-button"
+                                        >
+
+                                            <i class="fa-solid fa-trash"></i>
+
+                                            Delete
+
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
 
 
                     @empty
 
-                    {{-- =========================================
-                         EMPTY STATE
-                         ========================================= --}}
-                    <tr>
+                        {{-- =========================================
+                             EMPTY STATE
+                             ========================================= --}}
+                        <tr>
 
-                        <td
-                            colspan="5"
-                            class="events-empty-state"
-                        >
+                            <td
+                                colspan="6"
+                                class="events-empty-state"
+                            >
 
-                            <div class="events-empty-icon">
-                                <i class="fa-solid fa-calendar-xmark"></i>
-                            </div>
+                                <div class="events-empty-icon">
 
-                            <h3>
-                                No Events Created Yet
-                            </h3>
+                                    <i class="fa-solid fa-calendar-xmark"></i>
 
-                            <p>
-                                Get started by
-                                <a href="{{ route('admin.events.create') }}">
-                                    creating your first event
-                                </a>.
-                            </p>
+                                </div>
 
-                        </td>
 
-                    </tr>
+                                <h3>
+                                    No Events Created Yet
+                                </h3>
+
+
+                                <p>
+
+                                    Get started by
+
+                                    <a href="{{ route('admin.events.create') }}">
+                                        creating your first event
+                                    </a>.
+
+                                </p>
+
+                            </td>
+
+                        </tr>
 
                     @endforelse
 

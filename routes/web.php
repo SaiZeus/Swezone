@@ -16,6 +16,11 @@ use Illuminate\Http\Request;
 Route::get('/', [EventController::class, 'index'])->name('home');
 Route::get('/events/{id}', [EventController::class, 'show'])->name('events.show');
 
+// Waiver & Race Guide Intermediate Page Routes
+Route::match(['get', 'post'], '/events/{id}/waiver', [EventController::class, 'showWaiver'])->name('events.waiver');
+Route::post('/events/{id}/waiver-accept', [EventController::class, 'acceptWaiver'])->name('events.waiver.accept');
+Route::post('/events/{id}/race-guide-accept', [EventController::class, 'acceptRaceGuide'])->name('events.race_guide.accept');
+
 // Promo Code Verification API Route
 Route::get('/api/check-promo', function (Request $request) {
     $code = strtoupper(trim($request->query('code')));
@@ -43,6 +48,7 @@ Route::get('/api/check-promo', function (Request $request) {
         'valid' => true,
         'discount_type' => $promo->discount_type, // 'fixed' or 'percentage'
         'discount_value' => (float) $promo->discount_value,
+        'ticket_category_id' => $promo->ticket_category_id ? (int) $promo->ticket_category_id : null,
     ]);
 });
 

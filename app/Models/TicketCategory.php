@@ -9,7 +9,16 @@ class TicketCategory extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['event_id', 'name', 'local_price', 'foreign_price', 'capacity', 'tickets_sold'];
+    protected $fillable = [
+        'event_id',
+        'name',
+        'local_price',
+        'foreign_price',
+        'capacity',
+        'tickets_sold',
+        'bib_prefix',
+        'bib_start_number',
+    ];
 
     public function event()
     {
@@ -19,5 +28,10 @@ class TicketCategory extends Model
     public function attendees()
     {
         return $this->hasMany(Attendee::class);
+    }
+
+    public function promoCodes()
+    {
+        return $this->hasMany(PromoCode::class);
     }
 }

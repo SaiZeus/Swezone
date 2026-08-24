@@ -5,34 +5,27 @@
             <div class="xb-footer_widget mt-30">
                 <h3 class="xb-widget-title">Quick Links</h3>
                 <ul class="xb-list list-unstyled">
-                    <li><a href="{{ url('/team') }}">Speakers</a></li>
                     <li><a href="{{ url('/contact') }}">Registration</a></li>
-                    <li><a href="{{ url('/about') }}">About SUMMIT</a></li>
                     <li><a href="{{ url('/faq') }}">Support & FAQ</a></li>
-                    <li><a href="{{ url('/blog') }}">OUR blog</a></li>
+                    <li><a href="{{ url('/about') }}">About SWEZON</a></li>
                 </ul>
             </div>
             <div class="xb-newsletter mt-30">
                 <div class="xb-item--logo">
-                    <img src="{{ asset('assets/img/logo/footer-logo02.svg') }}" alt="">
+                    <img src="{{ asset('assets/img/logo/Swezon_Logo1.1V.svg') }}" alt="Swezon Logo" style="max-height: 350px; width: auto; object-fit: contain;">
                 </div>
-                <p class="xb-item--title">Subscribe to our newsletter</p>
-                <form class="xb-item--newsletter_form" action="#">
-                    <input type="email" name="email" placeholder="Enter your email">
-                    <button class="submit_btn" type="submit">Submit</button>
-                </form>
             </div>
             <div class="xb-footer_info mt-30">
                 <h3 class="xb-widget-title">Get in touch</h3>
                 <ul class="xb-contact list-unstyled">
-                    <li><img src="{{ asset('assets/img/icon/location-icon03.svg') }}" alt=""> Los Angeles, Las <br> Vegas, Nevada, USA</li>
+                    <li><img src="{{ asset('assets/img/icon/location-icon03.svg') }}" alt=""> Yangon, Myanmar</li>
                     <li>
                         <img src="{{ asset('assets/img/icon/call-icon03.svg') }}" alt="">
-                        <a href="tel:+15615557689">+1 561 555 7689</a>
+                        <a href="viber://chat?number=%2B15615557689">Viber: +1 561 555 7689</a>
                     </li>
                     <li>
                         <img src="{{ asset('assets/img/icon/sms-icon02.svg') }}" alt="">
-                        <a href="mailto:contact@meetco.com">contact@meetco.com</a>
+                        <a href="mailto:swezon@gmail.com">swezon@gmail.com</a>
                     </li>
                 </ul>
             </div>
@@ -41,7 +34,7 @@
     <div class="xb-footer_bottom">
         <div class="container">
             <div class="xb-footer-bottom-inner ul_li_between">
-                <p>Copyright © 2025 <a href="{{ url('/') }}">MEETCO,</a> All rights reserved.</p>
+                <p>Copyright © 2026 <a href="{{ url('/') }}">Swezon,</a> All rights reserved.</p>
                 <div class="xb-social_media">
                     <ul class="social-link list-unstyled ul_li">
                         <li>Follow us :</li>

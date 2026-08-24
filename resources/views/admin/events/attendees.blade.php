@@ -9,7 +9,6 @@
     /* =========================================================
        ATTENDEES DIRECTORY
        UI / VISUAL STYLING ONLY
-       FUNCTIONALITY HAS NOT BEEN CHANGED
        ========================================================= */
 
     .attendees-page {
@@ -19,10 +18,6 @@
         --muted: #7b8798;
         --border: #e6e9ef;
     }
-
-    /* =========================================
-       PAGE HEADER
-       ========================================= */
 
     .attendees-header {
         display: flex;
@@ -86,10 +81,6 @@
         transform: translateX(-2px);
     }
 
-    /* =========================================
-       SUCCESS ALERT
-       ========================================= */
-
     .attendee-success-alert {
         display: flex;
         align-items: center;
@@ -111,14 +102,10 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 9px;
+        border-radius: 99px;
         background: #dcfce7;
         color: #16a34a;
     }
-
-    /* =========================================
-       STAT CARDS
-       ========================================= */
 
     .attendee-stat-card {
         position: relative;
@@ -128,9 +115,7 @@
         border-radius: 18px;
         background: #ffffff;
         box-shadow: 0 10px 30px rgba(25, 35, 55, 0.055);
-        transition:
-            transform 0.2s ease,
-            box-shadow 0.2s ease;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
     .attendee-stat-card:hover {
@@ -149,29 +134,12 @@
         opacity: 0.35;
     }
 
-    .stat-revenue {
-        border-color: #d1fae5;
-    }
-
-    .stat-revenue::after {
-        background: #a7f3d0;
-    }
-
-    .stat-runners {
-        border-color: #e0e7ff;
-    }
-
-    .stat-runners::after {
-        background: #c7d2fe;
-    }
-
-    .stat-status {
-        border-color: #dbeafe;
-    }
-
-    .stat-status::after {
-        background: #bfdbfe;
-    }
+    .stat-revenue { border-color: #d1fae5; }
+    .stat-revenue::after { background: #a7f3d0; }
+    .stat-runners { border-color: #e0e7ff; }
+    .stat-runners::after { background: #c7d2fe; }
+    .stat-status { border-color: #dbeafe; }
+    .stat-status::after { background: #bfdbfe; }
 
     .attendee-stat-content {
         position: relative;
@@ -198,18 +166,9 @@
         letter-spacing: -0.04em;
     }
 
-    .stat-revenue .stat-value {
-        color: #059669;
-    }
-
-    .stat-runners .stat-value {
-        color: #4f46e5;
-    }
-
-    .stat-status .stat-value {
-        color: #2563eb;
-        font-size: 1.2rem;
-    }
+    .stat-revenue .stat-value { color: #059669; }
+    .stat-runners .stat-value { color: #4f46e5; }
+    .stat-status .stat-value { color: #2563eb; font-size: 1.2rem; }
 
     .stat-icon {
         width: 49px;
@@ -222,24 +181,9 @@
         font-size: 1.1rem;
     }
 
-    .stat-revenue .stat-icon {
-        background: #d1fae5;
-        color: #059669;
-    }
-
-    .stat-runners .stat-icon {
-        background: #e0e7ff;
-        color: #4f46e5;
-    }
-
-    .stat-status .stat-icon {
-        background: #dbeafe;
-        color: #2563eb;
-    }
-
-    /* =========================================
-       PARTICIPANTS CARD
-       ========================================= */
+    .stat-revenue .stat-icon { background: #d1fae5; color: #059669; }
+    .stat-runners .stat-icon { background: #e0e7ff; color: #4f46e5; }
+    .stat-status .stat-icon { background: #dbeafe; color: #2563eb; }
 
     .participants-card {
         overflow: hidden;
@@ -257,11 +201,7 @@
         gap: 15px;
         padding: 19px 22px;
         border-bottom: 1px solid var(--border);
-        background: linear-gradient(
-            135deg,
-            #ffffff 0%,
-            #fafbff 100%
-        );
+        background: linear-gradient(135deg, #ffffff 0%, #fafbff 100%);
     }
 
     .participants-title {
@@ -303,10 +243,6 @@
         font-size: 0.65rem;
         font-weight: 850;
     }
-
-    /* =========================================
-       TABLE
-       ========================================= */
 
     .participants-table {
         width: 100%;
@@ -351,10 +287,6 @@
         border-bottom: 0;
     }
 
-    /* =========================================
-       RUNNER
-       ========================================= */
-
     .runner-code {
         display: inline-flex;
         align-items: center;
@@ -375,11 +307,7 @@
         font-weight: 800;
     }
 
-    /* =========================================
-       CONTACT
-       ========================================= */
-
-    .contact-email {
+    .contact-email, .contact-phone, .contact-viber, .contact-emergency {
         display: flex;
         align-items: center;
         gap: 7px;
@@ -388,26 +316,15 @@
         font-weight: 700;
     }
 
-    .contact-email i {
-        color: #6366f1;
-    }
-
-    .contact-phone {
-        display: flex;
-        align-items: center;
-        gap: 7px;
-        margin-top: 5px;
-        color: #929baa;
+    .contact-phone, .contact-viber, .contact-emergency {
+        margin-top: 4px;
+        color: #64748b;
         font-size: 0.68rem;
     }
 
-    .contact-phone i {
-        color: #a0a7b3;
+    .contact-viber {
+        color: #7360f2;
     }
-
-    /* =========================================
-       DOCUMENT / CATEGORY
-       ========================================= */
 
     .document-number {
         padding: 6px 8px;
@@ -432,15 +349,6 @@
         font-weight: 750;
     }
 
-    .category-badge i {
-        color: #6366f1;
-        font-size: 0.56rem;
-    }
-
-    /* =========================================
-       NATIONALITY
-       ========================================= */
-
     .nationality-badge {
         display: inline-flex;
         align-items: center;
@@ -451,26 +359,14 @@
         font-weight: 850;
     }
 
-    .nationality-foreigner {
-        background: #eff6ff;
-        color: #2563eb;
-    }
+    .nationality-foreigner { background: #eff6ff; color: #2563eb; }
+    .nationality-myanmar { background: #ecfdf5; color: #059669; }
 
-    .nationality-myanmar {
-        background: #ecfdf5;
-        color: #059669;
-    }
-
-    /* =========================================
-       SHIRT SIZE
-       ========================================= */
-
-    .shirt-size {
+    .shirt-size, .blood-badge {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 34px;
-        height: 30px;
+        padding: 4px 8px;
         border-radius: 8px;
         background: #f1f5f9;
         color: #344054;
@@ -478,9 +374,18 @@
         font-weight: 850;
     }
 
-    /* =========================================
-       ACTIONS
-       ========================================= */
+    .blood-badge { background: #fef2f2; color: #dc2626; }
+
+    .bib-badge {
+        display: inline-block;
+        padding: 3px 7px;
+        border: 1px dashed #6366f1;
+        border-radius: 6px;
+        background: #f5f3ff;
+        color: #4f46e5;
+        font-weight: 800;
+        font-size: 0.68rem;
+    }
 
     .attendee-actions {
         display: flex;
@@ -503,39 +408,12 @@
         transition: all 0.18s ease;
     }
 
-    .attendee-action:hover {
-        transform: translateY(-1px);
-    }
+    .edit-attendee-button { background: #fffbeb; color: #d97706; }
+    .edit-attendee-button:hover { background: #fef3c7; color: #b45309; }
+    .delete-attendee-button { background: #fef2f2; color: #dc2626; }
+    .delete-attendee-button:hover { background: #fee2e2; color: #b91c1c; }
 
-    .edit-attendee-button {
-        background: #fffbeb;
-        color: #d97706;
-    }
-
-    .edit-attendee-button:hover {
-        background: #fef3c7;
-        color: #b45309;
-    }
-
-    .delete-attendee-button {
-        background: #fef2f2;
-        color: #dc2626;
-    }
-
-    .delete-attendee-button:hover {
-        background: #fee2e2;
-        color: #b91c1c;
-    }
-
-    /* =========================================
-       EMPTY STATE
-       ========================================= */
-
-    .attendees-empty-state {
-        padding: 65px 20px !important;
-        text-align: center;
-    }
-
+    .attendees-empty-state { padding: 65px 20px !important; text-align: center; }
     .attendees-empty-icon {
         width: 62px;
         height: 62px;
@@ -549,23 +427,6 @@
         font-size: 1.3rem;
     }
 
-    .attendees-empty-state h3 {
-        margin: 0 0 5px;
-        color: #344054;
-        font-size: 0.92rem;
-        font-weight: 800;
-    }
-
-    .attendees-empty-state p {
-        margin: 0;
-        color: #929baa;
-        font-size: 0.73rem;
-    }
-
-    /* =========================================
-       EDIT MODAL
-       ========================================= */
-
     .edit-runner-modal {
         backdrop-filter: blur(5px);
         background: rgba(15, 23, 42, 0.58) !important;
@@ -573,7 +434,9 @@
 
     .edit-runner-modal-card {
         overflow: hidden;
-        max-width: 540px !important;
+        max-width: 720px !important;
+        max-height: 90vh;
+        overflow-y: auto;
         border: 1px solid #e5e7eb;
         border-radius: 20px !important;
         background: #ffffff;
@@ -586,19 +449,10 @@
         justify-content: space-between;
         padding: 20px 22px;
         border-bottom: 1px solid #eaedf2;
-        background: linear-gradient(
-            135deg,
-            #ffffff 0%,
-            #fafbff 100%
-        );
+        background: linear-gradient(135deg, #ffffff 0%, #fafbff 100%);
     }
 
-    .edit-modal-title-wrapper {
-        display: flex;
-        align-items: center;
-        gap: 11px;
-    }
-
+    .edit-modal-title-wrapper { display: flex; align-items: center; gap: 11px; }
     .edit-modal-icon {
         width: 38px;
         height: 38px;
@@ -610,19 +464,8 @@
         color: #d97706;
     }
 
-    .edit-modal-title h3 {
-        margin: 0;
-        color: #202b3d;
-        font-size: 0.92rem;
-        font-weight: 850;
-    }
-
-    .edit-modal-title p {
-        margin: 2px 0 0;
-        color: #929baa;
-        font-size: 0.66rem;
-    }
-
+    .edit-modal-title h3 { margin: 0; color: #202b3d; font-size: 0.92rem; font-weight: 850; }
+    .edit-modal-title p { margin: 2px 0 0; color: #929baa; font-size: 0.66rem; }
     .edit-modal-close {
         width: 34px;
         height: 34px;
@@ -631,52 +474,20 @@
         justify-content: center;
         border-radius: 9px;
         color: #9aa3b1;
-        transition: all 0.18s ease;
     }
 
-    .edit-modal-close:hover {
-        background: #f1f5f9;
-        color: #475467;
-    }
-
-    .edit-modal-body {
-        padding: 23px;
-    }
-
-    .edit-field {
-        margin-bottom: 15px;
-    }
-
-    .edit-field:last-child {
-        margin-bottom: 0;
-    }
-
-    .edit-label {
-        display: block;
-        margin-bottom: 7px;
-        color: #475467;
-        font-size: 0.68rem;
-        font-weight: 800;
-    }
-
-    .edit-input,
-    .edit-select {
+    .edit-modal-body { padding: 23px; }
+    .edit-field { margin-bottom: 15px; }
+    .edit-label { display: block; margin-bottom: 7px; color: #475467; font-size: 0.68rem; font-weight: 800; }
+    .edit-input, .edit-select, .edit-textarea {
         width: 100%;
-        height: 42px;
-        padding: 0 11px;
+        padding: 8px 11px;
         border: 1px solid #dfe3ea;
         border-radius: 9px;
         background: #ffffff;
         color: #293445;
         font-size: 0.74rem;
         outline: none;
-        transition: all 0.18s ease;
-    }
-
-    .edit-input:focus,
-    .edit-select:focus {
-        border-color: #6366f1;
-        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.08);
     }
 
     .edit-modal-footer {
@@ -696,693 +507,395 @@
         color: #667085;
         font-size: 0.68rem;
         font-weight: 800;
-        transition: all 0.18s ease;
-    }
-
-    .cancel-edit-button:hover {
-        background: #f8fafc;
-        color: #344054;
     }
 
     .save-edit-button {
         padding: 9px 15px;
         border: 0;
         border-radius: 9px;
-        background: linear-gradient(
-            135deg,
-            #4f46e5 0%,
-            #6366f1 100%
-        );
+        background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
         color: #ffffff;
         font-size: 0.68rem;
         font-weight: 800;
-        box-shadow: 0 5px 14px rgba(79, 70, 229, 0.18);
-        transition: all 0.18s ease;
-    }
-
-    .save-edit-button:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 8px 18px rgba(79, 70, 229, 0.25);
-    }
-
-    /* =========================================
-       RESPONSIVE
-       ========================================= */
-
-    @media (max-width: 767px) {
-
-        .attendees-header {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-
-        .back-events-button {
-            width: 100%;
-            justify-content: center;
-        }
-
-        .participants-header {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-
-        .participant-count {
-            align-self: flex-start;
-        }
-
-        .attendee-stat-card {
-            padding: 18px;
-        }
-
-        .stat-value {
-            font-size: 1.5rem;
-        }
-
-        .edit-modal-body {
-            padding: 18px;
-        }
-
-        .edit-modal-footer {
-            padding: 15px 18px;
-        }
     }
 </style>
 
-
 <div class="attendees-page">
 
-    {{-- =========================================
-         PAGE HEADER
-         ========================================= --}}
+    {{-- PAGE HEADER --}}
     <div class="attendees-header">
-
         <div class="attendees-title-wrapper">
-
             <div class="attendees-title-icon">
                 <i class="fa-solid fa-users"></i>
             </div>
-
             <div class="attendees-title">
-
-                <h2>
-                    {{ $event->title }}
-                </h2>
-
-                <p>
-                    Registered attendees, revenue and runner information
-                </p>
-
+                <h2>{{ $event->title }}</h2>
+                <p>Registered attendees, revenue and detailed runner information</p>
             </div>
-
         </div>
 
-
-        <a
-            href="{{ route('admin.events.index') }}"
-            class="back-events-button"
-        >
-            <i class="fa-solid fa-arrow-left"></i>
-            Back to Events
+        <a href="{{ route('admin.events.index') }}" class="back-events-button">
+            <i class="fa-solid fa-arrow-left"></i> Back to Events
         </a>
-
     </div>
 
-
-    {{-- =========================================
-         SUCCESS MESSAGE
-         ========================================= --}}
+    {{-- SUCCESS MESSAGE --}}
     @if(session('success'))
-
         <div class="attendee-success-alert">
-
-            <div class="attendee-success-icon">
-                <i class="fa-solid fa-check"></i>
-            </div>
-
-            <span>
-                {{ session('success') }}
-            </span>
-
+            <div class="attendee-success-icon"><i class="fa-solid fa-check"></i></div>
+            <span>{{ session('success') }}</span>
         </div>
-
     @endif
 
-
-    {{-- =========================================
-         STATISTICS
-         ========================================= --}}
+    {{-- STATISTICS --}}
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
-
-        {{-- Revenue --}}
         <div class="attendee-stat-card stat-revenue">
-
             <div class="attendee-stat-content">
-
                 <div>
-
-                    <p class="stat-label">
-                        Total Revenue Generated
-                    </p>
-
-                    <h3 class="stat-value">
-                        ${{ number_format($totalRevenue, 2) }}
-                    </h3>
-
+                    <p class="stat-label">Total Revenue Generated</p>
+                    <h3 class="stat-value">${{ number_format($totalRevenue, 2) }}</h3>
                 </div>
-
-                <div class="stat-icon">
-                    <i class="fa-solid fa-sack-dollar"></i>
-                </div>
-
+                <div class="stat-icon"><i class="fa-solid fa-sack-dollar"></i></div>
             </div>
-
         </div>
 
-
-        {{-- Runners --}}
         <div class="attendee-stat-card stat-runners">
-
             <div class="attendee-stat-content">
-
                 <div>
-
-                    <p class="stat-label">
-                        Total Confirmed Runners
-                    </p>
-
-                    <h3 class="stat-value">
-                        {{ $attendees->count() }}
-                    </h3>
-
+                    <p class="stat-label">Total Confirmed Runners</p>
+                    <h3 class="stat-value">{{ $attendees->count() }}</h3>
                 </div>
-
-                <div class="stat-icon">
-                    <i class="fa-solid fa-person-running"></i>
-                </div>
-
+                <div class="stat-icon"><i class="fa-solid fa-person-running"></i></div>
             </div>
-
         </div>
 
-
-        {{-- Status --}}
         <div class="attendee-stat-card stat-status">
-
             <div class="attendee-stat-content">
-
                 <div>
-
-                    <p class="stat-label">
-                        Event Status
-                    </p>
-
-                    <h3 class="stat-value capitalize">
-                        {{ $event->status }}
-                    </h3>
-
+                    <p class="stat-label">Event Status</p>
+                    <h3 class="stat-value capitalize">{{ $event->status }}</h3>
                 </div>
-
-                <div class="stat-icon">
-                    <i class="fa-solid fa-calendar-check"></i>
-                </div>
-
+                <div class="stat-icon"><i class="fa-solid fa-calendar-check"></i></div>
             </div>
-
         </div>
-
     </div>
 
-
-    {{-- =========================================
-         REGISTERED PARTICIPANTS
-         ========================================= --}}
+    {{-- REGISTERED PARTICIPANTS TABLE --}}
     <div class="participants-card">
-
         <div class="participants-header">
-
             <div class="participants-title">
-
-                <div class="participants-title-icon">
-                    <i class="fa-solid fa-person-running"></i>
-                </div>
-
+                <div class="participants-title-icon"><i class="fa-solid fa-person-running"></i></div>
                 <div>
-
-                    <h3>
-                        Registered Participants
-                    </h3>
-
-                    <p>
-                        Manage runners registered for this event
-                    </p>
-
+                    <h3>Registered Participants</h3>
+                    <p>Manage runners registered for this event</p>
                 </div>
-
             </div>
-
-
-            <span class="participant-count">
-                {{ $attendees->count() }} Runners
-            </span>
-
+            <span class="participant-count">{{ $attendees->count() }} Runners</span>
         </div>
 
-
         <div class="overflow-x-auto">
-
             <table class="participants-table">
-
                 <thead>
-
                     <tr>
-
-                        <th>
-                            Reg Code / Runner
-                        </th>
-
-                        <th>
-                            Contact Info
-                        </th>
-
-                        <th>
-                            NRC / Passport
-                        </th>
-
-                        <th>
-                            Category
-                        </th>
-
-                        <th>
-                            Nationality
-                        </th>
-
-                        <th>
-                            Shirt Size
-                        </th>
-
-                        <th class="text-right">
-                            Actions
-                        </th>
-
+                        <th>Reg Code / Runner / Father</th>
+                        <th>BIB & Category</th>
+                        <th>Contact & Emergency</th>
+                        <th>NRC / Passport / Country</th>
+                        <th>Demographics</th>
+                        <th>Health & ITRA</th>
+                        <th>Address & Experience</th>
+                        <th class="text-right">Actions</th>
                     </tr>
-
                 </thead>
-
-
                 <tbody>
-
                     @forelse($attendees as $attendee)
-
                     <tr>
-
-                        {{-- Runner --}}
+                        {{-- Runner Info --}}
                         <td>
+                            <span class="runner-code">{{ $attendee->ticket_code ?? 'REG-' . $attendee->id }}</span>
+                            <p class="runner-name">{{ $attendee->full_name }}</p>
+                            @if($attendee->father_name)
+                                <p class="text-xs text-gray-500 mt-1"><i class="fa-solid fa-user-group me-1"></i> Father: {{ $attendee->father_name }}</p>
+                            @endif
+                        </td>
 
-                            <span class="runner-code">
-                                {{ $attendee->ticket_code ?? 'REG-' . $attendee->id }}
+                        {{-- BIB & Category --}}
+                        <td>
+                            @if(!empty($attendee->bib_number))
+                                <div class="mb-1">
+                                    <span class="bib-badge bg-indigo-50 border-indigo-200 text-indigo-700">
+                                        <i class="fa-solid fa-hashtag me-1"></i>BIB: {{ $attendee->bib_number }}
+                                    </span>
+                                </div>
+                            @elseif(!empty($attendee->bib_name))
+                                <div class="mb-1">
+                                    <span class="bib-badge">
+                                        <i class="fa-solid fa-id-badge me-1"></i>{{ $attendee->bib_name }}
+                                    </span>
+                                </div>
+                            @endif
+
+                            <span class="category-badge">
+                                <i class="fa-solid fa-ticket"></i>
+                                {{ $attendee->ticketCategory->name ?? 'N/A' }}
                             </span>
-
-                            <p class="runner-name">
-                                {{ $attendee->full_name }}
-                            </p>
-
                         </td>
 
-
-                        {{-- Contact --}}
+                        {{-- Contact Info --}}
                         <td>
-
-                            <p class="contact-email">
-                                <i class="fa-solid fa-envelope"></i>
-                                {{ $attendee->email }}
-                            </p>
-
-                            <p class="contact-phone">
-                                <i class="fa-solid fa-phone"></i>
-                                {{ $attendee->phone }}
-                            </p>
-
+                            <p class="contact-email"><i class="fa-solid fa-envelope"></i> {{ $attendee->email }}</p>
+                            <p class="contact-phone"><i class="fa-solid fa-phone"></i> {{ $attendee->phone }}</p>
+                            @if($attendee->viber)
+                                <p class="contact-viber"><i class="fa-brands fa-viber"></i> Viber: {{ $attendee->viber }}</p>
+                            @endif
+                            <p class="contact-emergency text-red-600"><i class="fa-solid fa-phone-volume"></i> ICE: {{ $attendee->emergency_contact ?? 'N/A' }}</p>
                         </td>
-
 
                         {{-- NRC / Passport --}}
                         <td>
-
-                            <span class="document-number">
-                                {{ $attendee->nrc_passport }}
-                            </span>
-
+                            <span class="document-number">{{ $attendee->nrc_passport }}</span>
+                            @if($attendee->country)
+                                <p class="text-xs text-gray-500 mt-1"><i class="fa-solid fa-globe me-1"></i> {{ $attendee->country }}</p>
+                            @endif
                         </td>
 
-
-                        {{-- Category --}}
+                        {{-- Demographics & Shirt --}}
                         <td>
-
-                            <span class="category-badge">
-
-                                <i class="fa-solid fa-ticket"></i>
-
-                                {{ $attendee->ticketCategory->name ?? 'N/A' }}
-
-                            </span>
-
-                        </td>
-
-
-                        {{-- Nationality --}}
-                        <td>
-
-                            <span class="nationality-badge {{ strtolower($attendee->nationality) === 'foreigner' ? 'nationality-foreigner' : 'nationality-myanmar' }}">
-
-                                @if(strtolower($attendee->nationality) === 'foreigner')
-                                    <i class="fa-solid fa-earth-americas"></i>
-                                @else
-                                    <i class="fa-solid fa-flag"></i>
+                            <div class="flex flex-col gap-1">
+                                <div>
+                                    <span class="nationality-badge {{ strtolower($attendee->nationality) === 'foreigner' ? 'nationality-foreigner' : 'nationality-myanmar' }}">
+                                        <i class="fa-solid {{ strtolower($attendee->nationality) === 'foreigner' ? 'fa-earth-americas' : 'fa-flag' }}"></i>
+                                        {{ $attendee->nationality }}
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="shirt-size">Size: {{ $attendee->tshirt_size }}</span>
+                                    <span class="text-xs text-gray-600 capitalize">{{ $attendee->gender ?? 'N/A' }}</span>
+                                </div>
+                                @if($attendee->date_of_birth)
+                                    <span class="text-xs text-gray-500"><i class="fa-solid fa-cake-candles me-1"></i>{{ \Carbon\Carbon::parse($attendee->date_of_birth)->format('Y-m-d') }}</span>
                                 @endif
-
-                                {{ $attendee->nationality }}
-
-                            </span>
-
+                            </div>
                         </td>
 
-
-                        {{-- Shirt --}}
+                        {{-- Health & ITRA --}}
                         <td>
+                            <div class="mb-1">
+                                <span class="blood-badge"><i class="fa-solid fa-droplet me-1"></i>{{ $attendee->blood_type ?? 'N/A' }}</span>
+                            </div>
+                            @if(strtolower($attendee->has_medical_condition) === 'yes')
+                                <span class="inline-flex items-center text-xs text-red-600 font-bold"><i class="fa-solid fa-triangle-exclamation me-1"></i> Has Condition</span>
+                                <p class="text-xs text-gray-500 max-w-xs truncate" title="{{ $attendee->medical_details }}">{{ $attendee->medical_details }}</p>
+                            @else
+                                <span class="text-xs text-emerald-600 font-medium"><i class="fa-solid fa-circle-check me-1"></i> Clear</span>
+                            @endif
 
-                            <span class="shirt-size">
-                                {{ $attendee->tshirt_size }}
-                            </span>
-
+                            {{-- ITRA Info --}}
+                            @if(strtolower($attendee->itra) === 'yes')
+                                <div class="mt-1 pt-1 border-t border-gray-100">
+                                    <span class="inline-flex items-center text-xs text-indigo-600 font-bold"><i class="fa-solid fa-award me-1"></i> ITRA Member</span>
+                                    @if($attendee->itra_details)
+                                        <p class="text-xs text-gray-500 max-w-xs truncate" title="{{ $attendee->itra_details }}">{{ $attendee->itra_details }}</p>
+                                    @endif
+                                </div>
+                            @endif
                         </td>
 
+                        {{-- Address & Experience --}}
+                        <td>
+                            <p class="text-xs text-gray-700 max-w-xs truncate" title="{{ $attendee->address }}"><i class="fa-solid fa-location-dot me-1 text-gray-400"></i>{{ $attendee->address ?? 'N/A' }}</p>
+                            @if($attendee->experience)
+                                <p class="text-xs text-gray-500 max-w-xs truncate mt-1" title="{{ $attendee->experience }}"><i class="fa-solid fa-person-running me-1 text-gray-400"></i>{{ $attendee->experience }}</p>
+                            @endif
+                        </td>
 
                         {{-- Actions --}}
                         <td>
-
                             <div class="attendee-actions">
-
-                                <button
-                                    type="button"
-                                    onclick="document.getElementById('edit-modal-{{ $attendee->id }}').classList.remove('hidden')"
-                                    class="attendee-action edit-attendee-button"
-                                >
-                                    <i class="fa-solid fa-pen-to-square"></i>
-                                    Edit
+                                <button type="button" onclick="document.getElementById('edit-modal-{{ $attendee->id }}').classList.remove('hidden')" class="attendee-action edit-attendee-button">
+                                    <i class="fa-solid fa-pen-to-square"></i> Edit
                                 </button>
 
-
-                                <form
-                                    action="{{ route('admin.attendees.destroy', $attendee->id) }}"
-                                    method="POST"
-                                    class="inline-block"
-                                    onsubmit="return confirm('Are you sure you want to delete this attendee?');"
-                                >
-
+                                <form action="{{ route('admin.attendees.destroy', $attendee->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this attendee?');">
                                     @csrf
-
                                     @method('DELETE')
-
-                                    <button
-                                        type="submit"
-                                        class="attendee-action delete-attendee-button"
-                                    >
-                                        <i class="fa-solid fa-trash"></i>
-                                        Delete
+                                    <button type="submit" class="attendee-action delete-attendee-button">
+                                        <i class="fa-solid fa-trash"></i> Delete
                                     </button>
-
                                 </form>
-
                             </div>
-
                         </td>
-
                     </tr>
-
-
                     @empty
-
                     <tr>
-
-                        <td
-                            colspan="7"
-                            class="attendees-empty-state"
-                        >
-
-                            <div class="attendees-empty-icon">
-                                <i class="fa-solid fa-users-slash"></i>
-                            </div>
-
-                            <h3>
-                                No Runners Registered
-                            </h3>
-
-                            <p>
-                                No runners registered for this event yet.
-                            </p>
-
+                        <td colspan="8" class="attendees-empty-state">
+                            <div class="attendees-empty-icon"><i class="fa-solid fa-users-slash"></i></div>
+                            <h3>No Runners Registered</h3>
+                            <p>No runners registered for this event yet.</p>
                         </td>
-
                     </tr>
-
                     @endforelse
-
                 </tbody>
-
             </table>
-
         </div>
-
     </div>
 
-
-    {{-- =========================================
-         EDIT RUNNER MODALS
-         ========================================= --}}
+    {{-- EDIT RUNNER MODALS --}}
     @foreach($attendees as $attendee)
-
-    <div
-        id="edit-modal-{{ $attendee->id }}"
-        class="edit-runner-modal fixed inset-0 flex items-center justify-center z-50 hidden p-4"
-    >
-
+    <div id="edit-modal-{{ $attendee->id }}" class="edit-runner-modal fixed inset-0 flex items-center justify-center z-50 hidden p-4">
         <div class="edit-runner-modal-card w-full">
-
-            {{-- Modal Header --}}
             <div class="edit-modal-header">
-
                 <div class="edit-modal-title-wrapper">
-
-                    <div class="edit-modal-icon">
-                        <i class="fa-solid fa-user-pen"></i>
-                    </div>
-
+                    <div class="edit-modal-icon"><i class="fa-solid fa-user-pen"></i></div>
                     <div class="edit-modal-title">
-
-                        <h3>
-                            Edit Runner Details
-                        </h3>
-
-                        <p>
-                            Update participant information
-                        </p>
-
+                        <h3>Edit Runner Details</h3>
+                        <p>Update participant profile and event record</p>
                     </div>
-
                 </div>
-
-
-                <button
-                    type="button"
-                    onclick="document.getElementById('edit-modal-{{ $attendee->id }}').classList.add('hidden')"
-                    class="edit-modal-close"
-                >
+                <button type="button" onclick="document.getElementById('edit-modal-{{ $attendee->id }}').classList.add('hidden')" class="edit-modal-close">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
-
             </div>
 
-
-            {{-- Modal Body --}}
             <div class="edit-modal-body">
-
-                <form
-                    action="{{ route('admin.attendees.update', $attendee->id) }}"
-                    method="POST"
-                    class="space-y-4"
-                >
-
+                <form action="{{ route('admin.attendees.update', $attendee->id) }}" method="POST" class="space-y-4">
                     @csrf
-
                     @method('PUT')
 
-
-                    {{-- Full Name --}}
-                    <div class="edit-field">
-
-                        <label class="edit-label">
-                            Full Name
-                        </label>
-
-                        <input
-                            type="text"
-                            name="full_name"
-                            value="{{ $attendee->full_name }}"
-                            required
-                            class="edit-input"
-                        >
-
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="edit-field">
+                            <label class="edit-label">Full Name</label>
+                            <input type="text" name="full_name" value="{{ $attendee->full_name }}" required class="edit-input">
+                        </div>
+                        <div class="edit-field">
+                            <label class="edit-label">Father Name</label>
+                            <input type="text" name="father_name" value="{{ $attendee->father_name }}" class="edit-input">
+                        </div>
                     </div>
 
-
-                    {{-- Email / Phone --}}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
                         <div class="edit-field">
-
-                            <label class="edit-label">
-                                Email
-                            </label>
-
-                            <input
-                                type="email"
-                                name="email"
-                                value="{{ $attendee->email }}"
-                                required
-                                class="edit-input"
-                            >
-
+                            <label class="edit-label">Email</label>
+                            <input type="email" name="email" value="{{ $attendee->email }}" required class="edit-input">
                         </div>
-
-
                         <div class="edit-field">
-
-                            <label class="edit-label">
-                                Phone
-                            </label>
-
-                            <input
-                                type="text"
-                                name="phone"
-                                value="{{ $attendee->phone }}"
-                                required
-                                class="edit-input"
-                            >
-
+                            <label class="edit-label">Phone</label>
+                            <input type="text" name="phone" value="{{ $attendee->phone }}" required class="edit-input">
                         </div>
-
+                        <div class="edit-field">
+                            <label class="edit-label">Viber Number</label>
+                            <input type="text" name="viber" value="{{ $attendee->viber }}" class="edit-input">
+                        </div>
+                        <div class="edit-field">
+                            <label class="edit-label">Emergency Contact (ICE)</label>
+                            <input type="text" name="emergency_contact" value="{{ $attendee->emergency_contact }}" required class="edit-input">
+                        </div>
                     </div>
 
-
-                    {{-- NRC / Shirt --}}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div class="edit-field">
-
-                            <label class="edit-label">
-                                NRC / Passport
-                            </label>
-
-                            <input
-                                type="text"
-                                name="nrc_passport"
-                                value="{{ $attendee->nrc_passport }}"
-                                required
-                                class="edit-input"
-                            >
-
-                        </div>
-
-
-                        <div class="edit-field">
-
-                            <label class="edit-label">
-                                T-Shirt Size
-                            </label>
-
-                            <select
-                                name="tshirt_size"
-                                class="edit-select"
-                            >
-
-                                @foreach(['S', 'M', 'L', 'XL', '2XL'] as $size)
-
-                                    <option
-                                        value="{{ $size }}"
-                                        {{ $attendee->tshirt_size === $size ? 'selected' : '' }}
-                                    >
-                                        {{ $size }}
-                                    </option>
-
-                                @endforeach
-
+                            <label class="edit-label">Nationality</label>
+                            <select name="nationality" class="edit-select">
+                                <option value="Myanmar" {{ $attendee->nationality === 'Myanmar' ? 'selected' : '' }}>Myanmar</option>
+                                <option value="Foreigner" {{ $attendee->nationality === 'Foreigner' ? 'selected' : '' }}>Foreigner</option>
                             </select>
-
                         </div>
-
+                        <div class="edit-field">
+                            <label class="edit-label">NRC / Passport</label>
+                            <input type="text" name="nrc_passport" value="{{ $attendee->nrc_passport }}" required class="edit-input">
+                        </div>
+                        <div class="edit-field">
+                            <label class="edit-label">Country</label>
+                            <input type="text" name="country" value="{{ $attendee->country }}" class="edit-input">
+                        </div>
                     </div>
 
-
-                    {{-- Nationality --}}
-                    <div class="edit-field">
-
-                        <label class="edit-label">
-                            Nationality
-                        </label>
-
-                        <select
-                            name="nationality"
-                            class="edit-select"
-                        >
-
-                            <option
-                                value="Myanmar"
-                                {{ $attendee->nationality === 'Myanmar' ? 'selected' : '' }}
-                            >
-                                Myanmar
-                            </option>
-
-                            <option
-                                value="Foreigner"
-                                {{ $attendee->nationality === 'Foreigner' ? 'selected' : '' }}
-                            >
-                                Foreigner
-                            </option>
-
-                        </select>
-
+                    <div class="grid grid-cols-1 sm:grid-cols-5 gap-4">
+                        <div class="edit-field">
+                            <label class="edit-label">Gender</label>
+                            <select name="gender" class="edit-select">
+                                <option value="male" {{ $attendee->gender === 'male' ? 'selected' : '' }}>Male</option>
+                                <option value="female" {{ $attendee->gender === 'female' ? 'selected' : '' }}>Female</option>
+                                <option value="prefer_not_to_say" {{ $attendee->gender === 'prefer_not_to_say' ? 'selected' : '' }}>Prefer not to say</option>
+                            </select>
+                        </div>
+                        <div class="edit-field">
+                            <label class="edit-label">Date of Birth</label>
+                            <input type="date" name="date_of_birth" value="{{ $attendee->date_of_birth }}" class="edit-input">
+                        </div>
+                        <div class="edit-field">
+                            <label class="edit-label">BIB Number</label>
+                            <input type="text" name="bib_number" value="{{ $attendee->bib_number }}" class="edit-input" placeholder="e.g. 1001">
+                        </div>
+                        <div class="edit-field">
+                            <label class="edit-label">BIB Name</label>
+                            <input type="text" name="bib_name" maxlength="10" value="{{ $attendee->bib_name }}" class="edit-input">
+                        </div>
+                        <div class="edit-field">
+                            <label class="edit-label">T-Shirt Size</label>
+                            <select name="tshirt_size" class="edit-select">
+                                @foreach(['S', 'M', 'L', 'XL', '2XL'] as $size)
+                                    <option value="{{ $size }}" {{ $attendee->tshirt_size === $size ? 'selected' : '' }}>{{ $size }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
 
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="edit-field">
+                            <label class="edit-label">Blood Type</label>
+                            <select name="blood_type" class="edit-select">
+                                @foreach(['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'] as $type)
+                                    <option value="{{ $type }}" {{ $attendee->blood_type === $type ? 'selected' : '' }}>{{ $type }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="edit-field">
+                            <label class="edit-label">Has Medical Condition?</label>
+                            <select name="has_medical_condition" class="edit-select">
+                                <option value="no" {{ strtolower($attendee->has_medical_condition) !== 'yes' ? 'selected' : '' }}>No</option>
+                                <option value="yes" {{ strtolower($attendee->has_medical_condition) === 'yes' ? 'selected' : '' }}>Yes</option>
+                            </select>
+                        </div>
+                        <div class="edit-field">
+                            <label class="edit-label">Medical Details</label>
+                            <input type="text" name="medical_details" value="{{ $attendee->medical_details }}" class="edit-input">
+                        </div>
+                    </div>
 
-                    {{-- Modal Actions --}}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="edit-field">
+                            <label class="edit-label">ITRA Registered?</label>
+                            <select name="itra" class="edit-select">
+                                <option value="no" {{ strtolower($attendee->itra) !== 'yes' ? 'selected' : '' }}>No</option>
+                                <option value="yes" {{ strtolower($attendee->itra) === 'yes' ? 'selected' : '' }}>Yes</option>
+                            </select>
+                        </div>
+                        <div class="edit-field">
+                            <label class="edit-label">ITRA Details</label>
+                            <input type="text" name="itra_details" value="{{ $attendee->itra_details }}" class="edit-input">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="edit-field">
+                            <label class="edit-label">Address</label>
+                            <textarea name="address" rows="2" class="edit-textarea">{{ $attendee->address }}</textarea>
+                        </div>
+                        <div class="edit-field">
+                            <label class="edit-label">Running Experience</label>
+                            <textarea name="experience" rows="2" class="edit-textarea">{{ $attendee->experience }}</textarea>
+                        </div>
+                    </div>
+
                     <div class="edit-modal-footer">
-
-                        <button
-                            type="button"
-                            onclick="document.getElementById('edit-modal-{{ $attendee->id }}').classList.add('hidden')"
-                            class="cancel-edit-button"
-                        >
-                            Cancel
-                        </button>
-
-                        <button
-                            type="submit"
-                            class="save-edit-button"
-                        >
-                            <i class="fa-solid fa-check mr-1"></i>
-                            Save Changes
-                        </button>
-
+                        <button type="button" onclick="document.getElementById('edit-modal-{{ $attendee->id }}').classList.add('hidden')" class="cancel-edit-button">Cancel</button>
+                        <button type="submit" class="save-edit-button"><i class="fa-solid fa-check mr-1"></i> Save Changes</button>
                     </div>
-
                 </form>
-
             </div>
-
         </div>
-
     </div>
-
     @endforeach
 
 </div>

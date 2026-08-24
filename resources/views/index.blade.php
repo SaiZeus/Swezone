@@ -1,12 +1,189 @@
 @extends('layouts.master')
 
-@section('title', 'Marathon Ticketing - Home')
+@section('title', 'Event Ticketing - Home')
 
 @section('content')
+
+<style>
+    /* =========================================================
+       LIGHT PURPLE THEME & CARD CENTERING CUSTOM STYLES
+       ========================================================= */
+
+    /* Section Background */
+    .events-light-purple-bg {
+        background: radial-gradient(circle at 10% 10%, rgba(216, 180, 254, 0.25), transparent 30%),
+                    radial-gradient(circle at 90% 90%, rgba(192, 132, 252, 0.2), transparent 30%),
+                    linear-gradient(180deg, #faf5ff 0%, #f3e8ff 100%);
+        padding-top: 100px;
+        padding-bottom: 100px;
+    }
+
+    /* Section Header Styles */
+    .events-header-title {
+        color: #581c87 !important;
+        font-weight: 800;
+    }
+
+    /* Category Titles & Icons */
+    .category-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .category-title.live { color: #dc2626; }
+    .category-title.upcoming { color: #7e22ce; }
+    .category-title.past { color: #6b21a8; }
+
+    /* Card Styling */
+    .event-card {
+        background: #ffffff !important;
+        border: 1px solid #e9d5ff !important;
+        border-radius: 16px !important;
+        box-shadow: 0 10px 30px rgba(147, 51, 234, 0.06);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        overflow: hidden;
+    }
+
+    .event-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 14px 35px rgba(147, 51, 234, 0.12);
+    }
+
+    .event-card.upcoming-card {
+        border-color: #d8b4fe !important;
+        background: #faf5ff !important;
+    }
+
+    .event-card.past-card {
+        opacity: 0.82;
+        background: #f3e8ff !important;
+        border-color: #e9d5ff !important;
+    }
+
+    .event-card-img {
+        height: 220px;
+        object-fit: cover;
+        width: 100%;
+    }
+
+    .event-card .card-title {
+        color: #3b0764 !important;
+        font-weight: 800;
+        font-size: 1.15rem;
+        line-height: 1.3;
+        margin-top: 4px;
+        margin-bottom: 8px;
+    }
+
+    .event-card .card-text-details {
+        color: #6b21a8 !important;
+        font-size: 0.85rem;
+        line-height: 1.6;
+    }
+
+    .event-card .card-text-details i {
+        color: #a855f7 !important;
+    }
+
+    .event-card .card-text-desc {
+        color: #7e22ce !important;
+        font-size: 0.85rem;
+        line-height: 1.5;
+    }
+
+    /* Badges */
+    .badge-live {
+        background-color: #ef4444 !important;
+        color: #ffffff !important;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 0.68rem;
+    }
+
+    .badge-upcoming {
+        background-color: #a855f7 !important;
+        color: #ffffff !important;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 0.68rem;
+    }
+
+    .badge-past {
+        background-color: #6b21a8 !important;
+        color: #ffffff !important;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 0.68rem;
+    }
+
+    /* Buttons */
+    .btn-view-event {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 10px 16px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #c084fc 0%, #a855f7 100%);
+        color: #ffffff !important;
+        font-weight: 700;
+        font-size: 0.88rem;
+        border: none;
+        box-shadow: 0 4px 14px rgba(168, 85, 247, 0.25);
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
+
+    .btn-view-event:hover {
+        background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+        box-shadow: 0 6px 18px rgba(168, 85, 247, 0.35);
+        color: #ffffff !important;
+    }
+
+    .btn-view-event-past {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 10px 16px;
+        border-radius: 10px;
+        background: #ffffff;
+        color: #6b21a8 !important;
+        border: 1px solid #c084fc;
+        font-weight: 700;
+        font-size: 0.88rem;
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
+
+    .btn-view-event-past:hover {
+        background: #f3e8ff;
+        color: #581c87 !important;
+        border-color: #a855f7;
+    }
+
+    .empty-event-msg {
+        color: #7e22ce;
+        background: rgba(255, 255, 255, 0.6);
+        border: 1px dashed #d8b4fe;
+        border-radius: 12px;
+        padding: 20px;
+    }
+</style>
+
     <section class="hero hero-style--two pos-rel bg_img" data-background="{{ asset('assets/img/bg/hero_bg02.jpg') }}">
         <div class="container">
             <div class="xb-hero_content text-center">
-                <h2 class="title wow fadeInUp" data-wow-delay="0ms" data-wow-duration="600ms">Marathon Ticket Registration</h2>
+                <h2 class="title wow fadeInUp" data-wow-delay="0ms" data-wow-duration="600ms">Event Ticket Registration</h2>
                 <div class="hero-btn mt-50 wow fadeInUp" data-wow-delay="150ms" data-wow-duration="600ms">
                     <a href="#events-section" class="thm-btn design-btn">
                         Browse Events
@@ -38,6 +215,7 @@
             </div>
         </div>
     </section>
+
     <section class="offer-section dark-bg">
         <div class="container">
             <div class="offer-wrap offer-wrapper ul_li_between">
@@ -49,131 +227,127 @@
                             <img src="{{ asset('assets/img/icon/sub-icon.svg') }}" alt="icon-image">
                         </span>
                     </div>
-                    <div class="countdown ul_li_center" data-countdown="2025-12-30 12:00"></div>
+                    <div class="countdown ul_li_center" data-countdown="2026/12/08 00:00:00"></div>
                 </div>
                 <div class="offer-item">
                     <div class="xb-inner ul_li">
                         <div class="xb-location"><img src="{{ asset('assets/img/icon/location-icon.svg') }}" alt=""></div>
-                        <p class="xb-vanue">Venue: Yangon, Myanmar</p>
+                        <p class="xb-vanue">Venue: Bagan, Myanmar</p>
                     </div>
                     <div class="xb-inner ul_li">
                         <div class="xb-location"><img src="{{ asset('assets/img/icon/calendar-icon.svg') }}" alt=""></div>
-                        <p class="xb-vanue">Date: 2025 – 2026 Season</p>
+                        <p class="xb-vanue">Date: 08/12/2026</p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
-    <div class="dark-bg pt-125 pb-120" id="events-section">
+
+    <!-- LIGHT PURPLE EVENTS SECTION -->
+    <div class="events-light-purple-bg" id="events-section">
         <div class="container">
             <div class="sec-title sec-title--two text-center mb-60">
                 <span class="sub-title color-heading">
                     <img src="{{ asset('assets/img/icon/sub-icon.svg') }}" alt="icon-image">
-                    Explore Marathons
+                    Explore Events
                     <img src="{{ asset('assets/img/icon/sub-icon.svg') }}" alt="icon-image">
                 </span>
-                <h2 class="title color-heading">Marathon Events</h2>
+                <h2 class="title events-header-title">Events</h2>
             </div>
 
-            <ul class="nav nav-tabs justify-content-center mb-5 border-0" id="eventTab" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active px-4 py-2 font-weight-bold" id="upcoming-tab" data-bs-toggle="tab" data-bs-target="#upcoming" type="button" role="tab">
-                        Upcoming Events
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link px-4 py-2 font-weight-bold" id="live-tab" data-bs-toggle="tab" data-bs-target="#live" type="button" role="tab">
-                        Live Now 🔥
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link px-4 py-2 font-weight-bold" id="past-tab" data-bs-toggle="tab" data-bs-target="#past" type="button" role="tab">
-                        Past Events
-                    </button>
-                </li>
-            </ul>
-
-            <div class="tab-content" id="eventTabContent">
-                
-                <div class="tab-pane fade show active" id="upcoming" role="tabpanel">
-                    <div class="row">
-                        @forelse($upcomingEvents as $event)
-                            <div class="col-lg-4 col-md-6 mb-4">
-                                <div class="card h-100 bg-secondary text-white border-0 rounded overflow-hidden shadow">
-                                    <img src="{{ $event->image ? asset('storage/' . $event->image) : asset('assets/img/about/img06.jpg') }}" class="card-img-top" style="height: 220px; object-fit: cover;" alt="{{ $event->title }}">
-                                    <div class="card-body d-flex flex-column">
-                                        <span class="badge bg-success mb-2 align-self-start">UPCOMING</span>
-                                        <h4 class="card-title text-white">{{ $event->title }}</h4>
-                                        <p class="card-text text-light small mb-2">
-                                            <i class="far fa-map-marker-alt text-warning"></i> {{ $event->location }}<br>
-                                            <i class="far fa-calendar-alt text-warning"></i> {{ \Carbon\Carbon::parse($event->event_date)->format('M d, Y') }}
-                                        </p>
-                                        <p class="card-text text-muted flex-grow-1">{{ Str::limit($event->description, 90) }}</p>
-                                        <a href="{{ route('events.show', $event->id) }}" class="thm-btn design-btn w-100 text-center mt-3">Register Now</a>
-                                    </div>
+            <!-- ROW 1: LIVE EVENTS -->
+            <div class="mb-5">
+                <h3 class="category-title live"><i class="fas fa-broadcast-tower text-danger"></i> Live Now 🔥</h3>
+                <div class="row justify-content-center">
+                    @forelse($liveEvents as $event)
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="card h-100 event-card">
+                                <img src="{{ $event->image ? asset('storage/' . $event->image) : asset('assets/img/about/img06.jpg') }}" class="card-img-top event-card-img" alt="{{ $event->title }}">
+                                <div class="card-body d-flex flex-column">
+                                    <span class="badge badge-live mb-2 align-self-start">LIVE NOW</span>
+                                    <h4 class="card-title">{{ $event->title }}</h4>
+                                    <p class="card-text-details mb-2">
+                                        <i class="far fa-map-marker-alt me-1"></i> {{ $event->location }}<br>
+                                        <i class="far fa-calendar-alt me-1"></i> {{ \Carbon\Carbon::parse($event->event_date)->format('M d, Y') }}
+                                        @if($event->creator_name)
+                                            <br><i class="far fa-user me-1"></i> Organized by: {{ $event->creator_name }}
+                                        @endif
+                                    </p>
+                                    <p class="card-text-desc flex-grow-1">{{ Str::limit($event->description, 90) }}</p>
+                                    <a href="{{ route('events.show', $event->id) }}" class="btn-view-event mt-3">View Event</a>
                                 </div>
                             </div>
-                        @empty
-                            <div class="col-12 text-center text-muted py-5">
-                                <h5>No upcoming events at the moment.</h5>
-                            </div>
-                        @endforelse
-                    </div>
+                        </div>
+                    @empty
+                        <div class="col-12 text-center py-3">
+                            <div class="empty-event-msg">No live events taking place right now.</div>
+                        </div>
+                    @endforelse
                 </div>
-
-                <div class="tab-pane fade" id="live" role="tabpanel">
-                    <div class="row">
-                        @forelse($liveEvents as $event)
-                            <div class="col-lg-4 col-md-6 mb-4">
-                                <div class="card h-100 bg-secondary text-white border-0 rounded overflow-hidden shadow">
-                                    <img src="{{ $event->image ? asset('storage/' . $event->image) : asset('assets/img/about/img06.jpg') }}" class="card-img-top" style="height: 220px; object-fit: cover;" alt="{{ $event->title }}">
-                                    <div class="card-body d-flex flex-column">
-                                        <span class="badge bg-danger mb-2 align-self-start">LIVE NOW</span>
-                                        <h4 class="card-title text-white">{{ $event->title }}</h4>
-                                        <p class="card-text text-light small mb-2">
-                                            <i class="far fa-map-marker-alt text-warning"></i> {{ $event->location }}<br>
-                                            <i class="far fa-calendar-alt text-warning"></i> {{ \Carbon\Carbon::parse($event->event_date)->format('M d, Y') }}
-                                        </p>
-                                        <p class="card-text text-muted flex-grow-1">{{ Str::limit($event->description, 90) }}</p>
-                                        <a href="{{ route('events.show', $event->id) }}" class="thm-btn design-btn w-100 text-center mt-3">View Live Board & Register</a>
-                                    </div>
-                                </div>
-                            </div>
-                        @empty
-                            <div class="col-12 text-center text-muted py-5">
-                                <h5>No live events taking place right now.</h5>
-                            </div>
-                        @endforelse
-                    </div>
-                </div>
-
-                <div class="tab-pane fade" id="past" role="tabpanel">
-                    <div class="row">
-                        @forelse($pastEvents as $event)
-                            <div class="col-lg-4 col-md-6 mb-4">
-                                <div class="card h-100 bg-secondary text-white border-0 rounded overflow-hidden shadow">
-                                    <img src="{{ $event->image ? asset('storage/' . $event->image) : asset('assets/img/about/img06.jpg') }}" class="card-img-top" style="height: 220px; object-fit: cover;" alt="{{ $event->title }}">
-                                    <div class="card-body d-flex flex-column">
-                                        <span class="badge bg-secondary mb-2 align-self-start">PAST</span>
-                                        <h4 class="card-title text-white">{{ $event->title }}</h4>
-                                        <p class="card-text text-light small mb-2">
-                                            <i class="far fa-map-marker-alt text-warning"></i> {{ $event->location }}<br>
-                                            <i class="far fa-calendar-alt text-warning"></i> {{ \Carbon\Carbon::parse($event->event_date)->format('M d, Y') }}
-                                        </p>
-                                        <p class="card-text text-muted flex-grow-1">{{ Str::limit($event->description, 90) }}</p>
-                                        <a href="{{ route('events.show', $event->id) }}" class="btn btn-outline-light w-100 text-center mt-3">View Finisher Board</a>
-                                    </div>
-                                </div>
-                            </div>
-                        @empty
-                            <div class="col-12 text-center text-muted py-5">
-                                <h5>No past events archived yet.</h5>
-                            </div>
-                        @endforelse
-                    </div>
-                </div>
-
             </div>
+
+            <!-- ROW 2: UPCOMING EVENTS -->
+            <div class="mb-5">
+                <h3 class="category-title upcoming"><i class="far fa-calendar-check"></i> Upcoming Events</h3>
+                <div class="row justify-content-center">
+                    @forelse($upcomingEvents as $event)
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="card h-100 event-card upcoming-card">
+                                <img src="{{ $event->image ? asset('storage/' . $event->image) : asset('assets/img/about/img06.jpg') }}" class="card-img-top event-card-img" alt="{{ $event->title }}">
+                                <div class="card-body d-flex flex-column">
+                                    <span class="badge badge-upcoming mb-2 align-self-start">UPCOMING</span>
+                                    <h4 class="card-title">{{ $event->title }}</h4>
+                                    <p class="card-text-details mb-2">
+                                        <i class="far fa-map-marker-alt me-1"></i> {{ $event->location }}<br>
+                                        <i class="far fa-calendar-alt me-1"></i> {{ \Carbon\Carbon::parse($event->event_date)->format('M d, Y') }}
+                                        @if($event->creator_name)
+                                            <br><i class="far fa-user me-1"></i> Organized by: {{ $event->creator_name }}
+                                        @endif
+                                    </p>
+                                    <p class="card-text-desc flex-grow-1">{{ Str::limit($event->description, 90) }}</p>
+                                    <a href="{{ route('events.show', $event->id) }}" class="btn-view-event mt-3">View Event</a>
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="col-12 text-center py-3">
+                            <div class="empty-event-msg">No upcoming events at the moment.</div>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+
+            <!-- ROW 3: PAST EVENTS -->
+            <div>
+                <h3 class="category-title past"><i class="fas fa-history"></i> Past Events</h3>
+                <div class="row justify-content-center">
+                    @forelse($pastEvents as $event)
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="card h-100 event-card past-card">
+                                <img src="{{ $event->image ? asset('storage/' . $event->image) : asset('assets/img/about/img06.jpg') }}" class="card-img-top event-card-img" alt="{{ $event->title }}">
+                                <div class="card-body d-flex flex-column">
+                                    <span class="badge badge-past mb-2 align-self-start">PAST</span>
+                                    <h4 class="card-title">{{ $event->title }}</h4>
+                                    <p class="card-text-details mb-2">
+                                        <i class="far fa-map-marker-alt me-1"></i> {{ $event->location }}<br>
+                                        <i class="far fa-calendar-alt me-1"></i> {{ \Carbon\Carbon::parse($event->event_date)->format('M d, Y') }}
+                                        @if($event->creator_name)
+                                            <br><i class="far fa-user me-1"></i> Organized by: {{ $event->creator_name }}
+                                        @endif
+                                    </p>
+                                    <p class="card-text-desc flex-grow-1">{{ Str::limit($event->description, 90) }}</p>
+                                    <a href="{{ route('events.show', $event->id) }}" class="btn-view-event-past mt-3">View Event</a>
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="col-12 text-center py-3">
+                            <div class="empty-event-msg">No past events archived yet.</div>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -224,6 +398,7 @@
             </div>
         </div>
     </section>
+
     <div class="dark-bg">
         <section class="funfact pt-130 pb-125">
             <div class="container">
@@ -234,18 +409,13 @@
                                 <div class="sec-title sec-title--two">
                                     <span class="sub-title wow fadeInUp" data-wow-delay="0ms" data-wow-duration="600ms">
                                         <img src="{{ asset('assets/img/icon/sub-icon.svg') }}" alt="icon-image">
-                                        Achievement meetco
+                                        Achievement
                                         <img src="{{ asset('assets/img/icon/sub-icon.svg') }}" alt="icon-image">
                                     </span>
                                     <h2 class="title wow fadeInUp" data-wow-delay="150ms" data-wow-duration="600ms">Facts That'll Make You Go meetco!</h2>
                                     <p class="content wow fadeInUp" data-wow-delay="300ms" data-wow-duration="600ms">From design breakthroughs to fun behind-the-scenes moments, these standout stats and surprises from the summit will wow you.</p>
                                 </div>
-                                <div class="hero-btn mt-55 wow fadeInUp" data-wow-delay="450ms" data-wow-duration="600ms">
-                                    <a href="{{ url('/ticket') }}" class="thm-btn design-btn">
-                                        Register Your Ticket
-                                        <img src="{{ asset('assets/img/icon/right-arrow.svg') }}" alt="">
-                                    </a>
-                                </div>
+                                
                             </div>
                         </div>
                         <div class="col-lg-6 mt-50">
@@ -314,145 +484,9 @@
                 </div>
             </div>
         </section>
-        </div>
+    </div>
 
-    <section class="schedule pt-125 pb-130 bg_img" data-background="{{ asset('assets/img/bg/schedule-bg.jpg') }}">
-        <div class="xb-schedule-wrapper">
-            <div class="container">
-                <div class="sec-title sec-title--two text-center mb-60">
-                    <span class="sub-title wow fadeInUp" data-wow-delay="0ms" data-wow-duration="600ms">
-                        <img src="{{ asset('assets/img/icon/sub-icon.svg') }}" alt="icon-image">
-                        meetco design summit Schedule
-                        <img src="{{ asset('assets/img/icon/sub-icon.svg') }}" alt="icon-image">
-                    </span>
-                    <h2 class="title wow fadeInUp" data-wow-delay="150ms" data-wow-duration="600ms">Schedule of design summit</h2>
-                </div>
-                <div class="xb-schedule-wrap pos-rel z-1">
-                    <div class="xb-schedule-nav-wrap mb-30">
-                        <ul class="xb-schedule-nav ul_li nav nav-tabs" id="myTab" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">
-                                 <span>Day 01</span>
-                                 September 14,2025
-                                 <span class="arrow">
-                                    <svg width="20" height="15" viewBox="0 0 20 15" fill="none">
-                                        <path d="M9.99992 15L-5.96007e-07 1.58893e-07L20 0L9.99992 15Z" fill="#fff" />
-                                    </svg>
-                                 </span>
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#tab2" type="button" role="tab" aria-controls="tab2" aria-selected="false">
-                                 <span>Day 02</span>
-                                 September 15,2025
-                                 <span class="arrow">
-                                    <svg width="20" height="15" viewBox="0 0 20 15" fill="none">
-                                        <path d="M9.99992 15L-5.96007e-07 1.58893e-07L20 0L9.99992 15Z" fill="#fff" />
-                                    </svg>
-                                 </span>
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="profile-tab2" data-bs-toggle="tab" data-bs-target="#tab3" type="button" role="tab" aria-controls="tab3" aria-selected="false">
-                                 <span>Day 03</span>
-                                 September 16,2025
-                                 <span class="arrow">
-                                    <svg width="20" height="15" viewBox="0 0 20 15" fill="none">
-                                        <path d="M9.99992 15L-5.96007e-07 1.58893e-07L20 0L9.99992 15Z" fill="#fff" />
-                                 </svg>
-                                 </span>
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="xb-schedule-content-wrap">
-                        <div class="tab-content" id="myTabContent">
-                            <div class="tab-pane fade" id="home" role="tabpanel" aria-labelledby="home-tab">
-                                <div class="table-responsive">
-                                    <table class="table xb-schedule-content">
-                                        <thead>
-                                            <tr>
-                                                <th><img src="{{ asset('assets/img/icon/calendar.svg') }}" alt="Icon"> TIME</th>
-                                                <th><img src="{{ asset('assets/img/icon/task-bord.svg') }}" alt="Icon"> session</th>
-                                                <th><img src="{{ asset('assets/img/icon/speaker.svg') }}" alt="Icon"> Speakers</th>
-                                                <th><img src="{{ asset('assets/img/icon/location-icon04.svg') }}" alt="Icon"> Venue</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>08:00 am – 9:00 am</td>
-                                                <td>The Future of Design</td>
-                                                <td>
-                                                    <span>
-                                                        <img src="{{ asset('assets/img/team/speaker01.png') }}" alt="">
-                                                        Ethan Scott (Creative Lead, Figma)
-                                                    </span>
-                                                </td>
-                                                <td>Main Hall</td>
-                                            </tr>
-                                            <tr>
-                                                <td>09:30 AM – 10:30 AM</td>
-                                                <td>UX That Tells a Story</td>
-                                                <td>
-                                                    <span>
-                                                        <img src="{{ asset('assets/img/team/speaker02.png') }}" alt="">
-                                                        Omar Lee (Lead UX, Adobe)
-                                                    </span>
-                                                </td>
-                                                <td>Room A</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="shedule-shape">
-                        <img src="{{ asset('assets/img/shape/shedual-shape.png') }}" alt="">
-                    </div>
-                </div>
-           </div>
-       </div>
-    </section>
-    <section class="pricing pt-125 pb-115" data-bg-color="#fff">
-        <div class="container">
-            <div class="sec-title sec-title--two text-center mb-60">
-                <span class="sub-title color-heading wow fadeInUp" data-wow-delay="0ms" data-wow-duration="600ms">
-                    <img src="{{ asset('assets/img/icon/sub-icon.svg') }}" alt="icon-image">
-                    Join with us
-                    <img src="{{ asset('assets/img/icon/sub-icon.svg') }}" alt="icon-image">
-                </span>
-                <h2 class="title color-heading wow fadeInUp" data-wow-delay="150ms" data-wow-duration="600ms">Simple pricing</h2>
-            </div>
-            <div class="xb-pricing-table wow fadeInUp" data-wow-delay="300ms" data-wow-duration="600ms">
-                <div class="row mt-none-30 justify-content-md-center">
-                    <div class="col-lg-4 col-md-8 mt-30">
-                        <div class="xb-pricing-item">
-                            <div class="xb-item--holder">
-                                <div class="xb-item--icon">
-                                    <img src="{{ asset('assets/img/icon/pricing-icon01.svg') }}" alt="icon">
-                                </div>
-                                <span class="xb-item--title">Starter Pass</span>
-                                <p class="xb-item--content">Perfect for students and early-stage designers</p>
-                                <span class="xb-item--line"></span>
-                                <h2 class="xb-item--dollar">$99</h2>
-                            </div>
-                            <ul class="xb-item--list list-unstyled">
-                                <li>✅ Access to all keynote sessions</li>
-                                <li>✅ Entry to networking lounge</li>
-                                <li>✅ Design showcase access</li>
-                                <li>❌ No workshop access</li>
-                            </ul>
-                            <div class="pricing-btn mt-55">
-                                <a href="{{ url('/contact') }}" class="thm-btn design-btn">
-                                    Get Starter Pass
-                                    <img src="{{ asset('assets/img/icon/white-icon.svg') }}" alt="">
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    @endsection
+    
+
+    
+@endsection

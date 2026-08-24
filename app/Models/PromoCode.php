@@ -9,10 +9,21 @@ class PromoCode extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['event_id', 'code', 'discount_type', 'discount_value'];
+    protected $fillable = [
+        'event_id',
+        'ticket_category_id',
+        'code',
+        'discount_type',
+        'discount_value',
+    ];
 
     public function event()
     {
         return $this->belongsTo(Event::class);
+    }
+
+    public function ticketCategory()
+    {
+        return $this->belongsTo(TicketCategory::class);
     }
 }
