@@ -17,7 +17,7 @@ class AdminController extends Controller
             $query->whereRaw("LOWER(payment_status) IN ('paid', 'approved', 'completed')");
         };
 
-        // 1. Total Revenue (Calculates orders linked directly to events OR via attendees' ticket categories)
+        // 1. Total Revenue
         $totalRevenue = Order::where($paidFilter)
             ->where(function ($query) {
                 $query->whereHas('event')
@@ -33,7 +33,7 @@ class AdminController extends Controller
         // 3. Active Events Count
         $activeEventsCount = Event::whereIn('status', ['upcoming', 'live'])->count();
 
-        // 4. Loyalty Leaderboard
+        // 4. Runner Leaderboard with Purchased Events Details
         $loyaltyRunners = Attendee::select(
                 'email',
                 DB::raw('MAX(full_name) as full_name'),
@@ -41,10 +41,39 @@ class AdminController extends Controller
                 DB::raw('count(*) as ticket_count')
             )
             ->whereHas('order', $paidFilter)
+            ->whereHas('ticketCategory.event') // Ensures deleted events are excluded
             ->groupBy('email')
             ->orderBy('ticket_count', 'desc')
-            ->take(10)
+            ->take(15)
             ->get();
+
+        // Attach purchased event list to each runner for modal display
+        foreach ($loyaltyRunners as $runner) {
+            $runner->purchased_events = Attendee::where('email', $runner->email)
+                ->whereHas('order', $paidFilter)
+                ->whereHas('ticketCategory.event')
+                ->with(['ticketCategory.event', 'order'])
+                ->get()
+                ->groupBy(function ($att) {
+                    return $att->ticketCategory->event->id ?? 0;
+                })
+                ->map(function ($attendeesGroup) {
+                    $first = $attendeesGroup->first();
+                    $event = $first->ticketCategory->event ?? null;
+                    return [
+                        'event_id' => $event->id ?? null,
+                        'event_title' => $event->title ?? 'N/A',
+                        'event_date' => $event->event_date ?? null,
+                        'event_status' => $event->status ?? 'N/A',
+                        'ticket_count' => $attendeesGroup->count(),
+                        'categories' => $attendeesGroup->pluck('ticketCategory.name')->unique()->implode(', '),
+                        'total_spent' => $attendeesGroup->sum(function ($att) {
+                            return $att->ticketCategory->local_price ?? 0;
+                        })
+                    ];
+                })
+                ->values();
+        }
 
         // 5. Recent Orders
         $recentOrders = Order::with(['attendees', 'event'])

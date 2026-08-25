@@ -8,6 +8,8 @@
     <title>@yield('title', 'Admin Dashboard - Marathon Ticketing')</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js for lightweight dropdown interactivity -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <link
         rel="stylesheet"
@@ -297,6 +299,8 @@
             gap: 10px;
             padding-left: 14px;
             border-left: 1px solid #e5e7eb;
+            cursor: pointer;
+            user-select: none;
         }
 
         .admin-profile-info {
@@ -596,24 +600,56 @@
                 </div>
 
 
-                <!-- Admin Profile -->
-                <div class="admin-profile">
+                <!-- Admin Profile Dropdown -->
+                <div class="relative" x-data="{ open: false }">
 
-                    <div class="admin-profile-info">
+                    <div class="admin-profile" @click="open = !open">
 
-                        <div class="admin-profile-name">
-                            Admin User
+                        <div class="admin-profile-info">
+
+                            <div class="admin-profile-name">
+                                {{ Auth::user()->name ?? 'Admin User' }}
+                            </div>
+
+                            <div class="admin-profile-role">
+                                Administrator
+                            </div>
+
                         </div>
 
-                        <div class="admin-profile-role">
-                            Administrator
+                        <div class="admin-avatar">
+                            {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
                         </div>
+
+                        <i class="fa-solid fa-chevron-down text-slate-400 text-[10px] ml-1 transition-transform" :class="{ 'rotate-180': open }"></i>
 
                     </div>
 
+                    <!-- Dropdown Menu -->
+                    <div 
+                        x-show="open" 
+                        @click.outside="open = false"
+                        x-transition:enter="transition ease-out duration-100"
+                        x-transition:enter-start="transform opacity-0 scale-95"
+                        x-transition:enter-end="transform opacity-100 scale-100"
+                        x-transition:leave="transition ease-in duration-75"
+                        x-transition:leave-start="transform opacity-100 scale-100"
+                        x-transition:leave-end="transform opacity-0 scale-95"
+                        class="absolute right-0 mt-3 w-48 bg-white rounded-xl shadow-lg py-2 z-50 border border-slate-100"
+                        style="display: none;"
+                    >
+                        <div class="px-4 py-2 border-b border-slate-100">
+                            <p class="text-xs font-bold text-slate-800">{{ Auth::user()->name ?? 'Admin User' }}</p>
+                            <p class="text-[10px] text-slate-400 truncate">{{ Auth::user()->email ?? 'admin@example.com' }}</p>
+                        </div>
 
-                    <div class="admin-avatar">
-                        A
+                        <form method="POST" action="{{ route('admin.logout') }}">
+                            @csrf
+                            <button type="submit" class="w-full text-left px-4 py-2 text-xs text-rose-600 font-bold hover:bg-rose-50 flex items-center gap-2 transition-colors">
+                                <i class="fa-solid fa-right-from-bracket"></i>
+                                Log Out
+                            </button>
+                        </form>
                     </div>
 
                 </div>

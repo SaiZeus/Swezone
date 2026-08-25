@@ -5,6 +5,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminEventController;
+use App\Http\Controllers\Admin\AdminAuthController;
 use App\Models\Attendee;
 use App\Models\PromoCode;
 use App\Mail\TicketConfirmationMail;
@@ -58,8 +59,16 @@ Route::get('/checkout/payment/{order}', [CheckoutController::class, 'showPayment
 Route::post('/checkout/complete/{order}', [CheckoutController::class, 'completePayment'])->name('checkout.complete');
 Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
 
-// Admin Routes
+// Admin Guest Routes (Authentication)
 Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [AdminAuthController::class, 'login'])->name('login.post');
+});
+
+// Protected Admin Routes (Requires Login)
+Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
+    Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
+
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
     
     // Event Routes
@@ -84,3 +93,4 @@ Route::get('/test-email', function () {
     Mail::to('zeuspower200@gmail.com')->send(new TicketConfirmationMail($attendee));
     return "Test email sent!";
 });
+

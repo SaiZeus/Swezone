@@ -8,7 +8,7 @@
 
     <title>@yield('title', 'Meetco - Conference Event & Concert Template')</title>
 
-    <link rel="shortcut icon" href="{{ asset('assets/img/favicon.svg') }}" type="images/x-icon">
+    <link rel="shortcut icon" href="{{ asset('assets/img/logo/Swezon_Logo1.1V.svg') }}" type="images/x-icon">
 
     <!-- css include -->
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">

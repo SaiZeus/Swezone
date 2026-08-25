@@ -472,7 +472,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 9px;
+        border-radius: 99px;
         color: #9aa3b1;
     }
 
@@ -553,7 +553,7 @@
             <div class="attendee-stat-content">
                 <div>
                     <p class="stat-label">Total Revenue Generated</p>
-                    <h3 class="stat-value">${{ number_format($totalRevenue, 2) }}</h3>
+                    <h3 class="stat-value">{{ number_format($totalRevenue) }} MMK</h3>
                 </div>
                 <div class="stat-icon"><i class="fa-solid fa-sack-dollar"></i></div>
             </div>

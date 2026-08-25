@@ -121,7 +121,8 @@
     }
 
     .event-details-section .d-flex.flex-wrap i.text-primary,
-    .event-details-section .d-flex.flex-wrap i.text-success {
+    .event-details-section .d-flex.flex-wrap i.text-success,
+    .event-details-section .d-flex.flex-wrap i.text-warning {
         color: #a855f7 !important;
     }
 
@@ -276,11 +277,17 @@
         transition: all .15s ease;
     }
 
-    .ticket-table .btn-minus:hover,
-    .ticket-table .btn-plus:hover {
+    .ticket-table .btn-minus:hover:not(:disabled),
+    .ticket-table .btn-plus:hover:not(:disabled) {
         border-color: #a855f7;
         color: #fff;
         background: #a855f7;
+    }
+
+    .ticket-table .btn-plus:disabled,
+    .ticket-table .btn-minus:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 
     .ticket-table .ticket-qty {
@@ -614,6 +621,13 @@
                     @if($event->creator_phone || $event->organizer_phone)
                         <span><i class="fas fa-phone-alt text-success me-1"></i> Contact: {{ $event->creator_phone ?? $event->organizer_phone }}</span>
                     @endif
+
+                    {{-- Dynamic Capacity Badge --}}
+                    @if($event->overall_capacity === null)
+                        <span><i class="fas fa-infinity text-warning me-1"></i> Capacity: Unlimited</span>
+                    @else
+                        <span><i class="fas fa-users text-warning me-1"></i> Remaining Capacity: {{ $overallTicketsRemaining }} / {{ $event->overall_capacity }}</span>
+                    @endif
                 </div>
 
                 <div class="event-description mt-3">
@@ -689,8 +703,8 @@
                                         @endphp
                                         <tr>
                                             <td><strong>{{ $category->name }}</strong></td>
-                                            <td>${{ number_format($category->local_price, 2) }}</td>
-                                            <td>{{ $category->foreign_price ? '$' . number_format($category->foreign_price, 2) : 'N/A' }}</td>
+                                            <td>{{ number_format($category->local_price) }} MMK</td>
+                                            <td>{{ $category->foreign_price ? number_format($category->foreign_price) . ' MMK' : 'N/A' }}</td>
                                             <td>
                                                 @if($category->capacity === null)
                                                     <span class="text-success fw-bold">Unlimited</span>
@@ -750,15 +764,15 @@
                                         <div class="col-md-6 text-md-end">
                                             <div class="summary-line">
                                                 <span class="text-muted">Subtotal:</span>
-                                                <span class="fw-bold">$<span id="subtotal-amount">0.00</span></span>
+                                                <span class="fw-bold"><span id="subtotal-amount">0</span> MMK</span>
                                             </div>
                                             <div class="summary-line text-success" id="discount-row" style="display: none;">
                                                 <span>Discount Applied:</span>
-                                                <span class="fw-bold">-$<span id="discount-amount">0.00</span></span>
+                                                <span class="fw-bold">-<span id="discount-amount">0</span> MMK</span>
                                             </div>
                                             <div class="summary-line total-line">
                                                 <span class="h6 font-weight-bold mb-0">Total Amount:</span>
-                                                <span class="h4 font-weight-bold text-dark mb-0">$<span id="grand-total">0.00</span></span>
+                                                <span class="h4 font-weight-bold text-dark mb-0"><span id="grand-total">0</span> MMK</span>
                                             </div>
                                             
                                             <button type="submit" class="btn btn-primary payment-btn w-100 mt-2">
@@ -795,7 +809,7 @@
     </div>
 </section>
 
-<!-- Script with Debug Logging -->
+<!-- Script with Overall Event Capacity Enforcement -->
 @push('scripts')
 <script>
 const districtOptions = {
@@ -819,9 +833,9 @@ const countriesList = [
     "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cambodia", "Cameroon", "Canada", "Cape Verde", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "East Timor", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Ivory Coast", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Korea, North", "Korea, South", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Macedonia", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "Norway", "Oman", "Pakistan", "Palau", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russian Federation", "Rwanda", "St Kitts & Nevis", "St Lucia", "Saint Vincent & the Grenadines", "Samoa", "San Marino", "Sao Tome & Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Swaziland", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Togo", "Tonga", "Trinidad & Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
 ];
 
-// PHP to JS Conversion via Js::from (fixes ParseError & unexpected token)
 const enabledFields = {!! \Illuminate\Support\Js::from($event->enabled_fields ?? ['viber', 'father_name', 'blood_type', 'tshirt_size', 'has_medical_condition', 'itra', 'experience', 'address']) !!};
 const enableBibNumber = {!! \Illuminate\Support\Js::from((bool) ($event->enable_bib_number ?? true)) !!};
+const overallTicketsRemaining = {!! \Illuminate\Support\Js::from($overallTicketsRemaining) !!};
 
 document.addEventListener('DOMContentLoaded', function () {
     const qtyInputs = document.querySelectorAll('.ticket-qty');
@@ -837,16 +851,55 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let activePromo = null;
 
+    function getTotalSelectedTickets() {
+        let total = 0;
+        qtyInputs.forEach(input => {
+            total += parseInt(input.value || 0);
+        });
+        return total;
+    }
+
+    function updateButtonStates() {
+        const totalSelected = getTotalSelectedTickets();
+
+        document.querySelectorAll('.btn-plus').forEach(button => {
+            const id = button.getAttribute('data-id');
+            const input = document.getElementById('qty-' + id);
+            const categoryMax = parseInt(input.getAttribute('data-max') || 999);
+            const currentVal = parseInt(input.value);
+
+            let isCategoryFull = currentVal >= categoryMax;
+            let isOverallFull = (overallTicketsRemaining !== null) && (totalSelected >= overallTicketsRemaining);
+
+            if (isCategoryFull || isOverallFull) {
+                button.disabled = true;
+            } else {
+                button.disabled = false;
+            }
+        });
+
+        document.querySelectorAll('.btn-minus').forEach(button => {
+            const id = button.getAttribute('data-id');
+            const input = document.getElementById('qty-' + id);
+            button.disabled = parseInt(input.value) <= 0;
+        });
+    }
+
     document.querySelectorAll('.btn-plus').forEach(button => {
         button.addEventListener('click', () => {
             const id = button.getAttribute('data-id');
             const input = document.getElementById('qty-' + id);
-            const max = parseInt(input.getAttribute('data-max') || 999);
+            const categoryMax = parseInt(input.getAttribute('data-max') || 999);
             const currentVal = parseInt(input.value);
+            const totalSelected = getTotalSelectedTickets();
 
-            if (currentVal < max) {
+            const canAddCategory = currentVal < categoryMax;
+            const canAddOverall = (overallTicketsRemaining === null) || (totalSelected < overallTicketsRemaining);
+
+            if (canAddCategory && canAddOverall) {
                 input.value = currentVal + 1;
                 renderForms();
+                updateButtonStates();
             }
         });
     });
@@ -858,6 +911,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (parseInt(input.value) > 0) {
                 input.value = parseInt(input.value) - 1;
                 renderForms();
+                updateButtonStates();
             }
         });
     });
@@ -1038,7 +1092,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (activePromo.categoryId !== null && applicableTicketsCount === 0) {
                 showPromoMsg('This promo code is not applicable to your selected ticket category.', 'text-danger');
             } else {
-                showPromoMsg('Code applied! (' + (activePromo.type === 'percentage' ? activePromo.value + '%' : '$' + activePromo.value) + ' off eligible tickets)', 'text-success');
+                showPromoMsg('Code applied! (' + (activePromo.type === 'percentage' ? activePromo.value + '%' : new Intl.NumberFormat().format(activePromo.value) + ' MMK') + ' off eligible tickets)', 'text-success');
             }
         }
 
@@ -1048,12 +1102,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const grandTotal = Math.max(0, subtotal - totalDiscount);
 
-        if (subtotalEl) subtotalEl.textContent = subtotal.toFixed(2);
-        if (grandTotalEl) grandTotalEl.textContent = grandTotal.toFixed(2);
+        if (subtotalEl) subtotalEl.textContent = new Intl.NumberFormat().format(subtotal);
+        if (grandTotalEl) grandTotalEl.textContent = new Intl.NumberFormat().format(grandTotal);
 
         if (discountEl && discountRow) {
             if (totalDiscount > 0) {
-                discountEl.textContent = totalDiscount.toFixed(2);
+                discountEl.textContent = new Intl.NumberFormat().format(totalDiscount);
                 discountRow.style.display = 'flex';
             } else {
                 discountRow.style.display = 'none';
@@ -1320,6 +1374,8 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
     }
+
+    updateButtonStates();
 });
 </script>
 @endpush

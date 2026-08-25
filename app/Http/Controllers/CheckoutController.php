@@ -117,30 +117,30 @@ class CheckoutController extends Controller
             }
 
             Attendee::create([
-                'order_id'              => $order->id,
-                'ticket_category_id'    => $attendeeData['ticket_category_id'],
-                'full_name'             => $attendeeData['full_name'],
-                'father_name'           => $attendeeData['father_name'] ?? null,
-                'email'                 => $attendeeData['email'],
-                'phone'                 => $attendeeData['phone'],
-                'viber'                 => $attendeeData['viber'] ?? null,
-                'emergency_contact'     => $attendeeData['emergency_contact'] ?? null,
-                'nrc_passport'          => $attendeeData['nrc_passport'],
-                'nationality'           => $attendeeData['nationality'],
-                'country'               => $attendeeData['country'] ?? null,
-                'gender'                => $attendeeData['gender'] ?? null,
-                'date_of_birth'         => !empty($attendeeData['date_of_birth']) ? $attendeeData['date_of_birth'] : null,
-                'bib_name'              => $generatedBib,
-                'tshirt_size'           => $attendeeData['tshirt_size'] ?? null,
-                'blood_type'            => $attendeeData['blood_type'] ?? null,
-                'has_medical_condition' => $attendeeData['has_medical_condition'] ?? null,
-                'medical_details'       => $attendeeData['medical_details'] ?? null,
-                'itra'                  => $attendeeData['itra'] ?? 'no',
-                'itra_details'          => $attendeeData['itra_details'] ?? null,
-                'address'               => $attendeeData['address'] ?? null,
-                'experience'            => $attendeeData['experience'] ?? null,
-                'ticket_uuid'           => (string) Str::uuid(),
-            ]);
+    'order_id'              => $order->id,
+    'ticket_category_id'    => $attendeeData['ticket_category_id'],
+    'full_name'             => $attendeeData['full_name'],
+    'father_name'           => $attendeeData['father_name'] ?? null,
+    'email'                 => $attendeeData['email'],
+    'phone'                 => $attendeeData['phone'],
+    'viber'                 => $attendeeData['viber'] ?? null,
+    'emergency_contact'     => $attendeeData['emergency_contact'] ?? null,
+    'nrc_passport'          => $attendeeData['nrc_passport'],
+    'nationality'           => $attendeeData['nationality'],
+    'country'               => $attendeeData['country'] ?? null,
+    'gender'                => $attendeeData['gender'] ?? null,
+    'date_of_birth'         => !empty($attendeeData['date_of_birth']) ? $attendeeData['date_of_birth'] : null,
+    'bib_name'              => $generatedBib,
+    'tshirt_size'           => $attendeeData['tshirt_size'] ?? null,
+    'blood_type'            => $attendeeData['blood_type'] ?? null,
+    'has_medical_condition' => !empty($attendeeData['has_medical_condition']) ? $attendeeData['has_medical_condition'] : 'no', // Fallback to 'no'
+    'medical_details'       => $attendeeData['medical_details'] ?? null,
+    'itra'                  => !empty($attendeeData['itra']) ? $attendeeData['itra'] : 'no', // Fallback to 'no'
+    'itra_details'          => $attendeeData['itra_details'] ?? null,
+    'address'               => $attendeeData['address'] ?? null,
+    'experience'            => $attendeeData['experience'] ?? null,
+    'ticket_uuid'           => (string) Str::uuid(),
+]);
         }
 
         return redirect()->route('checkout.payment', $order->id);

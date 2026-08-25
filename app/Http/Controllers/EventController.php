@@ -35,9 +35,13 @@ class EventController extends Controller
         $event = Event::with(['ticketCategories', 'promoCodes', 'items'])->findOrFail($id);
 
         $totalTicketsSold = $event->ticketCategories->sum('tickets_sold');
-        $isEventSoldOut = $event->overall_capacity && ($totalTicketsSold >= $event->overall_capacity);
+        
+        // Calculate remaining overall event capacity
+        $overallCapacity = $event->overall_capacity;
+        $overallTicketsRemaining = $overallCapacity !== null ? max(0, $overallCapacity - $totalTicketsSold) : null;
+        $isEventSoldOut = $overallCapacity !== null && ($totalTicketsSold >= $overallCapacity);
 
-        return view('events.show', compact('event', 'totalTicketsSold', 'isEventSoldOut'));
+        return view('events.show', compact('event', 'totalTicketsSold', 'overallTicketsRemaining', 'isEventSoldOut'));
     }
 
     /**
@@ -96,7 +100,7 @@ class EventController extends Controller
                 ->with('error', 'Registration session expired. Please select your tickets again.');
         }
 
-        // Check if event has a Race Guide PDF uploaded
+        // Strict non-empty check for race guide file paths
         $hasRaceGuide = !empty(trim($event->english_race_guide ?? '')) || !empty(trim($event->burmese_race_guide ?? ''));
 
         if ($hasRaceGuide) {

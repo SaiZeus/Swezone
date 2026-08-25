@@ -217,6 +217,7 @@
 
             <form action="{{ route('events.waiver.accept', $event->id) }}" method="POST">
                 @csrf
+                <input type="hidden" name="event_id" value="{{ $event->id }}">
                 <input type="hidden" name="promo_code" value="{{ $promoCode }}">
 
                 @foreach($attendees as $index => $attendee)
@@ -235,9 +236,10 @@
                     <input type="hidden" name="attendees[{{ $index }}][bib_name]" value="{{ $attendee['bib_name'] ?? '' }}">
                     <input type="hidden" name="attendees[{{ $index }}][tshirt_size]" value="{{ $attendee['tshirt_size'] ?? '' }}">
                     <input type="hidden" name="attendees[{{ $index }}][blood_type]" value="{{ $attendee['blood_type'] ?? '' }}">
-                    <input type="hidden" name="attendees[{{ $index }}][has_medical_condition]" value="{{ $attendee['has_medical_condition'] ?? '' }}">
+                    {{-- Default to 'no' if field was omitted or empty --}}
+                    <input type="hidden" name="attendees[{{ $index }}][has_medical_condition]" value="{{ !empty($attendee['has_medical_condition']) ? $attendee['has_medical_condition'] : 'no' }}">
                     <input type="hidden" name="attendees[{{ $index }}][medical_details]" value="{{ $attendee['medical_details'] ?? '' }}">
-                    <input type="hidden" name="attendees[{{ $index }}][itra]" value="{{ $attendee['itra'] ?? '' }}">
+                    <input type="hidden" name="attendees[{{ $index }}][itra]" value="{{ !empty($attendee['itra']) ? $attendee['itra'] : 'no' }}">
                     <input type="hidden" name="attendees[{{ $index }}][itra_details]" value="{{ $attendee['itra_details'] ?? '' }}">
                     <input type="hidden" name="attendees[{{ $index }}][address]" value="{{ $attendee['address'] ?? '' }}">
                     <input type="hidden" name="attendees[{{ $index }}][experience]" value="{{ $attendee['experience'] ?? '' }}">

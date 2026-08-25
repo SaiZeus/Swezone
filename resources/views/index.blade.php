@@ -1,6 +1,6 @@
 @extends('layouts.master')
 
-@section('title', 'Event Ticketing - Home')
+@section('title', 'Swezon Event Ticketing - Home')
 
 @section('content')
 
@@ -400,63 +400,63 @@
     </section>
 
     <div class="dark-bg">
-        <section class="funfact pt-130 pb-125">
-            <div class="container">
-                <div class="dc-funfact-wrap bg_img" data-background="{{ asset('assets/img/bg/funfact-bg.jpg') }}">
-                    <div class="row mt-none-50">
-                        <div class="col-lg-6 mt-50">
-                            <div class="funfact-heading">
-                                <div class="sec-title sec-title--two">
-                                    <span class="sub-title wow fadeInUp" data-wow-delay="0ms" data-wow-duration="600ms">
-                                        <img src="{{ asset('assets/img/icon/sub-icon.svg') }}" alt="icon-image">
-                                        Achievement
-                                        <img src="{{ asset('assets/img/icon/sub-icon.svg') }}" alt="icon-image">
-                                    </span>
-                                    <h2 class="title wow fadeInUp" data-wow-delay="150ms" data-wow-duration="600ms">Facts That'll Make You Go meetco!</h2>
-                                    <p class="content wow fadeInUp" data-wow-delay="300ms" data-wow-duration="600ms">From design breakthroughs to fun behind-the-scenes moments, these standout stats and surprises from the summit will wow you.</p>
-                                </div>
-                                
-                            </div>
-                        </div>
-                        <div class="col-lg-6 mt-50">
-                            <div class="xb-funfact-image wow xb-animetion-right" data-wow-delay="600ms" data-wow-duration="600ms">
-                                <img src="{{ asset('assets/img/funfact/img01.png') }}" alt="Image">
+    <section class="funfact pt-130 pb-125">
+        <div class="container">
+            <div class="dc-funfact-wrap bg_img" data-background="{{ asset('assets/img/bg/funfact-bg.jpg') }}">
+                <div class="row mt-none-50">
+                    <div class="col-lg-6 mt-50">
+                        <div class="funfact-heading">
+                            <div class="sec-title sec-title--two">
+                                <span class="sub-title wow fadeInUp" data-wow-delay="0ms" data-wow-duration="600ms">
+                                    <img src="{{ asset('assets/img/icon/sub-icon.svg') }}" alt="icon-image">
+                                    Achievement
+                                    <img src="{{ asset('assets/img/icon/sub-icon.svg') }}" alt="icon-image">
+                                </span>
+                                <h2 class="title wow fadeInUp" data-wow-delay="150ms" data-wow-duration="600ms">Facts That'll Make You Go swezon!</h2>
+                                <p class="content wow fadeInUp" data-wow-delay="300ms" data-wow-duration="600ms">From design breakthroughs to fun behind-the-scenes moments, these standout stats and surprises from the summit will wow you.</p>
                             </div>
                         </div>
                     </div>
-                    <div class="dc-funfact-inner mt-80">
-                        <div class="dc-funfact-item">
-                            <h3 class="xb-item--number xb-odm"><span class="xbo" data-count="80">00</span><span class="suffix"></span></h3>
-                            <span class="xb-item--text">Speakers</span>
-                        </div>
-                        <div class="dc-funfact-item">
-                            <h3 class="xb-item--number xb-odm">
-                                <span class="xbo" data-count="4">00</span><span class="suffix">k+</span>
-                            </h3>
-                            <span class="xb-item--text">Attendees</span>
-                        </div>
-                        <div class="dc-funfact-item">
-                            <h3 class="xb-item--number xb-odm">
-                                <span class="xbo" data-count="50">00</span><span class="suffix"></span>
-                            </h3>
-                            <span class="xb-item--text">Sessions</span>
-                        </div>
-                        <div class="dc-funfact-item">
-                            <h3 class="xb-item--number xb-odm">
-                                <span class="xbo" data-count="100">00</span><span class="suffix">+</span>
-                            </h3>
-                            <span class="xb-item--text">Decision Makers</span>
+                    <div class="col-lg-6 mt-50">
+                        <div class="xb-funfact-image wow xb-animetion-right" data-wow-delay="600ms" data-wow-duration="600ms">
+                            <img src="{{ asset('assets/img/funfact/img01.png') }}" alt="Image">
                         </div>
                     </div>
                 </div>
+                <div class="dc-funfact-inner mt-80">
+                    <div class="dc-funfact-item">
+                        <h3 class="xb-item--number xb-odm"><span class="xbo" data-count="43">00</span><span class="suffix"></span></h3>
+                        <span class="xb-item--text">Awards</span>
+                    </div>
+                    <div class="dc-funfact-item">
+                        <h3 class="xb-item--number xb-odm">
+                            <span class="xbo" data-count="20">00</span><span class="suffix">k+</span>
+                        </h3>
+                        <span class="xb-item--text">Followers</span>
+                    </div>
+                    <div class="dc-funfact-item">
+                        <h3 class="xb-item--number xb-odm">
+                            <span class="xbo" data-count="29">00</span><span class="suffix"></span>
+                        </h3>
+                        <span class="xb-item--text">Events</span>
+                    </div>
+                    <div class="dc-funfact-item">
+                        <h3 class="xb-item--number xb-odm">
+                            <span class="xbo" data-count="10">00</span><span class="suffix">k+</span>
+                        </h3>
+                        <span class="xb-item--text">Miles Run</span>
+                    </div>
+                </div>
             </div>
-        </section>
+        </div>
+    </section>
+
         <section class="brand pb-125">
             <div class="dc-brand-wrap">
                 <div class="sec-title sec-title--two text-center mb-40">
                     <span class="sub-title color-heading">
                         <img src="{{ asset('assets/img/icon/sub-icon.svg') }}" alt="icon-image">
-                        Achievement meetco
+                        Achievement
                         <img src="{{ asset('assets/img/icon/sub-icon.svg') }}" alt="icon-image">
                     </span>
                 </div>

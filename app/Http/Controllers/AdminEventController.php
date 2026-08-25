@@ -516,6 +516,12 @@ class AdminEventController extends Controller
     public function destroyAttendee($id)
     {
         $attendee = Attendee::findOrFail($id);
+        
+        // Decrement ticket count if tracked on category
+        if ($attendee->ticketCategory && $attendee->ticketCategory->tickets_sold > 0) {
+            $attendee->ticketCategory->decrement('tickets_sold');
+        }
+
         $attendee->delete();
 
         return back()->with('success', 'Attendee deleted successfully!');
