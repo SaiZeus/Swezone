@@ -809,7 +809,7 @@
     </div>
 </section>
 
-<!-- Script with Overall Event Capacity Enforcement -->
+<!-- Script with Overall Event Capacity Enforcement & Form Validation Fix -->
 @push('scripts')
 <script>
 const districtOptions = {
@@ -841,6 +841,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const qtyInputs = document.querySelectorAll('.ticket-qty');
     const container = document.getElementById('attendee-forms-container');
     const checkoutSection = document.getElementById('checkout-section');
+    const checkoutForm = document.getElementById('checkout-form');
     const subtotalEl = document.getElementById('subtotal-amount');
     const discountEl = document.getElementById('discount-amount');
     const grandTotalEl = document.getElementById('grand-total');
@@ -938,6 +939,41 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Consolidated payload generation for backend validation (nrc_passport)
+    if (checkoutForm) {
+        checkoutForm.addEventListener('submit', function (e) {
+            const cards = container.querySelectorAll('.attendee-card');
+            
+            cards.forEach((card, index) => {
+                const nationalitySelect = card.querySelector('.nationality-select');
+                let combinedValue = '';
+
+                if (nationalitySelect && nationalitySelect.value === 'Foreigner') {
+                    const passportInput = card.querySelector(`input[name="attendees[${index}][passport_number]"]`);
+                    combinedValue = passportInput ? passportInput.value : '';
+                } else {
+                    const state = card.querySelector(`select[name="attendees[${index}][nrc_state]"]`)?.value || '';
+                    const district = card.querySelector(`select[name="attendees[${index}][nrc_district]"]`)?.value || '';
+                    const naing = card.querySelector(`select[name="attendees[${index}][nrc_naing]"]`)?.value || '';
+                    const number = card.querySelector(`input[name="attendees[${index}][nrc_number]"]`)?.value || '';
+
+                    if (state && district && naing && number) {
+                        combinedValue = `${state}/${district}(${naing})${number}`;
+                    }
+                }
+
+                let hiddenInput = card.querySelector(`input[name="attendees[${index}][nrc_passport]"]`);
+                if (!hiddenInput) {
+                    hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = `attendees[${index}][nrc_passport]`;
+                    card.appendChild(hiddenInput);
+                }
+                hiddenInput.value = combinedValue;
+            });
+        });
+    }
+
     if (btnApplyPromo) {
         btnApplyPromo.addEventListener('click', function() {
             const code = promoInput.value.trim().toUpperCase();
@@ -1017,13 +1053,31 @@ document.addEventListener('DOMContentLoaded', function () {
         if (value === 'Foreigner') {
             nrcBox.style.display = 'none';
             passportBox.style.display = 'flex';
-            nrcInputs.forEach(i => i.removeAttribute('required'));
-            passportInputs.forEach(i => i.setAttribute('required', 'required'));
+            
+            nrcInputs.forEach(i => {
+                i.removeAttribute('required');
+                i.disabled = true;
+            });
+            
+            passportInputs.forEach(i => {
+                i.disabled = false;
+                if (i.name.includes('[passport_number]')) {
+                    i.setAttribute('required', 'required');
+                }
+            });
         } else {
             nrcBox.style.display = 'flex';
             passportBox.style.display = 'none';
-            passportInputs.forEach(i => i.removeAttribute('required'));
-            nrcInputs.forEach(i => i.setAttribute('required', 'required'));
+            
+            passportInputs.forEach(i => {
+                i.removeAttribute('required');
+                i.disabled = true;
+            });
+            
+            nrcInputs.forEach(i => {
+                i.disabled = false;
+                i.setAttribute('required', 'required');
+            });
         }
     };
 
@@ -1197,7 +1251,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     <label class="form-label">NRC Number</label>
                                     <div class="row g-1">
                                         <div class="col-3">
-                                            <select name="attendees[${formIndex}][nrc_state]" class="form-select nrc-state-select" data-index="${formIndex}" required>
+                                            <select name="attendees[${formIndex}][nrc_state]" class="form-select nrc-state-select" data-index="${formIndex}">
                                                 <option value="">State</option>
                                                 <option value="1">၁/</option><option value="2">၂/</option><option value="3">၃/</option>
                                                 <option value="4">၄/</option><option value="5">၅/</option><option value="6">၆/</option>
@@ -1207,12 +1261,12 @@ document.addEventListener('DOMContentLoaded', function () {
                                             </select>
                                         </div>
                                         <div class="col-3">
-                                            <select name="attendees[${formIndex}][nrc_district]" id="nrc_district_${formIndex}" class="form-select" required>
+                                            <select name="attendees[${formIndex}][nrc_district]" id="nrc_district_${formIndex}" class="form-select">
                                                 <option value="">District</option>
                                             </select>
                                         </div>
                                         <div class="col-3">
-                                            <select name="attendees[${formIndex}][nrc_naing]" class="form-select" required>
+                                            <select name="attendees[${formIndex}][nrc_naing]" class="form-select">
                                                 <option value="နိုင်">နိုင်</option>
                                                 <option value="ဧည့်">ဧည့်</option>
                                                 <option value="စ">စ</option>
@@ -1222,7 +1276,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                             </select>
                                         </div>
                                         <div class="col-3">
-                                            <input name="attendees[${formIndex}][nrc_number]" type="text" inputmode="numeric" placeholder="123456" maxlength="6" pattern="\\d{6}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6)" class="form-control" required>
+                                            <input name="attendees[${formIndex}][nrc_number]" type="text" inputmode="numeric" placeholder="123456" maxlength="6" pattern="\\d{6}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6)" class="form-control">
                                         </div>
                                     </div>
                                 </div>
@@ -1361,6 +1415,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 card.innerHTML = fieldsHTML;
                 container.appendChild(card);
+                
+                // Initialize default attribute state for the newly created form card
+                toggleNationality(formIndex, 'Myanmar');
+                
                 formIndex++;
             }
         });
