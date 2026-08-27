@@ -18,7 +18,7 @@
                     
                     {{-- HEADER BANNER --}}
                     <div align="center" style="height:18.5%">
-                        <img src="{{ asset('img/cb/Logo_1080px.png') }}" style="width:100%;" alt="MyanmarPay Header" />
+                        <img src="{{ asset('assets/img/cb/Logo_1080px.png') }}" style="width:100%;" alt="MyanmarPay Header" />
                     </div>
 
                     {{-- MERCHANT, ORDER NUMBER & AMOUNT DISPLAY --}}
@@ -55,7 +55,7 @@
 
                     {{-- CB BANK FOOTER LOGO --}}
                     <div>
-                        <img src="{{ asset('img/cb/logo.png') }}" style="width:20%; min-width: 60px; height: auto;" alt="CB Bank Logo" />
+                        <img src="{{ asset('assets/img/cb/logo.png') }}" style="width:20%; min-width: 60px; height: auto;" alt="CB Bank Logo" />
                     </div>
 
                     <div style="height: 3%; border-bottom-style: solid; color: #264EA1; margin-top: 8px;">
