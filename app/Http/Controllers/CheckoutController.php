@@ -10,6 +10,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Mail\TicketConfirmationMail;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Exception;
 
 class CheckoutController extends Controller
 {
@@ -117,39 +120,93 @@ class CheckoutController extends Controller
             }
 
             Attendee::create([
-    'order_id'              => $order->id,
-    'ticket_category_id'    => $attendeeData['ticket_category_id'],
-    'full_name'             => $attendeeData['full_name'],
-    'father_name'           => $attendeeData['father_name'] ?? null,
-    'email'                 => $attendeeData['email'],
-    'phone'                 => $attendeeData['phone'],
-    'viber'                 => $attendeeData['viber'] ?? null,
-    'emergency_contact'     => $attendeeData['emergency_contact'] ?? null,
-    'nrc_passport'          => $attendeeData['nrc_passport'],
-    'nationality'           => $attendeeData['nationality'],
-    'country'               => $attendeeData['country'] ?? null,
-    'gender'                => $attendeeData['gender'] ?? null,
-    'date_of_birth'         => !empty($attendeeData['date_of_birth']) ? $attendeeData['date_of_birth'] : null,
-    'bib_name'              => $generatedBib,
-    'tshirt_size'           => $attendeeData['tshirt_size'] ?? null,
-    'blood_type'            => $attendeeData['blood_type'] ?? null,
-    'has_medical_condition' => !empty($attendeeData['has_medical_condition']) ? $attendeeData['has_medical_condition'] : 'no', // Fallback to 'no'
-    'medical_details'       => $attendeeData['medical_details'] ?? null,
-    'itra'                  => !empty($attendeeData['itra']) ? $attendeeData['itra'] : 'no', // Fallback to 'no'
-    'itra_details'          => $attendeeData['itra_details'] ?? null,
-    'address'               => $attendeeData['address'] ?? null,
-    'experience'            => $attendeeData['experience'] ?? null,
-    'ticket_uuid'           => (string) Str::uuid(),
-]);
+                'order_id'              => $order->id,
+                'ticket_category_id'    => $attendeeData['ticket_category_id'],
+                'full_name'             => $attendeeData['full_name'],
+                'father_name'           => $attendeeData['father_name'] ?? null,
+                'email'                 => $attendeeData['email'],
+                'phone'                 => $attendeeData['phone'],
+                'viber'                 => $attendeeData['viber'] ?? null,
+                'emergency_contact'     => $attendeeData['emergency_contact'] ?? null,
+                'nrc_passport'          => $attendeeData['nrc_passport'],
+                'nationality'           => $attendeeData['nationality'],
+                'country'               => $attendeeData['country'] ?? null,
+                'gender'                => $attendeeData['gender'] ?? null,
+                'date_of_birth'         => !empty($attendeeData['date_of_birth']) ? $attendeeData['date_of_birth'] : null,
+                'bib_name'              => $generatedBib,
+                'tshirt_size'           => $attendeeData['tshirt_size'] ?? null,
+                'blood_type'            => $attendeeData['blood_type'] ?? null,
+                'has_medical_condition' => !empty($attendeeData['has_medical_condition']) ? $attendeeData['has_medical_condition'] : 'no',
+                'medical_details'       => $attendeeData['medical_details'] ?? null,
+                'itra'                  => !empty($attendeeData['itra']) ? $attendeeData['itra'] : 'no',
+                'itra_details'          => $attendeeData['itra_details'] ?? null,
+                'address'               => $attendeeData['address'] ?? null,
+                'experience'            => $attendeeData['experience'] ?? null,
+                'ticket_uuid'           => (string) Str::uuid(),
+            ]);
         }
 
         return redirect()->route('checkout.payment', $order->id);
     }
 
+    /**
+     * Helper Method: Request authentication token and dynamic MMQR string from CB Bank Gateway
+     */
+    protected function generateMmqrCode($orderNumber, $amount)
+    {
+        $env = config('mmqr.environment', 'uat');
+        $config = config("mmqr.{$env}");
+
+        try {
+            // 1. Request Auth Token
+            $tokenResponse = Http::post("{$config['base_url']}/auth/token", [
+                'userId'   => $config['user_id'],
+                'password' => $config['password'],
+            ]);
+
+            if (!$tokenResponse->successful() || empty($tokenResponse['token'])) {
+                Log::error('MMQR Auth Token Failed', ['response' => $tokenResponse->json()]);
+                return null;
+            }
+
+            $token = $tokenResponse['token'];
+
+            // 2. Request Dynamic QR String
+            $qrResponse = Http::post("{$config['base_url']}/dynamicqr", [
+                'token'                => $token,
+                'sourceId'             => $config['source_id'],
+                'transCurrency'        => '104', // 104 = MMK
+                'transAmount'          => (float) $amount,
+                'purposeOfTransaction' => 'Marathon Ticket',
+                'referenceNo'          => $orderNumber,
+                'merchantId'           => $config['mid'],
+                'terminalId'           => $config['tid'],
+            ]);
+
+            if ($qrResponse->successful() && ($qrResponse['returnCode'] ?? null) === '0000') {
+                return [
+                    'qr_code_info'    => $qrResponse['qrCodeInfo'],
+                    'qr_reference_no' => $qrResponse['qrReferenceNo'],
+                    'expired_at'      => $qrResponse['qrExpiredDateTime'] ?? null,
+                ];
+            }
+
+            Log::error('MMQR Dynamic QR Generation Failed', ['response' => $qrResponse->json()]);
+            return null;
+        } catch (Exception $e) {
+            Log::error('MMQR Exception Encountered', ['error' => $e->getMessage()]);
+            return null;
+        }
+    }
+
     public function showPayment($orderId)
     {
         $order = Order::with('attendees.ticketCategory')->findOrFail($orderId);
-        return view('checkout.payment', compact('order'));
+
+        // Fetch dynamic MMQR code from CB Bank Gateway
+        $mmqrData = $this->generateMmqrCode($order->order_number, $order->total_amount);
+
+        return view('checkout.payment', compact('order', 'mmqrData'));
     }
 
     public function completePayment(Request $request, $orderId)
