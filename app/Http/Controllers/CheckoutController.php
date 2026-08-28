@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\Attendee;
+use App\Models\User;
 use App\Models\PromoCode;
 use App\Models\TicketCategory;
 use Illuminate\Http\Request;
@@ -78,7 +79,6 @@ class CheckoutController extends Controller
             'payment_status' => 'pending',
         ]);
 
-        // Counter array to keep track of sequential numbers within a single order submission
         $categoryOrderCounts = [];
         $eventOrderCount = 0;
 
@@ -93,7 +93,6 @@ class CheckoutController extends Controller
                 if ($event->share_bib_prefix) {
                     $prefix = !empty($event->event_bib_prefix) ? $event->event_bib_prefix : 'BIB';
                     
-                    // Total existing attendees across all categories for this event + current loop offset
                     $existingCount = Attendee::whereHas('ticketCategory', function ($q) use ($event) {
                         $q->where('event_id', $event->id);
                     })->count();
@@ -104,7 +103,6 @@ class CheckoutController extends Controller
                 } else {
                     $prefix = !empty($category->bib_prefix) ? $category->bib_prefix : 'BIB';
                     
-                    // Total existing attendees in this specific ticket category + current loop offset
                     $existingCount = Attendee::where('ticket_category_id', $category->id)->count();
                     
                     if (!isset($categoryOrderCounts[$category->id])) {
@@ -118,6 +116,24 @@ class CheckoutController extends Controller
 
                 $generatedBib = strtoupper($prefix) . '-' . str_pad($nextNum, 4, '0', STR_PAD_LEFT);
             }
+
+            // Get total attendees registered for this specific event to compute REG-1 sequence
+            $existingEventAttendees = Attendee::whereHas('ticketCategory', function ($q) use ($category) {
+                $q->where('event_id', $category->event_id);
+            })->count();
+
+            $registrationCode = 'REG-' . ($existingEventAttendees + 1);
+
+            // Register or retrieve user and assign sequential user ID formatted as SWE-0001
+            $user = User::firstOrCreate(
+                ['email' => $attendeeData['email']],
+                [
+                    'name'     => $attendeeData['full_name'],
+                    'password' => bcrypt(Str::random(16)),
+                ]
+            );
+
+            $userCode = 'SWE-' . str_pad($user->id, 4, '0', STR_PAD_LEFT);
 
             Attendee::create([
                 'order_id'              => $order->id,
@@ -143,22 +159,20 @@ class CheckoutController extends Controller
                 'address'               => $attendeeData['address'] ?? null,
                 'experience'            => $attendeeData['experience'] ?? null,
                 'ticket_uuid'           => (string) Str::uuid(),
+                'ticket_code'           => $registrationCode,
+                'user_code'             => $userCode,
             ]);
         }
 
         return redirect()->route('checkout.payment', $order->id);
     }
 
-    /**
-     * Helper Method: Request authentication token and dynamic MMQR string from CB Bank Gateway
-     */
     protected function generateMmqrCode($orderNumber, $amount)
     {
         $env = config('mmqr.environment', 'uat');
         $config = config("mmqr.{$env}");
 
         try {
-            // 1. Request Auth Token
             $tokenResponse = Http::post("{$config['base_url']}/auth/token", [
                 'userId'   => $config['user_id'],
                 'password' => $config['password'],
@@ -171,11 +185,10 @@ class CheckoutController extends Controller
 
             $token = $tokenResponse['token'];
 
-            // 2. Request Dynamic QR String
             $qrResponse = Http::post("{$config['base_url']}/dynamicqr", [
                 'token'                => $token,
                 'sourceId'             => $config['source_id'],
-                'transCurrency'        => '104', // 104 = MMK
+                'transCurrency'        => '104',
                 'transAmount'          => (float) $amount,
                 'purposeOfTransaction' => 'Marathon Ticket',
                 'referenceNo'          => $orderNumber,
@@ -202,8 +215,6 @@ class CheckoutController extends Controller
     public function showPayment($orderId)
     {
         $order = Order::with('attendees.ticketCategory')->findOrFail($orderId);
-
-        // Fetch dynamic MMQR code from CB Bank Gateway
         $mmqrData = $this->generateMmqrCode($order->order_number, $order->total_amount);
 
         return view('checkout.payment', compact('order', 'mmqrData'));

@@ -177,6 +177,19 @@
     .dashboard-main-table tbody tr:hover { background: #f9fbff; }
     .dashboard-runner-name { color: #1b2638 !important; font-weight: 750 !important; }
 
+    .user-code-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 7px;
+        border: 1px solid #c7d2fe;
+        border-radius: 6px;
+        background: #eef2ff;
+        color: #4338ca;
+        font-family: monospace;
+        font-size: 0.68rem;
+        font-weight: 850;
+    }
+
     .dashboard-ticket-number {
         display: inline-flex;
         align-items: center;
@@ -441,7 +454,7 @@
             <table class="dashboard-main-table text-left">
                 <thead>
                     <tr>
-                        <th>Runner Name</th>
+                        <th>User Code / Runner Name</th>
                         <th>Email Address</th>
                         <th>Phone</th>
                         <th>Total Tickets</th>
@@ -451,7 +464,12 @@
                 <tbody>
                     @forelse($loyaltyRunners as $index => $runner)
                     <tr>
-                        <td class="dashboard-runner-name">{{ $runner->full_name }}</td>
+                        <td class="dashboard-runner-name">
+                            <div class="flex items-center gap-2">
+                                <span class="user-code-badge">{{ $runner->user_code ?? 'SWE-' . str_pad($index + 1, 4, '0', STR_PAD_LEFT) }}</span>
+                                <span>{{ $runner->full_name }}</span>
+                            </div>
+                        </td>
                         <td>{{ $runner->email }}</td>
                         <td>{{ $runner->phone }}</td>
                         <td>
@@ -484,7 +502,7 @@
             <div class="dashboard-modal-header flex justify-between items-center">
                 <h3 class="dashboard-modal-title">
                     <i class="fa-solid fa-user-tag text-indigo-600"></i>
-                    Events Joined by {{ $runner->full_name }}
+                    Events Joined by {{ $runner->full_name }} ({{ $runner->user_code ?? 'SWE-' . str_pad($index + 1, 4, '0', STR_PAD_LEFT) }})
                 </h3>
                 <button onclick="closeModal('runnerEventsModal-{{ $index }}')" class="dashboard-modal-close">&times;</button>
             </div>
