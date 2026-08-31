@@ -201,6 +201,7 @@ class CheckoutController extends Controller
                 'referenceNo'          => $orderNumber,
                 'merchantId'           => $config['mid'],
                 'terminalId'           => $config['tid'],
+                'callbackUrl'          => 'https://swezon.com.mm/api/payment/mmqr/callback', // <-- ADDED THIS PARAMETER
             ]);
 
             if ($qrResponse->successful() && ($qrResponse['returnCode'] ?? null) === '0000') {
