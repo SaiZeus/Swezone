@@ -454,28 +454,6 @@
         box-shadow: 0 8px 22px rgba(147, 51, 234, .04);
     }
 
-    .promo-card-box {
-        background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
-        border: 1px dashed #d8b4fe;
-        border-radius: 10px;
-        padding: 12px;
-    }
-
-    .promo-title {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        margin-bottom: 6px;
-        color: #581c87;
-        font-size: .8rem;
-        font-weight: 850;
-    }
-
-    .promo-title i {
-        color: #a855f7;
-        font-size: .85rem;
-    }
-
     .promo-input-wrap {
         display: flex;
         align-items: center;
@@ -483,29 +461,13 @@
         border: 1px solid #d8b4fe;
         border-radius: 8px;
         overflow: hidden;
-        height: 36px !important;
+        height: 38px !important;
         transition: border-color .15s ease;
     }
 
     .promo-input-wrap:focus-within {
         border-color: #a855f7;
         box-shadow: 0 0 0 3px rgba(168, 85, 247, .18);
-    }
-
-    .promo-input {
-        border: 0 !important;
-        box-shadow: none !important;
-        font-weight: 700;
-        font-size: .8rem !important;
-        letter-spacing: .05em;
-        text-transform: uppercase;
-        padding: 4px 10px !important;
-        height: 36px !important;
-        min-height: 36px !important;
-        max-height: 36px !important;
-        line-height: 36px !important;
-        width: 100%;
-        color: #3b0764 !important;
     }
 
     .btn-apply-promo {
@@ -515,8 +477,8 @@
         font-size: .75rem !important;
         font-weight: 800 !important;
         padding: 0 14px !important;
-        height: 36px !important;
-        line-height: 36px !important;
+        height: 38px !important;
+        line-height: 38px !important;
         white-space: nowrap;
         transition: background .2s ease;
     }
@@ -548,7 +510,7 @@
         background: linear-gradient(135deg, #c084fc 0%, #a855f7 100%);
         box-shadow: 0 6px 18px rgba(168, 85, 247, .3);
         font-size: .88rem;
-        font-weight: 800;
+        font-weight: 850;
         letter-spacing: .01em;
         transition: transform .15s ease, box-shadow .15s ease;
         color: #fff !important;
@@ -748,26 +710,14 @@
 
                                 <div class="card checkout-summary">
                                     <div class="row align-items-center g-3">
-                                        <div class="col-md-6">
-                                            <div class="promo-card-box">
-                                                <label for="promo_code_input" class="promo-title">
-                                                    <i class="fas fa-tags"></i>
-                                                    <span>Have a Promo Code?</span>
-                                                </label>
-                                                <div class="promo-input-wrap">
-                                                    <input type="text" id="promo_code_input" name="promo_code" class="form-control promo-input" placeholder="ENTER CODE">
-                                                    <button class="btn btn-apply-promo" type="button" id="btn-apply-promo">Apply</button>
-                                                </div>
-                                                <div id="promo-message" class="mt-1" style="font-size: 0.75rem;"></div>
-                                            </div>
-                                        </div>
+                                        <div class="col-md-6"></div>
                                         <div class="col-md-6 text-md-end">
                                             <div class="summary-line">
                                                 <span class="text-muted">Subtotal:</span>
                                                 <span class="fw-bold"><span id="subtotal-amount">0</span> MMK</span>
                                             </div>
                                             <div class="summary-line text-success" id="discount-row" style="display: none;">
-                                                <span>Discount Applied:</span>
+                                                <span>Total Discount:</span>
                                                 <span class="fw-bold">-<span id="discount-amount">0</span> MMK</span>
                                             </div>
                                             <div class="summary-line total-line">
@@ -809,7 +759,7 @@
     </div>
 </section>
 
-<!-- Script with Overall Event Capacity Enforcement & Form Validation Fix -->
+<!-- Script with Overall Event Capacity Enforcement & Per-Attendee Promo Codes -->
 @push('scripts')
 <script>
 const districtOptions = {
@@ -846,11 +796,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const discountEl = document.getElementById('discount-amount');
     const grandTotalEl = document.getElementById('grand-total');
     const discountRow = document.getElementById('discount-row');
-    const promoInput = document.getElementById('promo_code_input');
-    const btnApplyPromo = document.getElementById('btn-apply-promo');
-    const promoMessage = document.getElementById('promo-message');
 
-    let activePromo = null;
+    // Applied promo code cache per attendee index
+    let appliedPromos = {};
 
     function getTotalSelectedTickets() {
         let total = 0;
@@ -918,6 +866,13 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     if (container) {
+        container.addEventListener('click', function(e) {
+            if (e.target && e.target.classList.contains('btn-apply-attendee-promo')) {
+                const index = e.target.getAttribute('data-index');
+                applyAttendeePromo(index);
+            }
+        });
+
         container.addEventListener('change', function(e) {
             if (e.target && e.target.classList.contains('nationality-select')) {
                 const index = e.target.getAttribute('data-index');
@@ -939,12 +894,15 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Consolidated payload generation for backend validation (nrc_passport)
+    // Consolidated payload generation for backend validation (nrc_passport & promo_code_id)
     if (checkoutForm) {
         checkoutForm.addEventListener('submit', function (e) {
+            console.log('=== STEP 1: FRONTEND FORM SUBMIT ===');
+            console.log('Applied Promos Cache:', appliedPromos);
             const cards = container.querySelectorAll('.attendee-card');
             
             cards.forEach((card, index) => {
+                // 1. Build NRC/Passport
                 const nationalitySelect = card.querySelector('.nationality-select');
                 let combinedValue = '';
 
@@ -962,70 +920,95 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 }
 
-                let hiddenInput = card.querySelector(`input[name="attendees[${index}][nrc_passport]"]`);
-                if (!hiddenInput) {
-                    hiddenInput = document.createElement('input');
-                    hiddenInput.type = 'hidden';
-                    hiddenInput.name = `attendees[${index}][nrc_passport]`;
-                    card.appendChild(hiddenInput);
+                let hiddenNrcInput = card.querySelector(`input[name="attendees[${index}][nrc_passport]"]`);
+                if (!hiddenNrcInput) {
+                    hiddenNrcInput = document.createElement('input');
+                    hiddenNrcInput.type = 'hidden';
+                    hiddenNrcInput.name = `attendees[${index}][nrc_passport]`;
+                    card.appendChild(hiddenNrcInput);
                 }
-                hiddenInput.value = combinedValue;
+                hiddenNrcInput.value = combinedValue;
+
+                // 2. Attach Promo Code ID if applied
+                let hiddenPromoId = card.querySelector(`input[name="attendees[${index}][promo_code_id]"]`);
+                if (appliedPromos[index] && appliedPromos[index].promo_code_id) {
+                    if (!hiddenPromoId) {
+                        hiddenPromoId = document.createElement('input');
+                        hiddenPromoId.type = 'hidden';
+                        hiddenPromoId.name = `attendees[${index}][promo_code_id]`;
+                        card.appendChild(hiddenPromoId);
+                    }
+                    hiddenPromoId.value = appliedPromos[index].promo_code_id;
+                } else if (hiddenPromoId) {
+                    hiddenPromoId.remove();
+                }
             });
         });
     }
 
-    if (btnApplyPromo) {
-        btnApplyPromo.addEventListener('click', function() {
-            const code = promoInput.value.trim().toUpperCase();
-            const eventId = document.getElementById('event_id').value;
+    function applyAttendeePromo(index) {
+        const promoInput = document.getElementById(`promo_code_${index}`);
+        const msgBox = document.getElementById(`promo_msg_${index}`);
+        const btn = document.querySelector(`.btn-apply-attendee-promo[data-index="${index}"]`);
+        const catIdInput = document.querySelector(`input[name="attendees[${index}][ticket_category_id]"]`);
+        
+        const code = promoInput.value.trim().toUpperCase();
+        const eventId = document.getElementById('event_id').value;
+        const categoryId = catIdInput ? catIdInput.value : '';
 
-            if (!code) {
-                showPromoMsg('Please enter a promo code.', 'text-danger');
-                resetDiscount();
+        if (!code) {
+            delete appliedPromos[index];
+            msgBox.textContent = 'Promo code removed.';
+            msgBox.className = 'mt-1 text-muted small';
+            calculateTotals();
+            return;
+        }
+
+        // Prevent typing the exact same promo code on multiple cards in the same session
+        for (const idx in appliedPromos) {
+            if (idx != index && appliedPromos[idx].code === code) {
+                msgBox.textContent = 'This promo code has already been applied to another ticket on this page.';
+                msgBox.className = 'mt-1 text-danger small';
+                delete appliedPromos[index];
                 calculateTotals();
                 return;
             }
-
-            btnApplyPromo.disabled = true;
-            btnApplyPromo.textContent = '...';
-
-            fetch('/api/check-promo?code=' + encodeURIComponent(code) + '&event_id=' + eventId)
-                .then(res => res.json())
-                .then(data => {
-                    btnApplyPromo.disabled = false;
-                    btnApplyPromo.textContent = 'Apply';
-
-                    if (data.valid) {
-                        activePromo = {
-                            value: parseFloat(data.discount_value),
-                            type: data.discount_type,
-                            categoryId: data.ticket_category_id ? parseInt(data.ticket_category_id) : null
-                        };
-                    } else {
-                        resetDiscount();
-                        showPromoMsg(data.message || 'Invalid promo code.', 'text-danger');
-                    }
-                    calculateTotals();
-                })
-                .catch(() => {
-                    btnApplyPromo.disabled = false;
-                    btnApplyPromo.textContent = 'Apply';
-                    resetDiscount();
-                    showPromoMsg('Failed to apply code. Try again.', 'text-danger');
-                    calculateTotals();
-                });
-        });
-    }
-
-    function showPromoMsg(msg, className) {
-        if (promoMessage) {
-            promoMessage.textContent = msg;
-            promoMessage.className = 'mt-1 ' + className;
         }
-    }
 
-    function resetDiscount() {
-        activePromo = null;
+        btn.disabled = true;
+        btn.textContent = '...';
+
+        fetch(`/api/check-promo?code=${encodeURIComponent(code)}&event_id=${eventId}&ticket_category_id=${categoryId}`)
+            .then(res => res.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.textContent = 'Apply';
+
+                if (data.valid) {
+                    appliedPromos[index] = {
+                        code: code,
+                        ticket_category_id: categoryId,
+                        promo_code_id: data.promo_code_id,
+                        discount_type: data.discount_type,
+                        discount_value: parseFloat(data.discount_value)
+                    };
+                    msgBox.textContent = `Applied! (${data.discount_type === 'percentage' ? data.discount_value + '%' : new Intl.NumberFormat().format(data.discount_value) + ' MMK'} off)`;
+                    msgBox.className = 'mt-1 text-success small fw-bold';
+                } else {
+                    delete appliedPromos[index];
+                    msgBox.textContent = data.message || 'Invalid promo code.';
+                    msgBox.className = 'mt-1 text-danger small';
+                }
+                calculateTotals();
+            })
+            .catch(() => {
+                btn.disabled = false;
+                btn.textContent = 'Apply';
+                delete appliedPromos[index];
+                msgBox.textContent = 'Failed to check promo code.';
+                msgBox.className = 'mt-1 text-danger small';
+                calculateTotals();
+            });
     }
 
     window.updateDistricts = function(index, stateVal) {
@@ -1116,13 +1099,10 @@ document.addEventListener('DOMContentLoaded', function () {
         
         let subtotal = 0;
         let totalDiscount = 0;
-        let applicableTicketsCount = 0;
         const cards = container.querySelectorAll('.attendee-card');
 
-        cards.forEach(card => {
+        cards.forEach((card, index) => {
             const select = card.querySelector('.nationality-select');
-            const catIdInput = card.querySelector('input[name*="[ticket_category_id]"]');
-            const catId = catIdInput ? parseInt(catIdInput.value) : null;
             const localPrice = parseFloat(select.getAttribute('data-local'));
             const foreignPriceAttr = select.getAttribute('data-foreign');
             const foreignPrice = foreignPriceAttr !== '' ? parseFloat(foreignPriceAttr) : localPrice;
@@ -1130,29 +1110,37 @@ document.addEventListener('DOMContentLoaded', function () {
             let itemPrice = (select.value === 'Foreigner') ? foreignPrice : localPrice;
             subtotal += itemPrice;
 
-            if (activePromo) {
-                if (activePromo.categoryId === null || activePromo.categoryId === catId) {
-                    applicableTicketsCount++;
-                    if (activePromo.type === 'percentage') {
-                        totalDiscount += (itemPrice * activePromo.value) / 100;
-                    } else {
-                        totalDiscount += activePromo.value;
-                    }
+            if (appliedPromos[index]) {
+                const promo = appliedPromos[index];
+                let itemDiscount = 0;
+
+                if (promo.discount_type === 'percentage') {
+                    itemDiscount = (itemPrice * promo.discount_value) / 100;
+                } else {
+                    itemDiscount = promo.discount_value;
+                }
+
+                if (itemDiscount > itemPrice) {
+                    itemDiscount = itemPrice;
+                }
+
+                totalDiscount += itemDiscount;
+
+                let hiddenPromoId = card.querySelector(`input[name="attendees[${index}][promo_code_id]"]`);
+                if (!hiddenPromoId) {
+                    hiddenPromoId = document.createElement('input');
+                    hiddenPromoId.type = 'hidden';
+                    hiddenPromoId.name = `attendees[${index}][promo_code_id]`;
+                    card.appendChild(hiddenPromoId);
+                }
+                hiddenPromoId.value = promo.promo_code_id;
+            } else {
+                let hiddenPromoId = card.querySelector(`input[name="attendees[${index}][promo_code_id]"]`);
+                if (hiddenPromoId) {
+                    hiddenPromoId.remove();
                 }
             }
         });
-
-        if (activePromo) {
-            if (activePromo.categoryId !== null && applicableTicketsCount === 0) {
-                showPromoMsg('This promo code is not applicable to your selected ticket category.', 'text-danger');
-            } else {
-                showPromoMsg('Code applied! (' + (activePromo.type === 'percentage' ? activePromo.value + '%' : new Intl.NumberFormat().format(activePromo.value) + ' MMK') + ' off eligible tickets)', 'text-success');
-            }
-        }
-
-        if (totalDiscount > subtotal) {
-            totalDiscount = subtotal;
-        }
 
         const grandTotal = Math.max(0, subtotal - totalDiscount);
 
@@ -1176,7 +1164,24 @@ document.addEventListener('DOMContentLoaded', function () {
     function renderForms() {
         if (!container) return;
         
+        // Preserve user field entries and active promo states before re-rendering
+        const currentCards = container.querySelectorAll('.attendee-card');
+        const activeTicketsList = [];
+
+        currentCards.forEach((card, index) => {
+            const catIdInput = card.querySelector(`input[name="attendees[${index}][ticket_category_id]"]`);
+            if (catIdInput) {
+                activeTicketsList.push({
+                    catId: catIdInput.value,
+                    promo: appliedPromos[index] || null
+                });
+            }
+        });
+
+        // Reset forms and promo tracking cache
         container.innerHTML = '';
+        appliedPromos = {};
+        
         let formIndex = 0;
 
         qtyInputs.forEach(input => {
@@ -1188,6 +1193,18 @@ document.addEventListener('DOMContentLoaded', function () {
             const isForeignAvailable = rawForeignPrice !== '' && rawForeignPrice !== null && rawForeignPrice !== 'N/A';
 
             for (let i = 0; i < qty; i++) {
+                // Restore promo code if it matches the newly generated card category
+                let savedPromo = null;
+                const matchIndex = activeTicketsList.findIndex(t => t.catId === catId && t.promo !== null);
+                if (matchIndex !== -1) {
+                    savedPromo = activeTicketsList[matchIndex].promo;
+                    activeTicketsList.splice(matchIndex, 1);
+                }
+
+                if (savedPromo) {
+                    appliedPromos[formIndex] = savedPromo;
+                }
+
                 const card = document.createElement('div');
                 card.className = 'card attendee-card';
 
@@ -1244,6 +1261,18 @@ document.addEventListener('DOMContentLoaded', function () {
                                             ${isForeignAvailable ? 'Foreigner' : 'Foreigner (N/A)'}
                                         </option>
                                     </select>
+                                </div>
+
+                                <!-- Promo Code Input (Per Attendee) -->
+                                <div class="col-md-4">
+                                    <label class="form-label">Promo Code (Optional)</label>
+                                    <div class="promo-input-wrap">
+                                        <input type="text" id="promo_code_${formIndex}" class="form-control promo-input" placeholder="ENTER CODE" value="${savedPromo ? savedPromo.code : ''}">
+                                        <button class="btn btn-apply-promo btn-apply-attendee-promo" type="button" data-index="${formIndex}">Apply</button>
+                                    </div>
+                                    <div id="promo_msg_${formIndex}" class="${savedPromo ? 'mt-1 text-success small fw-bold' : ''}">
+                                        ${savedPromo ? `Applied! (${savedPromo.discount_type === 'percentage' ? savedPromo.discount_value + '%' : new Intl.NumberFormat().format(savedPromo.discount_value) + ' MMK'} off)` : ''}
+                                    </div>
                                 </div>
 
                                 <!-- NRC Inputs (Local) -->

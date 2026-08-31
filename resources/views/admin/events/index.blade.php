@@ -486,7 +486,7 @@
         align-items: center;
         justify-content: flex-end;
         gap: 6px;
-        min-width: 235px;
+        min-width: 320px;
     }
 
     .event-action-button {
@@ -507,6 +507,16 @@
 
     .event-action-button:hover {
         transform: translateY(-1px);
+    }
+
+    .promo-button {
+        background: #f3e8ff;
+        color: #7e22ce;
+    }
+
+    .promo-button:hover {
+        background: #e9d5ff;
+        color: #6b21a8;
     }
 
     .attendees-button {
@@ -969,6 +979,19 @@
                             <td>
 
                                 <div class="event-actions">
+
+                                    {{-- Promo Codes --}}
+                                    <a
+                                        href="{{ route('admin.events.promo_codes', $event->id) }}"
+                                        class="event-action-button promo-button"
+                                    >
+
+                                        <i class="fa-solid fa-tags"></i>
+
+                                        Promo Codes
+
+                                    </a>
+
 
                                     {{-- Attendees --}}
                                     <a

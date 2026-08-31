@@ -370,7 +370,7 @@
         margin-top: 12px;
         padding: 8px;
         border: 1px solid #e0e4ea;
-        border-radius: 9px;
+        border-radius: 99px;
         background: white;
         color: #7b8493;
         font-size: 0.73rem;
@@ -522,78 +522,6 @@
         cursor: pointer;
     }
 
-    /* PROMO */
-    .promo-box {
-        padding: 20px;
-        border: 1px solid #e5e8ee;
-        border-radius: 16px;
-        background: linear-gradient(135deg, #fff 0%, #fafaff 100%);
-    }
-
-    .promo-heading {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 16px;
-    }
-
-    .promo-icon {
-        width: 36px;
-        height: 36px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 10px;
-        background: #fef3c7;
-        color: #d97706;
-    }
-
-    .promo-heading h3 {
-        margin: 0;
-        color: #273245;
-        font-size: 0.88rem;
-        font-weight: 850;
-    }
-
-    .promo-heading p {
-        margin: 2px 0 0;
-        color: #929baa;
-        font-size: 0.68rem;
-    }
-
-    .promo-scope {
-        margin-top: 15px;
-        padding: 14px;
-        border-radius: 11px;
-        background: #f8fafc;
-        border: 1px solid #e5e7eb;
-    }
-
-    .promo-scope-options {
-        display: flex;
-        gap: 20px;
-        flex-wrap: wrap;
-    }
-
-    .promo-radio {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        cursor: pointer;
-        font-size: 0.76rem;
-        font-weight: 700;
-        color: #374151;
-    }
-
-    .promo-radio input {
-        accent-color: #4f46e5;
-    }
-
-    #specific-ticket-wrapper {
-        display: none;
-        margin-top: 15px;
-    }
-
     /* WAIVER */
     .waiver-box {
         padding: 20px;
@@ -666,7 +594,7 @@
         align-items: center;
         justify-content: center;
         border: 1px solid #fee2e2;
-        border-radius: 9px;
+        border-radius: 99px;
         background: #fff5f5;
         color: #ef4444;
         cursor: pointer;
@@ -752,7 +680,6 @@
         .items-builder,
         .waiver-box,
         .creator-box,
-        .promo-box,
         .fields-toggle-box {
             padding: 15px;
         }
@@ -780,7 +707,7 @@
         <div class="event-page-header">
             <h1>Create Marathon Event</h1>
             <p>
-                Set up your event details, tickets, capacity, promotions and participant information.
+                Set up your event details, tickets, capacity and participant information.
             </p>
         </div>
 
@@ -893,9 +820,9 @@
                             <div>
                                 <label class="event-label">Status</label>
                                 <select name="status" class="event-select">
-                                    <option value="upcoming">Upcoming</option>
-                                    <option value="live">Live Now</option>
-                                    <option value="past">Past</option>
+                                    <option value="upcoming" {{ old('status') === 'upcoming' ? 'selected' : '' }}>Upcoming</option>
+                                    <option value="live" {{ old('status') === 'live' ? 'selected' : '' }}>Live Now</option>
+                                    <option value="past" {{ old('status') === 'past' ? 'selected' : '' }}>Past</option>
                                 </select>
                             </div>
 
@@ -1095,7 +1022,7 @@
                                 <div class="category-row grid grid-cols-1 md:grid-cols-6 gap-3">
                                     <input type="text" name="categories[0][name]" placeholder="Category (e.g., 10km)" required class="md:col-span-2">
 
-                                    <input type="number" step="0.01" name="categories[0][local_price]" placeholder="Local Price ($)" required>
+                                    <input type="number" step="0.01" name="categories[0][local_price]" placeholder="Local Price (MMK)" required>
 
                                     <input type="number" step="0.01" name="categories[0][foreign_price]" placeholder="Foreign Price (Optional)">
 
@@ -1115,83 +1042,10 @@
 
                     <hr class="event-divider">
 
-                    {{-- SECTION 07 - PROMO CODE --}}
+                    {{-- SECTION 07 - EVENT ITEMS --}}
                     <div class="form-section">
                         <div class="form-section-heading">
                             <div class="section-number">07</div>
-                            <div>
-                                <h3>Promotion</h3>
-                                <p>Create an optional discount code and decide which ticket can use it.</p>
-                            </div>
-                        </div>
-
-                        <div class="promo-box">
-                            <div class="promo-heading">
-                                <div class="promo-icon">
-                                    <i class="fa-solid fa-tag"></i>
-                                </div>
-
-                                <div>
-                                    <h3>Promo Code</h3>
-                                    <p>Optional. A promo can apply to the whole event or one specific ticket.</p>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                <div>
-                                    <label class="event-label">Promo Code</label>
-                                    <input type="text" name="promo_code" value="{{ old('promo_code') }}" placeholder="e.g. RUN2026" class="event-input uppercase">
-                                </div>
-
-                                <div>
-                                    <label class="event-label">Discount Type</label>
-                                    <select name="promo_type" class="event-select">
-                                        <option value="fixed">Fixed Amount Discount</option>
-                                        <option value="percentage">Percentage Discount</option>
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label class="event-label">Discount Value</label>
-                                    <input type="number" step="0.01" min="0" name="promo_value" value="{{ old('promo_value') }}" placeholder="Discount Value" class="event-input">
-                                </div>
-                            </div>
-
-                            {{-- PROMO SCOPE --}}
-                            <div class="promo-scope">
-                                <label class="event-label">Promo Applies To</label>
-                                <div class="promo-scope-options">
-                                    <label class="promo-radio">
-                                        <input type="radio" name="promo_scope" value="event" checked>
-                                        <span>Entire Event</span>
-                                    </label>
-
-                                    <label class="promo-radio">
-                                        <input type="radio" name="promo_scope" value="ticket">
-                                        <span>Specific Ticket</span>
-                                    </label>
-                                </div>
-
-                                {{-- SPECIFIC TICKET --}}
-                                <div id="specific-ticket-wrapper">
-                                    <label class="event-label">Select Ticket</label>
-                                    <select name="promo_ticket_category_id" id="promo-ticket-category" class="event-select">
-                                        <option value="">-- Select Ticket Category --</option>
-                                    </select>
-                                    <div class="field-help">
-                                        The promo code will only work for this selected ticket category.
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <hr class="event-divider">
-
-                    {{-- SECTION 08 - EVENT ITEMS --}}
-                    <div class="form-section">
-                        <div class="form-section-heading">
-                            <div class="section-number">08</div>
                             <div>
                                 <h3>Event Items</h3>
                                 <p>Add any items or benefits included with the event.</p>
@@ -1236,10 +1090,10 @@
 
                     <hr class="event-divider">
 
-                    {{-- SECTION 09 - WAIVERS & RACE GUIDES --}}
+                    {{-- SECTION 08 - WAIVERS & RACE GUIDES --}}
                     <div class="form-section">
                         <div class="form-section-heading">
-                            <div class="section-number">09</div>
+                            <div class="section-number">08</div>
                             <div>
                                 <h3>Participant Waivers & Race Guides</h3>
                                 <p>Upload rules, terms, and event guides for registered runners.</p>
@@ -1343,7 +1197,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         row.innerHTML = `
             <input type="text" name="categories[${categoryIndex}][name]" placeholder="Category (e.g., 21km)" required class="md:col-span-2">
-            <input type="number" step="0.01" name="categories[${categoryIndex}][local_price]" placeholder="Local Price ($)" required>
+            <input type="number" step="0.01" name="categories[${categoryIndex}][local_price]" placeholder="Local Price (MMK)" required>
             <input type="number" step="0.01" name="categories[${categoryIndex}][foreign_price]" placeholder="Foreign Price (Optional)">
             <input type="number" name="categories[${categoryIndex}][capacity]" min="1" placeholder="Capacity">
             <div class="flex items-center space-x-2 separate-bib-inputs" style="${separateMode ? 'display:flex;' : 'display:none;'}">
@@ -1357,7 +1211,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         categoryContainer.appendChild(row);
         categoryIndex++;
-        refreshPromoTicketOptions();
     });
 
     /* REMOVE TICKET CATEGORY */
@@ -1366,56 +1219,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!removeButton) return;
 
         removeButton.closest('.category-row').remove();
-        refreshPromoTicketOptions();
-    });
-
-    /* PROMO SCOPE */
-    const promoScopeInputs = document.querySelectorAll('input[name="promo_scope"]');
-    const specificTicketWrapper = document.getElementById('specific-ticket-wrapper');
-    const promoTicketSelect = document.getElementById('promo-ticket-category');
-
-    promoScopeInputs.forEach(function (radio) {
-        radio.addEventListener('change', function () {
-            if (this.value === 'ticket') {
-                specificTicketWrapper.style.display = 'block';
-                refreshPromoTicketOptions();
-            } else {
-                specificTicketWrapper.style.display = 'none';
-                promoTicketSelect.value = '';
-            }
-        });
-    });
-
-    /* REFRESH PROMO TICKET LIST */
-    function refreshPromoTicketOptions() {
-        const currentValue = promoTicketSelect.value;
-        promoTicketSelect.innerHTML = `<option value="">-- Select Ticket Category --</option>`;
-
-        const categoryRows = document.querySelectorAll('.category-row');
-
-        categoryRows.forEach(function (row) {
-            const nameInput = row.querySelector('input[name*="[name]"]');
-            if (!nameInput) return;
-
-            const categoryName = nameInput.value.trim();
-            if (categoryName !== '') {
-                const option = document.createElement('option');
-                option.value = categoryName;
-                option.textContent = categoryName;
-                promoTicketSelect.appendChild(option);
-            }
-        });
-
-        if ([...promoTicketSelect.options].some(option => option.value === currentValue)) {
-            promoTicketSelect.value = currentValue;
-        }
-    }
-
-    /* UPDATE PROMO TICKET LIST WHEN CATEGORY NAME CHANGES */
-    categoryContainer.addEventListener('input', function (e) {
-        if (e.target.matches('input[name*="[name]"]')) {
-            refreshPromoTicketOptions();
-        }
     });
 
     /* EVENT ITEMS */

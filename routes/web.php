@@ -26,6 +26,7 @@ Route::post('/events/{id}/race-guide-accept', [EventController::class, 'acceptRa
 Route::get('/api/check-promo', function (Request $request) {
     $code = strtoupper(trim($request->query('code')));
     $eventId = $request->query('event_id');
+    $categoryId = $request->query('ticket_category_id');
 
     if (!$code || !$eventId) {
         return response()->json([
@@ -45,15 +46,37 @@ Route::get('/api/check-promo', function (Request $request) {
         ]);
     }
 
+    if (isset($promo->status) && $promo->status !== 'active') {
+        return response()->json([
+            'valid' => false,
+            'message' => 'This promo code is no longer active.'
+        ]);
+    }
+
+    if (isset($promo->max_uses) && $promo->max_uses > 0 && $promo->uses_count >= $promo->max_uses) {
+        return response()->json([
+            'valid' => false,
+            'message' => 'This promo code has already been used.'
+        ]);
+    }
+
+    if ($promo->ticket_category_id && $categoryId && $promo->ticket_category_id != $categoryId) {
+        return response()->json([
+            'valid' => false,
+            'message' => 'This code is not applicable to the selected ticket category.'
+        ]);
+    }
+
     return response()->json([
-        'valid' => true,
-        'discount_type' => $promo->discount_type, // 'fixed' or 'percentage'
-        'discount_value' => (float) $promo->discount_value,
+        'valid'              => true,
+        'promo_code_id'      => $promo->id,
+        'discount_type'      => $promo->discount_type,
+        'discount_value'     => (float) $promo->discount_value,
         'ticket_category_id' => $promo->ticket_category_id ? (int) $promo->ticket_category_id : null,
     ]);
 });
 
-// Checkout & MMQR Payment Routes
+// Checkout & Payment Routes
 Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
 Route::get('/checkout/payment/{order}', [CheckoutController::class, 'showPayment'])->name('checkout.payment');
 Route::post('/checkout/complete/{order}', [CheckoutController::class, 'completePayment'])->name('checkout.complete');
@@ -79,6 +102,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::put('/events/{id}', [AdminEventController::class, 'update'])->name('events.update');
     Route::delete('/events/{id}', [AdminEventController::class, 'destroy'])->name('events.destroy');
     
+    // Dedicated Event Promo Code Management Routes
+    Route::get('/events/{id}/promo-codes', [AdminEventController::class, 'promoCodes'])->name('events.promo_codes');
+    Route::post('/events/{id}/promo-codes', [AdminEventController::class, 'storePromoCode'])->name('events.promo_codes.store');
+    Route::delete('/promo-codes/{id}', [AdminEventController::class, 'destroyPromoCode'])->name('promo_codes.destroy');
+
     // Attendee Routes
     Route::get('/events/{id}/attendees', [AdminEventController::class, 'attendees'])->name('events.attendees');
     Route::put('/attendees/{id}', [AdminEventController::class, 'updateAttendee'])->name('attendees.update');
@@ -93,4 +121,3 @@ Route::get('/test-email', function () {
     Mail::to('zeuspower200@gmail.com')->send(new TicketConfirmationMail($attendee));
     return "Test email sent!";
 });
-

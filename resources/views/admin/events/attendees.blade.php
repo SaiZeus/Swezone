@@ -349,6 +349,19 @@
         font-weight: 750;
     }
 
+    .promo-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 9px;
+        border: 1px dashed #d8b4fe;
+        border-radius: 8px;
+        background: #faf5ff;
+        color: #7e22ce;
+        font-size: 0.65rem;
+        font-weight: 800;
+    }
+
     .nationality-badge {
         display: inline-flex;
         align-items: center;
@@ -483,7 +496,7 @@
         width: 100%;
         padding: 8px 11px;
         border: 1px solid #dfe3ea;
-        border-radius: 9px;
+        border-radius: 999px;
         background: #ffffff;
         color: #293445;
         font-size: 0.74rem;
@@ -599,6 +612,7 @@
                     <tr>
                         <th>Reg Code / Runner / Father</th>
                         <th>BIB & Category</th>
+                        <th>Promo Applied</th>
                         <th>Contact & Emergency</th>
                         <th>NRC / Passport / Country</th>
                         <th>Demographics</th>
@@ -639,6 +653,26 @@
                                 <i class="fa-solid fa-ticket"></i>
                                 {{ $attendee->ticketCategory->name ?? 'N/A' }}
                             </span>
+                        </td>
+
+                        {{-- Promo Code Info --}}
+                        <td>
+                            @if($attendee->promoCode)
+                                <div class="mb-1">
+                                    <span class="promo-badge">
+                                        <i class="fa-solid fa-tags"></i>
+                                        {{ $attendee->promoCode->code }}
+                                    </span>
+                                </div>
+                                <p class="text-xs text-purple-700 font-bold mt-1">
+                                    Off: {{ $attendee->promoCode->discount_type === 'percentage' ? $attendee->promoCode->discount_value . '%' : number_format($attendee->promoCode->discount_value) . ' MMK' }}
+                                </p>
+                                @if($attendee->promoCode->company_name)
+                                    <p class="text-xs text-gray-400"><i class="fa-solid fa-building me-1"></i>{{ $attendee->promoCode->company_name }}</p>
+                                @endif
+                            @else
+                                <span class="text-xs text-gray-400">-</span>
+                            @endif
                         </td>
 
                         {{-- Contact Info --}}
@@ -728,7 +762,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8" class="attendees-empty-state">
+                        <td colspan="9" class="attendees-empty-state">
                             <div class="attendees-empty-icon"><i class="fa-solid fa-users-slash"></i></div>
                             <h3>No Runners Registered</h3>
                             <p>No runners registered for this event yet.</p>

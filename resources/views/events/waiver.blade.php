@@ -223,6 +223,7 @@
                 @foreach($attendees as $index => $attendee)
                     <input type="hidden" name="attendees[{{ $index }}][ticket_category_id]" value="{{ $attendee['ticket_category_id'] ?? '' }}">
                     <input type="hidden" name="attendees[{{ $index }}][full_name]" value="{{ $attendee['full_name'] ?? '' }}">
+                    <input type="hidden" name="attendees[{{ $index }}][promo_code_id]" value="{{ $attendee['promo_code_id'] ?? '' }}">
                     <input type="hidden" name="attendees[{{ $index }}][father_name]" value="{{ $attendee['father_name'] ?? '' }}">
                     <input type="hidden" name="attendees[{{ $index }}][email]" value="{{ $attendee['email'] ?? '' }}">
                     <input type="hidden" name="attendees[{{ $index }}][phone]" value="{{ $attendee['phone'] ?? '' }}">

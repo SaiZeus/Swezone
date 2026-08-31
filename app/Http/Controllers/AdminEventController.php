@@ -65,6 +65,9 @@ class AdminEventController extends Controller
                 'promo_type' => 'nullable|in:fixed,percentage',
                 'promo_value' => 'nullable|numeric|min:0',
                 'promo_ticket_category_id' => 'nullable',
+                'company_name' => 'nullable|string|max:255',
+                'promo_quantity' => 'nullable|integer|min:1|max:500',
+                'max_uses' => 'nullable|integer|min:1',
                 'items' => 'nullable|array',
                 'items.*.title' => 'nullable|string|max:255',
                 'items.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -84,8 +87,7 @@ class AdminEventController extends Controller
                 'burmese_waiver.max' => 'The Burmese waiver must not be larger than 10MB.',
                 'english_race_guide.mimes' => 'The English race guide must be a valid PDF file.',
                 'english_race_guide.max' => 'The English race guide must not be larger than 10MB.',
-                'burmese_race_guide.mimes' => 'The Burmese race guide must be a valid PDF file.',
-                'burmese_race_guide.max' => 'The Burmese race guide must not be larger than 10MB.',
+                'burmese_race_guide.mimes' => 'The Burmese race guide must not be larger than 10MB.',
                 'items.*.image.max' => 'An event item image must not be larger than 2MB.',
             ]
         );
@@ -161,13 +163,39 @@ class AdminEventController extends Controller
                         }
                     }
 
-                    PromoCode::create([
-                        'event_id' => $event->id,
-                        'ticket_category_id' => $promoTicketCategoryId,
-                        'code' => strtoupper($request->promo_code),
-                        'discount_type' => $request->promo_type ?? 'fixed',
-                        'discount_value' => $request->promo_value,
-                    ]);
+                    $quantity = (int) $request->input('promo_quantity', 1);
+                    $companyName = $request->input('company_name');
+                    $baseCode = strtoupper(trim($request->promo_code));
+
+                    if ($quantity > 1) {
+                        for ($i = 1; $i <= $quantity; $i++) {
+                            $formattedCode = $baseCode . '-' . str_pad($i, 3, '0', STR_PAD_LEFT);
+
+                            PromoCode::create([
+                                'event_id'           => $event->id,
+                                'ticket_category_id' => $promoTicketCategoryId,
+                                'company_name'       => $companyName,
+                                'code'               => $formattedCode,
+                                'discount_type'      => $request->promo_type ?? 'fixed',
+                                'discount_value'     => $request->promo_value,
+                                'max_uses'           => 1,
+                                'uses_count'         => 0,
+                                'status'             => 'active',
+                            ]);
+                        }
+                    } else {
+                        PromoCode::create([
+                            'event_id'           => $event->id,
+                            'ticket_category_id' => $promoTicketCategoryId,
+                            'company_name'       => $companyName,
+                            'code'               => $baseCode,
+                            'discount_type'      => $request->promo_type ?? 'fixed',
+                            'discount_value'     => $request->promo_value,
+                            'max_uses'           => $request->input('max_uses', 1),
+                            'uses_count'         => 0,
+                            'status'             => 'active',
+                        ]);
+                    }
                 }
 
                 if ($request->has('items')) {
@@ -257,6 +285,9 @@ class AdminEventController extends Controller
             'promo_type' => 'nullable|in:fixed,percentage',
             'promo_value' => 'nullable|numeric|min:0',
             'promo_ticket_category_id' => 'nullable',
+            'company_name' => 'nullable|string|max:255',
+            'promo_quantity' => 'nullable|integer|min:1|max:500',
+            'max_uses' => 'nullable|integer|min:1',
             'items' => 'nullable|array',
             'items.*.id' => 'nullable|integer',
             'items.*.title' => 'nullable|string|max:255',
@@ -373,27 +404,6 @@ class AdminEventController extends Controller
                 }
             }
 
-            $event->promoCodes()->delete();
-
-            if ($request->filled('promo_code') && $request->filled('promo_value')) {
-                $promoTicketCategoryId = null;
-
-                if ($request->filled('promo_ticket_category_id')) {
-                    $selectedVal = $request->promo_ticket_category_id;
-                    if (isset($categoryMap[$selectedVal])) {
-                        $promoTicketCategoryId = $categoryMap[$selectedVal]->id;
-                    }
-                }
-
-                PromoCode::create([
-                    'event_id' => $event->id,
-                    'ticket_category_id' => $promoTicketCategoryId,
-                    'code' => strtoupper($request->promo_code),
-                    'discount_type' => $request->promo_type ?? 'fixed',
-                    'discount_value' => $request->promo_value,
-                ]);
-            }
-
             if ($request->filled('deleted_items')) {
                 $itemsToDelete = EventItem::where('event_id', $event->id)
                     ->whereIn('id', $request->deleted_items)
@@ -455,6 +465,81 @@ class AdminEventController extends Controller
             ->with('success', 'Event updated successfully!');
     }
 
+    /**
+     * Display Promo Codes management page for a specific event.
+     */
+    public function promoCodes($id)
+    {
+        $event = Event::with(['ticketCategories', 'promoCodes'])->findOrFail($id);
+        return view('admin.events.promo_codes', compact('event'));
+    }
+
+    /**
+     * Store single or bulk promo codes for a specific event.
+     */
+    public function storePromoCode(Request $request, $id)
+    {
+        $event = Event::findOrFail($id);
+
+        $request->validate([
+            'company_name'   => 'nullable|string|max:255',
+            'code'           => 'required|string|max:50',
+            'discount_type'  => 'required|in:fixed,percentage',
+            'discount_value' => 'required|numeric|min:0',
+            'promo_quantity' => 'required|integer|min:1|max:500',
+            'max_uses'       => 'required|integer|min:1',
+            'ticket_category_id' => 'nullable|exists:ticket_categories,id',
+        ]);
+
+        $quantity = (int) $request->input('promo_quantity', 1);
+        $baseCode = strtoupper(trim($request->input('code')));
+
+        if ($quantity > 1) {
+            for ($i = 1; $i <= $quantity; $i++) {
+                $formattedIndex = str_pad($i, 3, '0', STR_PAD_LEFT);
+                $generatedCode  = "{$baseCode}-{$formattedIndex}";
+
+                PromoCode::create([
+                    'event_id'           => $event->id,
+                    'company_name'       => $request->input('company_name'),
+                    'code'               => $generatedCode,
+                    'discount_type'      => $request->input('discount_type'),
+                    'discount_value'     => $request->input('discount_value'),
+                    'max_uses'           => 1,
+                    'uses_count'         => 0,
+                    'ticket_category_id' => $request->input('promo_scope') === 'ticket' ? $request->input('ticket_category_id') : null,
+                    'status'             => 'active',
+                ]);
+            }
+            return redirect()->back()->with('success', "Generated {$quantity} promo codes starting with {$baseCode}-001!");
+        }
+
+        PromoCode::create([
+            'event_id'           => $event->id,
+            'company_name'       => $request->input('company_name'),
+            'code'               => $baseCode,
+            'discount_type'      => $request->input('discount_type'),
+            'discount_value'     => $request->input('discount_value'),
+            'max_uses'           => $request->input('max_uses', 1),
+            'uses_count'         => 0,
+            'ticket_category_id' => $request->input('promo_scope') === 'ticket' ? $request->input('ticket_category_id') : null,
+            'status'             => 'active',
+        ]);
+
+        return redirect()->back()->with('success', "Promo code {$baseCode} created successfully!");
+    }
+
+    /**
+     * Delete a promo code.
+     */
+    public function destroyPromoCode($id)
+    {
+        $promo = PromoCode::findOrFail($id);
+        $promo->delete();
+
+        return redirect()->back()->with('success', 'Promo code deleted successfully!');
+    }
+
     public function attendees($eventId)
     {
         $event = Event::with('ticketCategories')->findOrFail($eventId);
@@ -465,7 +550,7 @@ class AdminEventController extends Controller
             ->whereHas('order', function ($q) {
                 $q->whereRaw("LOWER(payment_status) IN ('paid', 'approved', 'completed')");
             })
-            ->with(['ticketCategory', 'order'])
+            ->with(['ticketCategory', 'order', 'promoCode'])
             ->get();
 
         $totalRevenue = Order::where(function ($q) use ($eventId) {
@@ -517,7 +602,6 @@ class AdminEventController extends Controller
     {
         $attendee = Attendee::findOrFail($id);
         
-        // Decrement ticket count if tracked on category
         if ($attendee->ticketCategory && $attendee->ticketCategory->tickets_sold > 0) {
             $attendee->ticketCategory->decrement('tickets_sold');
         }

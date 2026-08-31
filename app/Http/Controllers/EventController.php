@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class EventController extends Controller
 {
@@ -49,7 +50,12 @@ class EventController extends Controller
      */
     public function showWaiver(Request $request, $id)
     {
+
         $event = Event::findOrFail($id);
+
+        Log::info('=== STEP 2: WAIVER PAGE RECEIVED DATA ===');
+        Log::info('Event ID:', ['event_id' => $event->id]);
+        Log::info('Attendees Posted to Waiver:', $request->input('attendees', []));
 
         $attendeesInput = $request->input('attendees', session('_old_input.attendees', []));
         $promoCode      = $request->input('promo_code', session('_old_input.promo_code'));
@@ -95,7 +101,22 @@ class EventController extends Controller
         $attendees = $request->input('attendees', []);
         $promoCode = $request->input('promo_code');
 
+        // === DEBUG LOG: WAIVER ACCEPT STEP ===
+        Log::info('=== ACCEPT WAIVER METHOD EXECUTED ===', [
+            'event_id'   => $id,
+            'promo_code' => $promoCode,
+            'attendees'  => $attendees,
+        ]);
+
+        foreach ($attendees as $idx => $att) {
+            Log::info("Waiver Accept Attendee #{$idx} Check:", [
+                'has_promo_id_key' => array_key_exists('promo_code_id', $att),
+                'promo_code_id'    => $att['promo_code_id'] ?? 'MISSING/NULL',
+            ]);
+        }
+
         if (empty($attendees)) {
+            Log::warning('Waiver Accept Failed: Attendees array empty');
             return redirect()->route('events.show', $id)
                 ->with('error', 'Registration session expired. Please select your tickets again.');
         }
@@ -104,8 +125,11 @@ class EventController extends Controller
         $hasRaceGuide = !empty(trim($event->english_race_guide ?? '')) || !empty(trim($event->burmese_race_guide ?? ''));
 
         if ($hasRaceGuide) {
+            Log::info('Routing to race_guide view. Checking if promo_code_id will be passed.');
             return view('events.race_guide', compact('event', 'attendees', 'promoCode'));
         }
+
+        Log::info('No race guide found. Forwarding request directly to CheckoutController@process');
 
         // If no Race Guide exists, forward directly to CheckoutController@process
         return app(CheckoutController::class)->process($request);

@@ -20,57 +20,66 @@ class CheckoutController extends Controller
     public function process(Request $request)
     {
         $request->validate([
-            'event_id'                          => 'required|exists:events,id',
-            'attendees'                         => 'required|array|min:1',
-            'attendees.*.ticket_category_id'    => 'required|exists:ticket_categories,id',
-            'attendees.*.full_name'             => 'required|string|max:255',
-            'attendees.*.email'                 => 'required|email|max:255',
-            'attendees.*.phone'                 => 'required|string|max:50',
-            'attendees.*.viber'                 => 'nullable|string|max:50',
-            'attendees.*.nrc_passport'          => 'required|string|max:100',
-            'attendees.*.nationality'           => 'required|string|max:100',
-            'attendees.*.tshirt_size'           => 'nullable|string|max:10',
-            'attendees.*.father_name'           => 'nullable|string|max:255',
-            'attendees.*.emergency_contact'     => 'nullable|string|max:50',
-            'attendees.*.country'               => 'nullable|string|max:100',
-            'attendees.*.gender'                => 'nullable|string',
-            'attendees.*.date_of_birth'         => 'nullable|sometimes|date',
-            'attendees.*.bib_name'              => 'nullable|string|max:10',
-            'attendees.*.blood_type'            => 'nullable|string',
-            'attendees.*.has_medical_condition' => 'nullable|string',
-            'attendees.*.medical_details'       => 'nullable|string',
-            'attendees.*.itra'                  => 'nullable|string',
-            'attendees.*.itra_details'          => 'nullable|string',
-            'attendees.*.address'               => 'nullable|string',
-            'attendees.*.experience'            => 'nullable|string',
+            'event_id'                         => 'required|exists:events,id',
+            'attendees'                        => 'required|array|min:1',
+            'attendees.*.ticket_category_id'   => 'required|exists:ticket_categories,id',
+            'attendees.*.promo_code_id'        => 'nullable|exists:promo_codes,id',
+            'attendees.*.full_name'            => 'required|string|max:255',
+            'attendees.*.email'                => 'required|email|max:255',
+            'attendees.*.phone'                => 'required|string|max:50',
+            'attendees.*.viber'                => 'nullable|string|max:50',
+            'attendees.*.nrc_passport'         => 'required|string|max:100',
+            'attendees.*.nationality'          => 'required|string|max:100',
+            'attendees.*.tshirt_size'          => 'nullable|string|max:10',
+            'attendees.*.father_name'          => 'nullable|string|max:255',
+            'attendees.*.emergency_contact'    => 'nullable|string|max:50',
+            'attendees.*.country'              => 'nullable|string|max:100',
+            'attendees.*.gender'               => 'nullable|string',
+            'attendees.*.date_of_birth'        => 'nullable|sometimes|date',
+            'attendees.*.bib_name'             => 'nullable|string|max:10',
+            'attendees.*.blood_type'           => 'nullable|string',
+            'attendees.*.has_medical_condition'=> 'nullable|string',
+            'attendees.*.medical_details'      => 'nullable|string',
+            'attendees.*.itra'                 => 'nullable|string',
+            'attendees.*.itra_details'         => 'nullable|string',
+            'attendees.*.address'              => 'nullable|string',
+            'attendees.*.experience'           => 'nullable|string',
         ]);
 
         $totalAmount = 0;
 
-        $promo = null;
-        if ($request->filled('promo_code')) {
-            $promo = PromoCode::where('event_id', $request->event_id)
-                ->where('code', $request->promo_code)
-                ->first();
-        }
-
+        // 1. Calculate final discounted amount for order
         foreach ($request->attendees as $attendeeData) {
             $category = TicketCategory::findOrFail($attendeeData['ticket_category_id']);
             
             $itemPrice = (strtolower($attendeeData['nationality']) === 'foreigner' && $category->foreign_price)
-                ? $category->foreign_price
-                : $category->local_price;
+                ? (float) $category->foreign_price
+                : (float) $category->local_price;
 
-            if ($promo && (is_null($promo->ticket_category_id) || $promo->ticket_category_id == $category->id)) {
-                if ($promo->discount_type === 'percentage') {
-                    $itemPrice -= ($itemPrice * ($promo->discount_value / 100));
-                } else {
-                    $itemPrice -= $promo->discount_value;
+            if (!empty($attendeeData['promo_code_id'])) {
+                $promo = PromoCode::find($attendeeData['promo_code_id']);
+
+                if ($promo) {
+                    $isEventMatch = (int)$promo->event_id === (int)$request->event_id;
+                    $isCategoryMatch = is_null($promo->ticket_category_id) || ((int)$promo->ticket_category_id === (int)$category->id);
+
+                    if ($isEventMatch && $isCategoryMatch) {
+                        if ($promo->discount_type === 'percentage') {
+                            $itemDiscount = ($itemPrice * ((float)$promo->discount_value / 100));
+                        } else {
+                            $itemDiscount = (float) $promo->discount_value;
+                        }
+
+                        $itemPrice -= $itemDiscount;
+                    }
                 }
             }
 
             $totalAmount += max(0, $itemPrice);
         }
+
+        // Round to 2 decimal places to ensure floating point accuracy for CB Bank payload
+        $totalAmount = round($totalAmount, 2);
 
         $order = Order::create([
             'order_number'   => 'ORD-' . strtoupper(Str::random(8)),
@@ -88,7 +97,6 @@ class CheckoutController extends Controller
 
             $generatedBib = $attendeeData['bib_name'] ?? null;
 
-            // Generate automatic sequential BIB if enabled for the event
             if ($event && $event->enable_bib_number) {
                 if ($event->share_bib_prefix) {
                     $prefix = !empty($event->event_bib_prefix) ? $event->event_bib_prefix : 'BIB';
@@ -117,14 +125,12 @@ class CheckoutController extends Controller
                 $generatedBib = strtoupper($prefix) . '-' . str_pad($nextNum, 4, '0', STR_PAD_LEFT);
             }
 
-            // Get total attendees registered for this specific event to compute REG-1 sequence
             $existingEventAttendees = Attendee::whereHas('ticketCategory', function ($q) use ($category) {
                 $q->where('event_id', $category->event_id);
             })->count();
 
             $registrationCode = 'REG-' . ($existingEventAttendees + 1);
 
-            // Register or retrieve user and assign sequential user ID formatted as SWE-0001
             $user = User::firstOrCreate(
                 ['email' => $attendeeData['email']],
                 [
@@ -138,6 +144,7 @@ class CheckoutController extends Controller
             Attendee::create([
                 'order_id'              => $order->id,
                 'ticket_category_id'    => $attendeeData['ticket_category_id'],
+                'promo_code_id'         => $attendeeData['promo_code_id'] ?? null,
                 'full_name'             => $attendeeData['full_name'],
                 'father_name'           => $attendeeData['father_name'] ?? null,
                 'email'                 => $attendeeData['email'],
@@ -228,7 +235,17 @@ class CheckoutController extends Controller
 
         foreach ($order->attendees as $attendee) {
             $category = $attendee->ticketCategory;
-            $category->increment('tickets_sold');
+            if ($category) {
+                $category->increment('tickets_sold');
+            }
+
+            // Increment promo code usage count only after successful payment completion
+            if (!empty($attendee->promo_code_id)) {
+                $promo = PromoCode::find($attendee->promo_code_id);
+                if ($promo) {
+                    $promo->increment('uses_count');
+                }
+            }
 
             Mail::to($attendee->email)->send(new TicketConfirmationMail($attendee));
         }
