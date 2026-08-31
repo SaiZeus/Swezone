@@ -19,6 +19,8 @@ class CheckoutController extends Controller
 {
     public function process(Request $request)
     {
+
+        Log::info('=== CHECKOUT PROCESS STARTED ===', $request->all());
         $request->validate([
             'event_id'                         => 'required|exists:events,id',
             'attendees'                        => 'required|array|min:1',
@@ -45,6 +47,8 @@ class CheckoutController extends Controller
             'attendees.*.address'              => 'nullable|string',
             'attendees.*.experience'           => 'nullable|string',
         ]);
+
+        Log::info('=== CHECKOUT VALIDATION PASSED ===');
 
         $totalAmount = 0;
 
