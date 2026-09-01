@@ -929,15 +929,20 @@
                                 </div>
                             </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
                                     <label class="event-label">Creator Name</label>
-                                    <input type="text" name="creator_name" value="{{ old('creator_name') }}" placeholder="e.g. John Doe" class="event-input">
+                                    <input type="text" name="creator_name" value="{{ old('creator_name') }}" placeholder="e.g. John Doe" class="event-input" required>
                                 </div>
 
                                 <div>
                                     <label class="event-label">Creator Phone Number</label>
-                                    <input type="text" name="creator_phone" value="{{ old('creator_phone') }}" placeholder="e.g. 09 123 456 789" class="event-input">
+                                    <input type="text" name="creator_phone" value="{{ old('creator_phone') }}" placeholder="e.g. 09 123 456 789" class="event-input" required>
+                                </div>
+
+                                <div>
+                                    <label class="event-label">Creator Email</label>
+                                    <input type="email" name="creator_email" value="{{ old('creator_email') }}" placeholder="e.g. organizer@example.com" class="event-input" required>
                                 </div>
                             </div>
                         </div>

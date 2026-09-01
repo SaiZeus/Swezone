@@ -580,11 +580,14 @@
                         <span><i class="far fa-user-circle text-primary me-1"></i> Organized by: {{ $event->creator_name }}</span>
                     @endif
                     
-                    @if($event->creator_phone || $event->organizer_phone)
-                        <span><i class="fas fa-phone-alt text-success me-1"></i> Contact: {{ $event->creator_phone ?? $event->organizer_phone }}</span>
+                    @if($event->creator_phone)
+                        <span><i class="fas fa-phone-alt text-success me-1"></i> Contact: {{ $event->creator_phone }}</span>
                     @endif
 
-                    {{-- Dynamic Capacity Badge --}}
+                    @if($event->creator_email)
+                        <span><i class="far fa-envelope text-warning me-1"></i> Email: <a href="mailto:{{ $event->creator_email }}" class="text-decoration-none text-reset">{{ $event->creator_email }}</a></span>
+                    @endif
+
                     @if($event->overall_capacity === null)
                         <span><i class="fas fa-infinity text-warning me-1"></i> Capacity: Unlimited</span>
                     @else

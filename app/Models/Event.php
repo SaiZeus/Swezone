@@ -18,6 +18,7 @@ class Event extends Model
         'status',
         'creator_name',
         'creator_phone',
+        'creator_email',
         'overall_capacity',
         'english_waiver',
         'burmese_waiver',

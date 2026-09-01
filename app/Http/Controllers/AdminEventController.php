@@ -11,6 +11,8 @@ use App\Models\EventItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Throwable;
 
 class AdminEventController extends Controller
@@ -48,6 +50,7 @@ class AdminEventController extends Controller
                 'status' => 'required|in:upcoming,live,past',
                 'creator_name' => 'required|string|max:255',
                 'creator_phone' => 'required|string|max:50',
+                'creator_email' => 'required|email|max:255',
                 'overall_capacity' => 'nullable|integer|min:1',
                 'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'english_waiver' => 'nullable|file|mimes:pdf|max:10240',
@@ -80,6 +83,7 @@ class AdminEventController extends Controller
                 'categories.*.local_price.numeric' => 'Ticket category price must be a valid number.',
                 'creator_name.required' => 'Please enter the event creator name.',
                 'creator_phone.required' => 'Please enter the event creator phone number.',
+                'creator_email.required' => 'Please enter the event creator email address.',
                 'image.max' => 'The event banner must not be larger than 2MB.',
                 'english_waiver.mimes' => 'The English waiver must be a valid PDF file.',
                 'english_waiver.max' => 'The English waiver must not be larger than 10MB.',
@@ -87,7 +91,7 @@ class AdminEventController extends Controller
                 'burmese_waiver.max' => 'The Burmese waiver must not be larger than 10MB.',
                 'english_race_guide.mimes' => 'The English race guide must be a valid PDF file.',
                 'english_race_guide.max' => 'The English race guide must not be larger than 10MB.',
-                'burmese_race_guide.mimes' => 'The Burmese race guide must not be larger than 10MB.',
+                'burmese_race_guide.mimes' => 'The Burmese race guide must be a valid PDF file.',
                 'items.*.image.max' => 'An event item image must not be larger than 2MB.',
             ]
         );
@@ -127,6 +131,7 @@ class AdminEventController extends Controller
                     'burmese_race_guide'     => $burmeseRaceGuidePath,
                     'creator_name'           => $request->creator_name,
                     'creator_phone'          => $request->creator_phone,
+                    'creator_email'          => $request->creator_email,
                     'overall_capacity'       => $request->overall_capacity,
                     'enabled_fields'         => $request->input('enabled_fields', []),
                     'enable_bib_number'      => $request->has('enable_bib_number'),
@@ -267,6 +272,7 @@ class AdminEventController extends Controller
             'status' => 'required|in:upcoming,live,past',
             'creator_name' => 'required|string|max:255',
             'creator_phone' => 'required|string|max:50',
+            'creator_email' => 'required|email|max:255',
             'overall_capacity' => 'nullable|integer|min:1',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'english_waiver' => 'nullable|file|mimes:pdf|max:10240',
@@ -340,6 +346,7 @@ class AdminEventController extends Controller
                 'status'                 => $request->status,
                 'creator_name'           => $request->creator_name,
                 'creator_phone'          => $request->creator_phone,
+                'creator_email'          => $request->creator_email,
                 'overall_capacity'       => $request->overall_capacity,
                 'enabled_fields'         => $request->input('enabled_fields', []),
                 'enable_bib_number'      => $request->has('enable_bib_number'),
@@ -610,6 +617,119 @@ class AdminEventController extends Controller
 
         return back()->with('success', 'Attendee deleted successfully!');
     }
+
+    public function downloadAttendeeTicket($id)
+{
+    ini_set('memory_limit', '1024M');
+
+    $attendee = Attendee::with('ticketCategory.event')->findOrFail($id);
+
+    if (empty($attendee->verification_token)) {
+        $attendee->verification_token = Str::random(64);
+        $attendee->save();
+    }
+
+    $event = $attendee->ticketCategory->event;
+
+    $bannerBase64 = null;
+    if ($event->image && Storage::disk('public')->exists($event->image)) {
+        $bannerPath = storage_path('app/public/' . $event->image);
+        if (file_exists($bannerPath) && filesize($bannerPath) <= 2 * 1024 * 1024) {
+            $bannerBase64 = $this->resizeImageToBase64($bannerPath, 800, 300);
+        }
+    }
+
+    $logoPath = public_path('assets/img/logo/Swezon_Logo1.1V.png');
+    $logoBase64 = (file_exists($logoPath) && filesize($logoPath) <= 2 * 1024 * 1024) 
+        ? $this->resizeImageToBase64($logoPath, 300, 100) 
+        : null;
+
+    $verificationUrl = route('ticket.verify', ['token' => $attendee->verification_token]);
+    $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=75x75&data=' . urlencode($verificationUrl);
+    $qrImageData = @file_get_contents($qrApiUrl);
+    $qrBase64 = $qrImageData ? 'data:image/png;base64,' . base64_encode($qrImageData) : null;
+
+    $pdf = Pdf::setOptions([
+        'isHtml5ParserEnabled' => true,
+        'isRemoteEnabled' => true, // Enabled to allow loading Google Fonts for Myanmar text
+        'defaultFont' => 'sans-serif',
+        'isFontSubsettingEnabled' => true,
+    ])->loadView('emails.ticket_pdf', [
+        'attendee' => $attendee,
+        'bannerBase64' => $bannerBase64,
+        'logoBase64' => $logoBase64,
+        'qrBase64' => $qrBase64
+    ]);
+
+    $filename = 'Ticket_' . ($attendee->ticket_uuid ?? $attendee->id) . '.pdf';
+
+    return $pdf->download($filename);
+}
+
+private function resizeImageToBase64($filePath, $maxWidth, $maxHeight)
+{
+    if (!file_exists($filePath)) {
+        return null;
+    }
+
+    $imageInfo = @getImageSize($filePath);
+    if (!$imageInfo) {
+        return null;
+    }
+
+    list($origWidth, $origHeight, $imageType) = $imageInfo;
+
+    switch ($imageType) {
+        case IMAGETYPE_JPEG:
+            $sourceImage = @imagecreatefromjpeg($filePath);
+            break;
+        case IMAGETYPE_PNG:
+            $sourceImage = @imagecreatefrompng($filePath);
+            break;
+        case IMAGETYPE_GIF:
+            $sourceImage = @imagecreatefromgif($filePath);
+            break;
+        default:
+            return null;
+    }
+
+    if (!$sourceImage) {
+        return null;
+    }
+
+    $ratio = min($maxWidth / $origWidth, $maxHeight / $origHeight);
+    if ($ratio > 1) {
+        $ratio = 1;
+    }
+    
+    $newWidth = max(1, round($origWidth * $ratio));
+    $newHeight = max(1, round($origHeight * $ratio));
+
+    $virtualImage = imagecreatetruecolor($newWidth, $newHeight);
+
+    if ($imageType == IMAGETYPE_PNG || $imageType == IMAGETYPE_GIF) {
+        imagecolortransparent($virtualImage, imagecolorallocatealpha($virtualImage, 0, 0, 0, 127));
+        imagealphablending($virtualImage, false);
+        imagesavealpha($virtualImage, true);
+    }
+
+    imagecopyresampled($virtualImage, $sourceImage, 0, 0, 0, 0, $newWidth, $newHeight, $origWidth, $origHeight);
+
+    ob_start();
+    if ($imageType == IMAGETYPE_JPEG) {
+        imagejpeg($virtualImage, null, 75);
+        $mime = 'image/jpeg';
+    } else {
+        imagepng($virtualImage, null, 6);
+        $mime = 'image/png';
+    }
+    $imageData = ob_get_clean();
+
+    imagedestroy($sourceImage);
+    imagedestroy($virtualImage);
+
+    return 'data:' . $mime . ';base64,' . base64_encode($imageData);
+}
 
     public function destroy($id)
     {

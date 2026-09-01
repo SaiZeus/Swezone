@@ -6,6 +6,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminEventController;
 use App\Http\Controllers\Admin\AdminAuthController;
+use App\Http\Controllers\TicketVerificationController;
 use App\Models\Attendee;
 use App\Models\PromoCode;
 use App\Mail\TicketConfirmationMail;
@@ -109,6 +110,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
 
     // Attendee Routes
     Route::get('/events/{id}/attendees', [AdminEventController::class, 'attendees'])->name('events.attendees');
+    Route::get('/attendees/{id}/download-ticket', [AdminEventController::class, 'downloadAttendeeTicket'])->name('attendees.download_ticket');
     Route::put('/attendees/{id}', [AdminEventController::class, 'updateAttendee'])->name('attendees.update');
     Route::delete('/attendees/{id}', [AdminEventController::class, 'destroyAttendee'])->name('attendees.destroy');
 });
@@ -121,3 +123,14 @@ Route::get('/test-email', function () {
     Mail::to('zeuspower200@gmail.com')->send(new TicketConfirmationMail($attendee));
     return "Test email sent!";
 });
+
+Route::get('/akjbdakbd/status/{token}', [TicketVerificationController::class, 'show'])->name('ticket.verify');
+
+Route::get('/preview-ticket-email', function () {
+    $attendee = App\Models\Attendee::with('ticketCategory.event')->first();
+    if (!$attendee) {
+        return "No attendee found in database.";
+    }
+    return view('emails.ticket_notification', ['attendee' => $attendee]);
+});
+

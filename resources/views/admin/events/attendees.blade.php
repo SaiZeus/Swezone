@@ -421,6 +421,8 @@
         transition: all 0.18s ease;
     }
 
+    .download-ticket-button { background: #f0fdf4; color: #16a34a; }
+    .download-ticket-button:hover { background: #dcfce7; color: #15803d; }
     .edit-attendee-button { background: #fffbeb; color: #d97706; }
     .edit-attendee-button:hover { background: #fef3c7; color: #b45309; }
     .delete-attendee-button { background: #fef2f2; color: #dc2626; }
@@ -746,6 +748,10 @@
                         {{-- Actions --}}
                         <td>
                             <div class="attendee-actions">
+                                <a href="{{ route('admin.attendees.download_ticket', $attendee->id) }}" class="attendee-action download-ticket-button" title="Download Ticket PDF">
+                                    <i class="fa-solid fa-download"></i> Ticket
+                                </a>
+
                                 <button type="button" onclick="document.getElementById('edit-modal-{{ $attendee->id }}').classList.remove('hidden')" class="attendee-action edit-attendee-button">
                                     <i class="fa-solid fa-pen-to-square"></i> Edit
                                 </button>

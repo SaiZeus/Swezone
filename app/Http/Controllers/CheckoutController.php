@@ -19,8 +19,6 @@ class CheckoutController extends Controller
 {
     public function process(Request $request)
     {
-
-        Log::info('=== CHECKOUT PROCESS STARTED ===', $request->all());
         $request->validate([
             'event_id'                         => 'required|exists:events,id',
             'attendees'                        => 'required|array|min:1',
@@ -47,8 +45,6 @@ class CheckoutController extends Controller
             'attendees.*.address'              => 'nullable|string',
             'attendees.*.experience'           => 'nullable|string',
         ]);
-
-        Log::info('=== CHECKOUT VALIDATION PASSED ===');
 
         $totalAmount = 0;
 
@@ -183,11 +179,6 @@ class CheckoutController extends Controller
         $env = config('mmqr.environment', 'uat');
         $config = config("mmqr.{$env}");
 
-        Log::info("=== GENERATING MMQR CODE FOR ORDER {$orderNumber} ===", [
-            'amount' => $amount,
-            'env' => $env
-        ]);
-
         try {
             $tokenResponse = Http::post("{$config['base_url']}/auth/token", [
                 'userId'   => $config['user_id'],
@@ -200,7 +191,6 @@ class CheckoutController extends Controller
             }
 
             $token = $tokenResponse['token'];
-            Log::info('MMQR Auth Token Obtained Successfully');
 
             $qrResponse = Http::post("{$config['base_url']}/dynamicqr", [
                 'token'                => $token,
@@ -211,10 +201,7 @@ class CheckoutController extends Controller
                 'referenceNo'          => $orderNumber,
                 'merchantId'           => $config['mid'],
                 'terminalId'           => $config['tid'],
-                'callbackUrl'          => 'https://swezon.com.mm/api/payment/mmqr/callback',
             ]);
-
-            Log::info('MMQR Dynamic QR Response Payload:', ['response' => $qrResponse->json()]);
 
             if ($qrResponse->successful() && ($qrResponse['returnCode'] ?? null) === '0000') {
                 return [
