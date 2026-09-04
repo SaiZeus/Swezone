@@ -82,6 +82,7 @@ class CheckoutController extends Controller
         $totalAmount = round($totalAmount, 2);
 
         $order = Order::create([
+            'event_id'       => $request->event_id,
             'order_number'   => 'ORD-' . strtoupper(Str::random(8)),
             'total_amount'   => $totalAmount,
             'payment_method' => 'MMQR',
@@ -171,7 +172,7 @@ class CheckoutController extends Controller
             ]);
         }
 
-        return redirect()->route('checkout.payment', $order->id);
+        return redirect()->route('checkout.payment', $order);
     }
 
     protected function generateMmqrCode($orderNumber, $amount)
@@ -219,17 +220,17 @@ class CheckoutController extends Controller
         }
     }
 
-    public function showPayment($orderId)
+    public function showPayment(Order $order)
     {
-        $order = Order::with('attendees.ticketCategory')->findOrFail($orderId);
+        $order->load('attendees.ticketCategory');
         $mmqrData = $this->generateMmqrCode($order->order_number, $order->total_amount);
 
         return view('checkout.payment', compact('order', 'mmqrData'));
     }
 
-    public function completePayment(Request $request, $orderId)
+    public function completePayment(Request $request, Order $order)
     {
-        $order = Order::with('attendees.ticketCategory.event')->findOrFail($orderId);
+        $order->load('attendees.ticketCategory.event');
         
         $order->update(['payment_status' => 'paid']);
 
@@ -250,12 +251,12 @@ class CheckoutController extends Controller
             Mail::to($attendee->email)->send(new TicketConfirmationMail($attendee));
         }
 
-        return redirect()->route('checkout.success', $order->id);
+        return redirect()->route('checkout.success', $order);
     }
 
-    public function success($orderId)
+    public function success(Order $order)
     {
-        $order = Order::with('attendees')->findOrFail($orderId);
+        $order->load('attendees');
         return view('checkout.success', compact('order'));
     }
 }

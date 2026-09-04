@@ -79,7 +79,7 @@
 
                 {{-- SIMULATE PAYMENT BUTTON --}}
                 <div class="mt-4" style="max-width: 340px; margin: 0 auto;">
-                    <form action="{{ route('checkout.complete', $order->id) }}" method="POST">
+                    <form action="{{ route('checkout.complete', $order) }}" method="POST">
                         @csrf
                         <button type="submit" class="btn btn-primary w-100 py-2" style="font-size: 14px; font-weight: bold;">
                             Done (Simulate Paid)
@@ -95,8 +95,8 @@
 @push('scripts')
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const orderId = "{{ $order->id }}";
-        const successUrl = "{{ route('checkout.success', $order->id) }}";
+        const orderId = "{{ $order->reference }}";
+        const successUrl = "{{ route('checkout.success', $order) }}";
         
         // 1. 3-Minute Countdown Timer (180 seconds)
         let timeLeft = 180;
