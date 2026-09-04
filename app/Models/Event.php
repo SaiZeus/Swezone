@@ -11,6 +11,7 @@ class Event extends Model
 
     protected $fillable = [
         'title',
+        'slug',
         'description',
         'location',
         'event_date',
@@ -23,7 +24,7 @@ class Event extends Model
         'english_waiver',
         'burmese_waiver',
         'english_race_guide',
-    'burmese_race_guide',
+        'burmese_race_guide',
         'enabled_fields',
         'enable_bib_number',
         'share_bib_prefix',
@@ -36,6 +37,11 @@ class Event extends Model
         'enable_bib_number' => 'boolean',
         'share_bib_prefix' => 'boolean',
     ];
+
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
 
     public function ticketCategories()
     {

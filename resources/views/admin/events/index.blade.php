@@ -982,7 +982,7 @@
 
                                     {{-- Promo Codes --}}
                                     <a
-                                        href="{{ route('admin.events.promo_codes', $event->id) }}"
+                                        href="{{ route('admin.events.promo_codes', $event) }}"
                                         class="event-action-button promo-button"
                                     >
 
@@ -995,7 +995,7 @@
 
                                     {{-- Attendees --}}
                                     <a
-                                        href="{{ route('admin.events.attendees', $event->id) }}"
+                                        href="{{ route('admin.events.attendees', $event) }}"
                                         class="event-action-button attendees-button"
                                     >
 
@@ -1008,7 +1008,7 @@
 
                                     {{-- Edit --}}
                                     <a
-                                        href="{{ route('admin.events.edit', $event->id) }}"
+                                        href="{{ route('admin.events.edit', $event) }}"
                                         class="event-action-button edit-button"
                                     >
 
@@ -1021,7 +1021,7 @@
 
                                     {{-- Delete --}}
                                     <form
-                                        action="{{ route('admin.events.destroy', $event->id) }}"
+                                        action="{{ route('admin.events.destroy', $event) }}"
                                         method="POST"
                                         class="inline-block"
                                         onsubmit="return confirm('Are you sure you want to delete this event?');"

@@ -704,7 +704,7 @@
                 <div class="row mt-3" id="checkout-section" style="display: none;">
                     <div class="col-lg-12">
                         <div class="attendee-panel">
-                            <form action="{{ route('events.waiver', $event->id) }}" method="POST" id="checkout-form">
+                            <form action="{{ route('events.waiver', $event) }}" method="POST" id="checkout-form">
                                 @csrf
                                 <input type="hidden" name="event_id" id="event_id" value="{{ $event->id }}">
 

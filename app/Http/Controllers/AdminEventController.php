@@ -98,6 +98,13 @@ class AdminEventController extends Controller
 
         try {
             DB::transaction(function () use ($request) {
+                $slug = Str::slug($request->title);
+                $originalSlug = $slug;
+                $count = 1;
+                while (Event::where('slug', $slug)->exists()) {
+                    $slug = $originalSlug . '-' . $count++;
+                }
+
                 $imagePath = $request->hasFile('image') 
                     ? $request->file('image')->store('events', 'public') 
                     : null;
@@ -120,6 +127,7 @@ class AdminEventController extends Controller
 
                 $event = Event::create([
                     'title'                  => $request->title,
+                    'slug'                   => $slug,
                     'description'            => $request->description,
                     'location'               => $request->location,
                     'event_date'             => $request->event_date,
@@ -241,25 +249,19 @@ class AdminEventController extends Controller
         }
     }
 
-    public function edit($id)
+    public function edit(Event $event)
     {
-        $event = Event::with([
+        $event->load([
             'ticketCategories',
             'promoCodes',
             'items'
-        ])->findOrFail($id);
+        ]);
 
         return view('admin.events.edit', compact('event'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Event $event)
     {
-        $event = Event::with([
-            'ticketCategories',
-            'promoCodes',
-            'items'
-        ])->findOrFail($id);
-
         if ($request->input('promo_ticket_category_id') === '') {
             $request->merge(['promo_ticket_category_id' => null]);
         }
@@ -303,6 +305,13 @@ class AdminEventController extends Controller
         ]);
 
         DB::transaction(function () use ($request, $event) {
+            $slug = Str::slug($request->title);
+            $originalSlug = $slug;
+            $count = 1;
+            while (Event::where('slug', $slug)->where('id', '!=', $event->id)->exists()) {
+                $slug = $originalSlug . '-' . $count++;
+            }
+
             if ($request->hasFile('image')) {
                 if ($event->image) {
                     Storage::disk('public')->delete($event->image);
@@ -340,6 +349,7 @@ class AdminEventController extends Controller
 
             $event->update([
                 'title'                  => $request->title,
+                'slug'                   => $slug,
                 'description'            => $request->description,
                 'location'               => $request->location,
                 'event_date'             => $request->event_date,
@@ -475,19 +485,17 @@ class AdminEventController extends Controller
     /**
      * Display Promo Codes management page for a specific event.
      */
-    public function promoCodes($id)
+    public function promoCodes(Event $event)
     {
-        $event = Event::with(['ticketCategories', 'promoCodes'])->findOrFail($id);
+        $event->load(['ticketCategories', 'promoCodes']);
         return view('admin.events.promo_codes', compact('event'));
     }
 
     /**
      * Store single or bulk promo codes for a specific event.
      */
-    public function storePromoCode(Request $request, $id)
+    public function storePromoCode(Request $request, Event $event)
     {
-        $event = Event::findOrFail($id);
-
         $request->validate([
             'company_name'   => 'nullable|string|max:255',
             'code'           => 'required|string|max:50',
@@ -547,9 +555,10 @@ class AdminEventController extends Controller
         return redirect()->back()->with('success', 'Promo code deleted successfully!');
     }
 
-    public function attendees($eventId)
+    public function attendees(Event $event)
     {
-        $event = Event::with('ticketCategories')->findOrFail($eventId);
+        $eventId = $event->id;
+        $event->load('ticketCategories');
 
         $attendees = Attendee::whereHas('ticketCategory', function ($q) use ($eventId) {
                 $q->where('event_id', $eventId);
@@ -619,125 +628,125 @@ class AdminEventController extends Controller
     }
 
     public function downloadAttendeeTicket($id)
-{
-    ini_set('memory_limit', '1024M');
-
-    $attendee = Attendee::with('ticketCategory.event')->findOrFail($id);
-
-    if (empty($attendee->verification_token)) {
-        $attendee->verification_token = Str::random(64);
-        $attendee->save();
-    }
-
-    $event = $attendee->ticketCategory->event;
-
-    $bannerBase64 = null;
-    if ($event->image && Storage::disk('public')->exists($event->image)) {
-        $bannerPath = storage_path('app/public/' . $event->image);
-        if (file_exists($bannerPath) && filesize($bannerPath) <= 2 * 1024 * 1024) {
-            $bannerBase64 = $this->resizeImageToBase64($bannerPath, 800, 300);
-        }
-    }
-
-    $logoPath = public_path('assets/img/logo/Swezon_Logo1.1V.png');
-    $logoBase64 = (file_exists($logoPath) && filesize($logoPath) <= 2 * 1024 * 1024) 
-        ? $this->resizeImageToBase64($logoPath, 300, 100) 
-        : null;
-
-    $verificationUrl = route('ticket.verify', ['token' => $attendee->verification_token]);
-    $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=75x75&data=' . urlencode($verificationUrl);
-    $qrImageData = @file_get_contents($qrApiUrl);
-    $qrBase64 = $qrImageData ? 'data:image/png;base64,' . base64_encode($qrImageData) : null;
-
-    $pdf = Pdf::setOptions([
-        'isHtml5ParserEnabled' => true,
-        'isRemoteEnabled' => true, // Enabled to allow loading Google Fonts for Myanmar text
-        'defaultFont' => 'sans-serif',
-        'isFontSubsettingEnabled' => true,
-    ])->loadView('emails.ticket_pdf', [
-        'attendee' => $attendee,
-        'bannerBase64' => $bannerBase64,
-        'logoBase64' => $logoBase64,
-        'qrBase64' => $qrBase64
-    ]);
-
-    $filename = 'Ticket_' . ($attendee->ticket_uuid ?? $attendee->id) . '.pdf';
-
-    return $pdf->download($filename);
-}
-
-private function resizeImageToBase64($filePath, $maxWidth, $maxHeight)
-{
-    if (!file_exists($filePath)) {
-        return null;
-    }
-
-    $imageInfo = @getImageSize($filePath);
-    if (!$imageInfo) {
-        return null;
-    }
-
-    list($origWidth, $origHeight, $imageType) = $imageInfo;
-
-    switch ($imageType) {
-        case IMAGETYPE_JPEG:
-            $sourceImage = @imagecreatefromjpeg($filePath);
-            break;
-        case IMAGETYPE_PNG:
-            $sourceImage = @imagecreatefrompng($filePath);
-            break;
-        case IMAGETYPE_GIF:
-            $sourceImage = @imagecreatefromgif($filePath);
-            break;
-        default:
-            return null;
-    }
-
-    if (!$sourceImage) {
-        return null;
-    }
-
-    $ratio = min($maxWidth / $origWidth, $maxHeight / $origHeight);
-    if ($ratio > 1) {
-        $ratio = 1;
-    }
-    
-    $newWidth = max(1, round($origWidth * $ratio));
-    $newHeight = max(1, round($origHeight * $ratio));
-
-    $virtualImage = imagecreatetruecolor($newWidth, $newHeight);
-
-    if ($imageType == IMAGETYPE_PNG || $imageType == IMAGETYPE_GIF) {
-        imagecolortransparent($virtualImage, imagecolorallocatealpha($virtualImage, 0, 0, 0, 127));
-        imagealphablending($virtualImage, false);
-        imagesavealpha($virtualImage, true);
-    }
-
-    imagecopyresampled($virtualImage, $sourceImage, 0, 0, 0, 0, $newWidth, $newHeight, $origWidth, $origHeight);
-
-    ob_start();
-    if ($imageType == IMAGETYPE_JPEG) {
-        imagejpeg($virtualImage, null, 75);
-        $mime = 'image/jpeg';
-    } else {
-        imagepng($virtualImage, null, 6);
-        $mime = 'image/png';
-    }
-    $imageData = ob_get_clean();
-
-    imagedestroy($sourceImage);
-    imagedestroy($virtualImage);
-
-    return 'data:' . $mime . ';base64,' . base64_encode($imageData);
-}
-
-    public function destroy($id)
     {
-        $event = Event::with([
+        ini_set('memory_limit', '1024M');
+
+        $attendee = Attendee::with('ticketCategory.event')->findOrFail($id);
+
+        if (empty($attendee->verification_token)) {
+            $attendee->verification_token = Str::random(64);
+            $attendee->save();
+        }
+
+        $event = $attendee->ticketCategory->event;
+
+        $bannerBase64 = null;
+        if ($event->image && Storage::disk('public')->exists($event->image)) {
+            $bannerPath = storage_path('app/public/' . $event->image);
+            if (file_exists($bannerPath) && filesize($bannerPath) <= 2 * 1024 * 1024) {
+                $bannerBase64 = $this->resizeImageToBase64($bannerPath, 800, 300);
+            }
+        }
+
+        $logoPath = public_path('assets/img/logo/Swezon_Logo1.1V.png');
+        $logoBase64 = (file_exists($logoPath) && filesize($logoPath) <= 2 * 1024 * 1024) 
+            ? $this->resizeImageToBase64($logoPath, 300, 100) 
+            : null;
+
+        $verificationUrl = route('ticket.verify', ['token' => $attendee->verification_token]);
+        $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=75x75&data=' . urlencode($verificationUrl);
+        $qrImageData = @file_get_contents($qrApiUrl);
+        $qrBase64 = $qrImageData ? 'data:image/png;base64,' . base64_encode($qrImageData) : null;
+
+        $pdf = Pdf::setOptions([
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => true,
+            'defaultFont' => 'sans-serif',
+            'isFontSubsettingEnabled' => true,
+        ])->loadView('emails.ticket_pdf', [
+            'attendee' => $attendee,
+            'bannerBase64' => $bannerBase64,
+            'logoBase64' => $logoBase64,
+            'qrBase64' => $qrBase64
+        ]);
+
+        $filename = 'Ticket_' . ($attendee->ticket_uuid ?? $attendee->id) . '.pdf';
+
+        return $pdf->download($filename);
+    }
+
+    private function resizeImageToBase64($filePath, $maxWidth, $maxHeight)
+    {
+        if (!file_exists($filePath)) {
+            return null;
+        }
+
+        $imageInfo = @getImageSize($filePath);
+        if (!$imageInfo) {
+            return null;
+        }
+
+        list($origWidth, $origHeight, $imageType) = $imageInfo;
+
+        switch ($imageType) {
+            case IMAGETYPE_JPEG:
+                $sourceImage = @imagecreatefromjpeg($filePath);
+                break;
+            case IMAGETYPE_PNG:
+                $sourceImage = @imagecreatefrompng($filePath);
+                break;
+            case IMAGETYPE_GIF:
+                $sourceImage = @imagecreatefromgif($filePath);
+                break;
+            default:
+                return null;
+        }
+
+        if (!$sourceImage) {
+            return null;
+        }
+
+        $ratio = min($maxWidth / $origWidth, $maxHeight / $origHeight);
+        if ($ratio > 1) {
+            $ratio = 1;
+        }
+        
+        $newWidth = max(1, round($origWidth * $ratio));
+        $newHeight = max(1, round($origHeight * $ratio));
+
+        $virtualImage = imagecreatetruecolor($newWidth, $newHeight);
+
+        if ($imageType == IMAGETYPE_PNG || $imageType == IMAGETYPE_GIF) {
+            imagecolortransparent($virtualImage, imagecolorallocatealpha($virtualImage, 0, 0, 0, 127));
+            imagealphablending($virtualImage, false);
+            imagesavealpha($virtualImage, true);
+        }
+
+        imagecopyresampled($virtualImage, $sourceImage, 0, 0, 0, 0, $newWidth, $newHeight, $origWidth, $origHeight);
+
+        ob_start();
+        if ($imageType == IMAGETYPE_JPEG) {
+            imagejpeg($virtualImage, null, 75);
+            $mime = 'image/jpeg';
+        } else {
+            imagepng($virtualImage, null, 6);
+            $mime = 'image/png';
+        }
+        $imageData = ob_get_clean();
+
+        imagedestroy($sourceImage);
+        imagedestroy($virtualImage);
+
+        return 'data:' . $mime . ';base64,' . base64_encode($imageData);
+    }
+
+    public function destroy(Event $event)
+    {
+        $event->load([
             'ticketCategories',
             'promoCodes',
             'items'
-        ])->findOrFail($id);
+        ]);
 
         $categoryIds = $event->ticketCategories()->pluck('id');
         Attendee::whereIn('ticket_category_id', $categoryIds)->delete();

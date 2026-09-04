@@ -232,7 +232,7 @@
                 <i class="fa-solid fa-circle-plus"></i> Generate Partner / Event Promo Codes
             </div>
 
-            <form action="{{ route('admin.events.promo_codes.store', $event->id) }}" method="POST">
+           <form action="{{ route('admin.events.promo_codes.store', $event) }}" method="POST">
                 @csrf
 
                 <div class="form-grid">

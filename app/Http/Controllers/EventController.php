@@ -31,9 +31,9 @@ class EventController extends Controller
         return view('index', compact('events', 'liveEvents', 'upcomingEvents', 'pastEvents'));
     }
 
-    public function show($id)
+    public function show(Event $event)
     {
-        $event = Event::with(['ticketCategories', 'promoCodes', 'items'])->findOrFail($id);
+        $event->load(['ticketCategories', 'promoCodes', 'items']);
 
         $totalTicketsSold = $event->ticketCategories->sum('tickets_sold');
         
@@ -48,11 +48,8 @@ class EventController extends Controller
     /**
      * Show Intermediate Waiver Blade before Race Guide / Payment
      */
-    public function showWaiver(Request $request, $id)
+    public function showWaiver(Request $request, Event $event)
     {
-
-        $event = Event::findOrFail($id);
-
         Log::info('=== STEP 2: WAIVER PAGE RECEIVED DATA ===');
         Log::info('Event ID:', ['event_id' => $event->id]);
         Log::info('Attendees Posted to Waiver:', $request->input('attendees', []));
@@ -61,7 +58,7 @@ class EventController extends Controller
         $promoCode      = $request->input('promo_code', session('_old_input.promo_code'));
 
         if (empty($attendeesInput)) {
-            return redirect()->route('events.show', $id)
+            return redirect()->route('events.show', $event)
                 ->with('error', 'Please complete registration details first.');
         }
 
@@ -94,16 +91,14 @@ class EventController extends Controller
     /**
      * Handle Waiver Submission -> Route to Race Guide or Checkout Process
      */
-    public function acceptWaiver(Request $request, $id)
+    public function acceptWaiver(Request $request, Event $event)
     {
-        $event = Event::findOrFail($id);
-
         $attendees = $request->input('attendees', []);
         $promoCode = $request->input('promo_code');
 
         // === DEBUG LOG: WAIVER ACCEPT STEP ===
         Log::info('=== ACCEPT WAIVER METHOD EXECUTED ===', [
-            'event_id'   => $id,
+            'event_id'   => $event->id,
             'promo_code' => $promoCode,
             'attendees'  => $attendees,
         ]);
@@ -117,7 +112,7 @@ class EventController extends Controller
 
         if (empty($attendees)) {
             Log::warning('Waiver Accept Failed: Attendees array empty');
-            return redirect()->route('events.show', $id)
+            return redirect()->route('events.show', $event)
                 ->with('error', 'Registration session expired. Please select your tickets again.');
         }
 
@@ -138,14 +133,12 @@ class EventController extends Controller
     /**
      * Handle Race Guide Submission -> Route to Checkout Process
      */
-    public function acceptRaceGuide(Request $request, $id)
+    public function acceptRaceGuide(Request $request, Event $event)
     {
-        $event = Event::findOrFail($id);
-
         $attendees = $request->input('attendees', []);
 
         if (empty($attendees)) {
-            return redirect()->route('events.show', $id)
+            return redirect()->route('events.show', $event)
                 ->with('error', 'Registration session expired. Please select your tickets again.');
         }
 

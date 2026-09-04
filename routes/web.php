@@ -16,12 +16,12 @@ use Illuminate\Http\Request;
 
 // Public Event Routes
 Route::get('/', [EventController::class, 'index'])->name('home');
-Route::get('/events/{id}', [EventController::class, 'show'])->name('events.show');
+Route::get('/events/{event:slug}', [EventController::class, 'show'])->name('events.show');
 
 // Waiver & Race Guide Intermediate Page Routes
-Route::match(['get', 'post'], '/events/{id}/waiver', [EventController::class, 'showWaiver'])->name('events.waiver');
-Route::post('/events/{id}/waiver-accept', [EventController::class, 'acceptWaiver'])->name('events.waiver.accept');
-Route::post('/events/{id}/race-guide-accept', [EventController::class, 'acceptRaceGuide'])->name('events.race_guide.accept');
+Route::match(['get', 'post'], '/events/{event:slug}/waiver', [EventController::class, 'showWaiver'])->name('events.waiver');
+Route::post('/events/{event:slug}/waiver-accept', [EventController::class, 'acceptWaiver'])->name('events.waiver.accept');
+Route::post('/events/{event:slug}/race-guide-accept', [EventController::class, 'acceptRaceGuide'])->name('events.race_guide.accept');
 
 // Promo Code Verification API Route
 Route::get('/api/check-promo', function (Request $request) {
@@ -99,17 +99,17 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('/events', [AdminEventController::class, 'index'])->name('events.index');
     Route::get('/events/create', [AdminEventController::class, 'create'])->name('events.create');
     Route::post('/events', [AdminEventController::class, 'store'])->name('events.store');
-    Route::get('/events/{id}/edit', [AdminEventController::class, 'edit'])->name('events.edit');
-    Route::put('/events/{id}', [AdminEventController::class, 'update'])->name('events.update');
-    Route::delete('/events/{id}', [AdminEventController::class, 'destroy'])->name('events.destroy');
+    Route::get('/events/{event:slug}/edit', [AdminEventController::class, 'edit'])->name('events.edit');
+    Route::put('/events/{event:slug}', [AdminEventController::class, 'update'])->name('events.update');
+    Route::delete('/events/{event:slug}', [AdminEventController::class, 'destroy'])->name('events.destroy');
     
     // Dedicated Event Promo Code Management Routes
-    Route::get('/events/{id}/promo-codes', [AdminEventController::class, 'promoCodes'])->name('events.promo_codes');
-    Route::post('/events/{id}/promo-codes', [AdminEventController::class, 'storePromoCode'])->name('events.promo_codes.store');
+    Route::get('/events/{event:slug}/promo-codes', [AdminEventController::class, 'promoCodes'])->name('events.promo_codes');
+    Route::post('/events/{event:slug}/promo-codes', [AdminEventController::class, 'storePromoCode'])->name('events.promo_codes.store');
     Route::delete('/promo-codes/{id}', [AdminEventController::class, 'destroyPromoCode'])->name('promo_codes.destroy');
 
     // Attendee Routes
-    Route::get('/events/{id}/attendees', [AdminEventController::class, 'attendees'])->name('events.attendees');
+    Route::get('/events/{event:slug}/attendees', [AdminEventController::class, 'attendees'])->name('events.attendees');
     Route::get('/attendees/{id}/download-ticket', [AdminEventController::class, 'downloadAttendeeTicket'])->name('attendees.download_ticket');
     Route::put('/attendees/{id}', [AdminEventController::class, 'updateAttendee'])->name('attendees.update');
     Route::delete('/attendees/{id}', [AdminEventController::class, 'destroyAttendee'])->name('attendees.destroy');
@@ -133,4 +133,3 @@ Route::get('/preview-ticket-email', function () {
     }
     return view('emails.ticket_notification', ['attendee' => $attendee]);
 });
-

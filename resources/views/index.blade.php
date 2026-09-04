@@ -274,7 +274,7 @@
                                         @endif
                                     </p>
                                     <p class="card-text-desc flex-grow-1">{{ Str::limit($event->description, 90) }}</p>
-                                    <a href="{{ route('events.show', $event->id) }}" class="btn-view-event mt-3">View Event</a>
+                                    <a href="{{ route('events.show', $event) }}" class="btn-view-event mt-3">View Event</a>
                                 </div>
                             </div>
                         </div>
@@ -305,7 +305,7 @@
                                         @endif
                                     </p>
                                     <p class="card-text-desc flex-grow-1">{{ Str::limit($event->description, 90) }}</p>
-                                    <a href="{{ route('events.show', $event->id) }}" class="btn-view-event mt-3">View Event</a>
+                                    <a href="{{ route('events.show', $event) }}" class="btn-view-event mt-3">View Event</a>
                                 </div>
                             </div>
                         </div>
@@ -336,7 +336,7 @@
                                         @endif
                                     </p>
                                     <p class="card-text-desc flex-grow-1">{{ Str::limit($event->description, 90) }}</p>
-                                    <a href="{{ route('events.show', $event->id) }}" class="btn-view-event-past mt-3">View Event</a>
+                                    <a href="{{ route('events.show', $event) }}" class="btn-view-event-past mt-3">View Event</a>
                                 </div>
                             </div>
                         </div>

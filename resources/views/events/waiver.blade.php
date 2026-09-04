@@ -215,7 +215,7 @@
                 </ol>
             </div>
 
-            <form action="{{ route('events.waiver.accept', $event->id) }}" method="POST">
+            <form action="{{ route('events.waiver.accept', $event) }}" method="POST">
                 @csrf
                 <input type="hidden" name="event_id" value="{{ $event->id }}">
                 <input type="hidden" name="promo_code" value="{{ $promoCode }}">
@@ -257,7 +257,7 @@
 
                 <div class="row g-3">
                     <div class="col-6">
-                        <a href="{{ route('events.show', $event->id) }}" class="btn btn-back-outline w-100">
+                        <a href="{{ route('events.show', $event) }}" class="btn btn-back-outline w-100">
                             <i class="fas fa-arrow-left me-1"></i> Back
                         </a>
                     </div>
