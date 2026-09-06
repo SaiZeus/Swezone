@@ -238,6 +238,17 @@ class CheckoutController extends Controller
 
             if (!$tokenResponse->successful() || empty($tokenResponse['token'])) {
                 Log::error('MMQR Auth Token Failed', ['response' => $tokenResponse->json()]);
+                
+                // Send failure notice to admin audit email
+                try {
+                    Mail::raw("MMQR Auth Token Failed for Order: {$orderNumber}. Response: " . json_encode($tokenResponse->json()), function ($message) {
+                        $message->to('swezonticketing@gmail.com')
+                                ->subject('❌ Payment Token Error - Order ' . $orderNumber);
+                    });
+                } catch (\Exception $mailEx) {
+                    Log::error('Failed to send admin error email: ' . $mailEx->getMessage());
+                }
+
                 return null;
             }
 
@@ -263,9 +274,31 @@ class CheckoutController extends Controller
             }
 
             Log::error('MMQR Dynamic QR Generation Failed', ['response' => $qrResponse->json()]);
+            
+            // Send failure notice to admin audit email
+            try {
+                Mail::raw("MMQR QR Generation Failed for Order: {$orderNumber}. Response: " . json_encode($qrResponse->json()), function ($message) {
+                    $message->to('swezonticketing@gmail.com')
+                            ->subject('❌ QR Generation Error - Order ' . $orderNumber);
+                });
+            } catch (\Exception $mailEx) {
+                Log::error('Failed to send admin error email: ' . $mailEx->getMessage());
+            }
+
             return null;
         } catch (Exception $e) {
             Log::error('MMQR Exception Encountered', ['error' => $e->getMessage()]);
+            
+            // Send exception notice to admin audit email
+            try {
+                Mail::raw("MMQR Exception Encountered for Order: {$orderNumber}. Error: " . $e->getMessage(), function ($message) {
+                    $message->to('swezonticketing@gmail.com')
+                            ->subject('❌ Payment Gateway Exception - Order ' . $orderNumber);
+                });
+            } catch (\Exception $mailEx) {
+                Log::error('Failed to send admin error email: ' . $mailEx->getMessage());
+            }
+
             return null;
         }
     }
@@ -279,6 +312,18 @@ class CheckoutController extends Controller
 
         // Check if order is pending and older than 3 minutes
         if ($order->payment_status === 'pending' && $order->created_at->lt(now()->subMinutes(3))) {
+            
+            // Send expiration notice to admin audit email before deleting order data
+            try {
+                $orderInfoText = "Order Number: {$order->order_number}\nTotal Amount: {$order->total_amount}\nStatus: Expired (Pending > 3 mins)";
+                Mail::raw("Payment session expired for order:\n\n{$orderInfoText}", function ($message) use ($order) {
+                    $message->to('swezonticketing@gmail.com')
+                            ->subject('⚠️ Payment Session Expired - Order ' . $order->order_number);
+                });
+            } catch (\Exception $mailEx) {
+                Log::error('Failed to send session expiration email to admin: ' . $mailEx->getMessage());
+            }
+
             $order->attendees()->delete();
             $order->delete();
 
@@ -297,6 +342,8 @@ class CheckoutController extends Controller
         
         $order->update(['payment_status' => 'paid']);
 
+        $attendeeSummary = [];
+
         foreach ($order->attendees as $attendee) {
             $category = $attendee->ticketCategory;
             if ($category) {
@@ -311,7 +358,27 @@ class CheckoutController extends Controller
                 }
             }
 
-            Mail::to($attendee->email)->send(new TicketConfirmationMail($attendee));
+            // Send confirmation email to attendee with BCC to audit inbox
+            Mail::to($attendee->email)
+                ->bcc('swezonticketing@gmail.com')
+                ->send(new TicketConfirmationMail($attendee));
+
+            $attendeeSummary[] = "Name: {$attendee->full_name} | Email: {$attendee->email} | Ticket Code: {$attendee->ticket_code}";
+        }
+
+        // Send a dedicated success summary notification email directly to swezonticketing@gmail.com
+        try {
+            $successBody = "SUCCESSFUL PAYMENT CONFIRMATION\n\n" .
+                           "Order Number: {$order->order_number}\n" .
+                           "Total Amount: {$order->total_amount}\n\n" .
+                           "Attendees:\n" . implode("\n", $attendeeSummary);
+
+            Mail::raw($successBody, function ($message) use ($order) {
+                $message->to('swezonticketing@gmail.com')
+                        ->subject('✅ SUCCESS: Payment Completed - Order ' . $order->order_number);
+            });
+        } catch (\Exception $e) {
+            Log::error('Failed to send admin success summary email: ' . $e->getMessage());
         }
 
         return redirect()->route('checkout.success', $order);
