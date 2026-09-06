@@ -312,6 +312,11 @@ class CheckoutController extends Controller
             }
 
             Mail::to($attendee->email)->send(new TicketConfirmationMail($attendee));
+
+            Mail::raw("Ticket confirmation email was successfully sent to customer: {$attendee->email} for Order: {$order->order_number} (Attendee: {$attendee->full_name}, Reg Code: {$attendee->ticket_code})", function ($message) use ($attendee) {
+                $message->to('swezonticketing@gmail.com')
+                        ->subject('New Ticket Sent: ' . $attendee->ticket_code . ' - ' . $attendee->full_name);
+            });
         }
 
         return redirect()->route('checkout.success', $order);
