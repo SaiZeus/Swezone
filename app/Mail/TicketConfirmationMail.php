@@ -85,6 +85,12 @@ class TicketConfirmationMail extends Mailable
         if ($event->burmese_waiver && Storage::disk('public')->exists($event->burmese_waiver)) {
             $mail->attach(storage_path('app/public/' . $event->burmese_waiver), ['as' => 'Burmese_Waiver.pdf']);
         }
+        if ($event->english_consent && Storage::disk('public')->exists($event->english_consent)) {
+            $mail->attach(storage_path('app/public/' . $event->english_consent), ['as' => 'English_Consent.pdf']);
+        }
+        if ($event->burmese_consent && Storage::disk('public')->exists($event->burmese_consent)) {
+            $mail->attach(storage_path('app/public/' . $event->burmese_consent), ['as' => 'Burmese_Consent.pdf']);
+        }
         if ($event->english_race_guide && Storage::disk('public')->exists($event->english_race_guide)) {
             $mail->attach(storage_path('app/public/' . $event->english_race_guide), ['as' => 'English_Race_Guide.pdf']);
         }

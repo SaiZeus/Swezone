@@ -57,6 +57,8 @@ class AdminEventController extends Controller
                 'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'english_waiver' => 'nullable|file|mimes:pdf|max:10240',
                 'burmese_waiver' => 'nullable|file|mimes:pdf|max:10240',
+                'english_consent' => 'nullable|file|mimes:pdf|max:10240',
+                'burmese_consent' => 'nullable|file|mimes:pdf|max:10240',
                 'english_race_guide' => 'nullable|file|mimes:pdf|max:10240',
                 'burmese_race_guide' => 'nullable|file|mimes:pdf|max:10240',
                 'categories' => 'required|array|min:1',
@@ -91,6 +93,10 @@ class AdminEventController extends Controller
                 'english_waiver.max' => 'The English waiver must not be larger than 10MB.',
                 'burmese_waiver.mimes' => 'The Burmese waiver must be a valid PDF file.',
                 'burmese_waiver.max' => 'The Burmese waiver must not be larger than 10MB.',
+                'english_consent.mimes' => 'The English consent form must be a valid PDF file.',
+                'english_consent.max' => 'The English consent form must not be larger than 10MB.',
+                'burmese_consent.mimes' => 'The Burmese consent form must be a valid PDF file.',
+                'burmese_consent.max' => 'The Burmese consent form must not be larger than 10MB.',
                 'english_race_guide.mimes' => 'The English race guide must be a valid PDF file.',
                 'english_race_guide.max' => 'The English race guide must not be larger than 10MB.',
                 'burmese_race_guide.mimes' => 'The Burmese race guide must be a valid PDF file.',
@@ -120,6 +126,14 @@ class AdminEventController extends Controller
                     ? $request->file('burmese_waiver')->store('waivers', 'public') 
                     : null;
 
+                $englishConsentPath = $request->hasFile('english_consent') 
+                    ? $request->file('english_consent')->store('consents', 'public') 
+                    : null;
+
+                $burmeseConsentPath = $request->hasFile('burmese_consent') 
+                    ? $request->file('burmese_consent')->store('consents', 'public') 
+                    : null;
+
                 $englishRaceGuidePath = $request->hasFile('english_race_guide') 
                     ? $request->file('english_race_guide')->store('race_guides', 'public') 
                     : null;
@@ -138,6 +152,8 @@ class AdminEventController extends Controller
                     'image'                  => $imagePath,
                     'english_waiver'         => $englishWaiverPath,
                     'burmese_waiver'         => $burmeseWaiverPath,
+                    'english_consent'        => $englishConsentPath,
+                    'burmese_consent'        => $burmeseConsentPath,
                     'english_race_guide'     => $englishRaceGuidePath,
                     'burmese_race_guide'     => $burmeseRaceGuidePath,
                     'creator_name'           => $request->creator_name,
@@ -282,6 +298,8 @@ class AdminEventController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'english_waiver' => 'nullable|file|mimes:pdf|max:10240',
             'burmese_waiver' => 'nullable|file|mimes:pdf|max:10240',
+            'english_consent' => 'nullable|file|mimes:pdf|max:10240',
+            'burmese_consent' => 'nullable|file|mimes:pdf|max:10240',
             'english_race_guide' => 'nullable|file|mimes:pdf|max:10240',
             'burmese_race_guide' => 'nullable|file|mimes:pdf|max:10240',
             'categories' => 'required|array|min:1',
@@ -336,6 +354,20 @@ class AdminEventController extends Controller
                 $event->burmese_waiver = $request->file('burmese_waiver')->store('waivers', 'public');
             }
 
+            if ($request->hasFile('english_consent')) {
+                if ($event->english_consent) {
+                    Storage::disk('public')->delete($event->english_consent);
+                }
+                $event->english_consent = $request->file('english_consent')->store('consents', 'public');
+            }
+
+            if ($request->hasFile('burmese_consent')) {
+                if ($event->burmese_consent) {
+                    Storage::disk('public')->delete($event->burmese_consent);
+                }
+                $event->burmese_consent = $request->file('burmese_consent')->store('consents', 'public');
+            }
+
             if ($request->hasFile('english_race_guide')) {
                 if ($event->english_race_guide) {
                     Storage::disk('public')->delete($event->english_race_guide);
@@ -369,6 +401,8 @@ class AdminEventController extends Controller
                 'image'                  => $event->image,
                 'english_waiver'         => $event->english_waiver,
                 'burmese_waiver'         => $event->burmese_waiver,
+                'english_consent'        => $event->english_consent,
+                'burmese_consent'        => $event->burmese_consent,
                 'english_race_guide'     => $event->english_race_guide,
                 'burmese_race_guide'     => $event->burmese_race_guide,
             ]);
@@ -774,6 +808,12 @@ class AdminEventController extends Controller
         }
         if ($event->burmese_waiver) {
             Storage::disk('public')->delete($event->burmese_waiver);
+        }
+        if ($event->english_consent) {
+            Storage::disk('public')->delete($event->english_consent);
+        }
+        if ($event->burmese_consent) {
+            Storage::disk('public')->delete($event->burmese_consent);
         }
         if ($event->english_race_guide) {
             Storage::disk('public')->delete($event->english_race_guide);

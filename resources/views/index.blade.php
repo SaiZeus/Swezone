@@ -227,16 +227,16 @@
                             <img src="{{ asset('assets/img/icon/sub-icon.svg') }}" alt="icon-image">
                         </span>
                     </div>
-                    <div class="countdown ul_li_center" data-countdown="2026/12/08 00:00:00"></div>
+                    <div class="countdown ul_li_center" data-countdown="2026/12/12 06:00:00"></div>
                 </div>
                 <div class="offer-item">
                     <div class="xb-inner ul_li">
                         <div class="xb-location"><img src="{{ asset('assets/img/icon/location-icon.svg') }}" alt=""></div>
-                        <p class="xb-vanue">Venue: Bagan, Myanmar</p>
+                        <p class="xb-vanue">Venue: Ananda Temple, Bagan, Myanmar</p>
                     </div>
                     <div class="xb-inner ul_li">
                         <div class="xb-location"><img src="{{ asset('assets/img/icon/calendar-icon.svg') }}" alt=""></div>
-                        <p class="xb-vanue">Date: 08/12/2026</p>
+                        <p class="xb-vanue">Date: 12/12/2026</p>
                     </div>
                 </div>
             </div>

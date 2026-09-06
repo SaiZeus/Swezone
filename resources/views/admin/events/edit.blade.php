@@ -831,7 +831,7 @@
         <div class="event-page-header">
             <div>
                 <h1>Edit Marathon Event</h1>
-                <p>Update your event details, tickets, capacity, and participant information.</p>
+                <p>Update your event details, tickets, capacity, and participant information[cite: 4].</p>
             </div>
 
             <a href="{{ route('admin.events.index') }}" class="back-events-button">
@@ -849,8 +849,8 @@
                     </div>
 
                     <div>
-                        <h2>Edit {{ $event->title }}</h2>
-                        <p>Modify the information below to update your event.</p>
+                        <h2>Edit {{ $event->title }}[cite: 4]</h2>
+                        <p>Modify the information below to update your event[cite: 4].</p>
                     </div>
                 </div>
             </div>
@@ -1282,13 +1282,13 @@
 
                     <hr class="event-divider">
 
-                    {{-- SECTION 08 - WAIVERS & RACE GUIDES --}}
+                    {{-- SECTION 08 - WAIVERS, CONSENTS & RACE GUIDES --}}
                     <div class="form-section">
                         <div class="form-section-heading">
                             <div class="section-number">08</div>
                             <div>
-                                <h3>Participant Waivers & Race Guides</h3>
-                                <p>Upload rules, terms, and event guides for registered runners.</p>
+                                <h3>Participant Waivers, Consents & Race Guides</h3>
+                                <p>Upload rules, terms, consent forms, and event guides for registered runners.</p>
                             </div>
                         </div>
 
@@ -1296,7 +1296,7 @@
                             <div class="waiver-info">
                                 <i class="fa-solid fa-circle-info"></i>
                                 <div>
-                                    Participants will see the waiver before completing payment. Race guides provide additional event day details. English and Burmese PDF documents can be uploaded separately.
+                                    Participants will see the waiver and optional consent forms before completing payment. Race guides provide additional event day details. English and Burmese PDF documents can be uploaded separately. If no consent form PDF is uploaded, it will be skipped automatically.
                                 </div>
                             </div>
 
@@ -1337,6 +1337,48 @@
                                                 <p>Current Burmese Waiver</p>
                                             </div>
                                             <a href="{{ asset('storage/' . $event->burmese_waiver) }}" target="_blank" class="view-file-link">
+                                                <i class="fa-solid fa-eye"></i> View PDF
+                                            </a>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                {{-- ENGLISH CONSENT FORM --}}
+                                <div class="waiver-file">
+                                    <label class="event-label">English Consent Form PDF (Optional)</label>
+                                    <input type="file" name="english_consent" accept="application/pdf" class="event-file-input">
+                                    <div class="field-help">Optional downloadable consent form. Skipped if left empty.</div>
+
+                                    @if(!empty($event->english_consent))
+                                        <div class="current-image">
+                                            <div class="current-image-icon">
+                                                <i class="fa-solid fa-file-pdf"></i>
+                                            </div>
+                                            <div class="current-image-text">
+                                                <p>Current English Consent</p>
+                                            </div>
+                                            <a href="{{ asset('storage/' . $event->english_consent) }}" target="_blank" class="view-file-link">
+                                                <i class="fa-solid fa-eye"></i> View PDF
+                                            </a>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                {{-- BURMESE CONSENT FORM --}}
+                                <div class="waiver-file">
+                                    <label class="event-label">Burmese Consent Form PDF (Optional)</label>
+                                    <input type="file" name="burmese_consent" accept="application/pdf" class="event-file-input">
+                                    <div class="field-help">Optional downloadable consent form. Skipped if left empty.</div>
+
+                                    @if(!empty($event->burmese_consent))
+                                        <div class="current-image">
+                                            <div class="current-image-icon">
+                                                <i class="fa-solid fa-file-pdf"></i>
+                                            </div>
+                                            <div class="current-image-text">
+                                                <p>Current Burmese Consent</p>
+                                            </div>
+                                            <a href="{{ asset('storage/' . $event->burmese_consent) }}" target="_blank" class="view-file-link">
                                                 <i class="fa-solid fa-eye"></i> View PDF
                                             </a>
                                         </div>

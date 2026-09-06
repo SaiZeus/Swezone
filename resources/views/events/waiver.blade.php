@@ -1,6 +1,6 @@
 @extends('layouts.master')
 
-@section('title', 'Event Waiver - ' . $event->title)
+@section('title', 'Event Consent & Waiver - ' . $event->title)
 
 @section('content')
 
@@ -183,13 +183,14 @@
                 </div>
             @endif
 
-            <h2 class="font-weight-bold mb-1">Participant Terms & Waiver Agreement</h2>
+            <h2 class="font-weight-bold mb-1">Participant Terms, Waiver & Consent Agreement</h2>
             <p class="text-muted mb-4">Event: <strong>{{ $event->title }}</strong></p>
 
-            @if($event->english_waiver || $event->burmese_waiver)
+            {{-- DOWNLOADABLE PDF BUTTONS (WAIVERS & CONSENTS) --}}
+            @if($event->english_waiver || $event->burmese_waiver || $event->english_consent || $event->burmese_consent)
                 <div class="row g-3 mb-4">
                     @if($event->english_waiver)
-                        <div class="{{ $event->burmese_waiver ? 'col-md-6' : 'col-md-12' }}">
+                        <div class="col-md-6">
                             <a href="{{ asset('storage/' . $event->english_waiver) }}" target="_blank" class="pdf-btn w-100">
                                 <i class="far fa-file-pdf text-danger fa-lg"></i> Download English Waiver (PDF)
                             </a>
@@ -197,9 +198,25 @@
                     @endif
 
                     @if($event->burmese_waiver)
-                        <div class="{{ $event->english_waiver ? 'col-md-6' : 'col-md-12' }}">
+                        <div class="col-md-6">
                             <a href="{{ asset('storage/' . $event->burmese_waiver) }}" target="_blank" class="pdf-btn w-100">
                                 <i class="far fa-file-pdf text-danger fa-lg"></i> Download Burmese Waiver (PDF)
+                            </a>
+                        </div>
+                    @endif
+
+                    @if($event->english_consent)
+                        <div class="col-md-6">
+                            <a href="{{ asset('storage/' . $event->english_consent) }}" target="_blank" class="pdf-btn w-100">
+                                <i class="far fa-file-pdf text-danger fa-lg"></i> Download English Consent Form (PDF)
+                            </a>
+                        </div>
+                    @endif
+
+                    @if($event->burmese_consent)
+                        <div class="col-md-6">
+                            <a href="{{ asset('storage/' . $event->burmese_consent) }}" target="_blank" class="pdf-btn w-100">
+                                <i class="far fa-file-pdf text-danger fa-lg"></i> Download Burmese Consent Form (PDF)
                             </a>
                         </div>
                     @endif
@@ -211,7 +228,7 @@
                 <ol class="mb-0 ps-3 text-muted text-sm" style="line-height: 1.8;">
                     <li>Participants must comply with event guidelines and follow marshal instructions at all times.</li>
                     <li>Registrations are non-refundable and non-transferable under any circumstances.</li>
-                    <li>By agreeing below, you release event organizers from liability regarding injury or property loss during participation.</li>
+                    <li>By agreeing below, you release event organizers from liability regarding injury or property loss during participation, and grant consent for media and data processing terms where applicable.</li>
                 </ol>
             </div>
 
@@ -237,7 +254,6 @@
                     <input type="hidden" name="attendees[{{ $index }}][bib_name]" value="{{ $attendee['bib_name'] ?? '' }}">
                     <input type="hidden" name="attendees[{{ $index }}][tshirt_size]" value="{{ $attendee['tshirt_size'] ?? '' }}">
                     <input type="hidden" name="attendees[{{ $index }}][blood_type]" value="{{ $attendee['blood_type'] ?? '' }}">
-                    {{-- Default to 'no' if field was omitted or empty --}}
                     <input type="hidden" name="attendees[{{ $index }}][has_medical_condition]" value="{{ !empty($attendee['has_medical_condition']) ? $attendee['has_medical_condition'] : 'no' }}">
                     <input type="hidden" name="attendees[{{ $index }}][medical_details]" value="{{ $attendee['medical_details'] ?? '' }}">
                     <input type="hidden" name="attendees[{{ $index }}][itra]" value="{{ !empty($attendee['itra']) ? $attendee['itra'] : 'no' }}">
@@ -250,7 +266,7 @@
                     <div class="form-check m-0">
                         <input class="form-check-input" type="checkbox" name="agree_waiver" id="agree_waiver" required>
                         <label class="form-check-label font-weight-bold" for="agree_waiver">
-                            I have read, understood, and agree to all event rules, safety terms, and waivers in English / Burmese.
+                            I have read, understood, and agree to all event rules, safety terms, waivers, and optional consent forms in English / Burmese.
                         </label>
                     </div>
                 </div>
