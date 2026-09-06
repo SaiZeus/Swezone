@@ -34,7 +34,6 @@ class EventCategoryAttendeesSheet implements FromCollection, WithTitle, WithMapp
     {
         $attendees = Attendee::with(['ticketCategory', 'promoCode', 'order'])
             ->where('ticket_category_id', $this->categoryId)
-            ->whereNull('deleted_at')
             ->get();
 
         return $attendees->sort(function ($a, $b) {
@@ -58,7 +57,7 @@ class EventCategoryAttendeesSheet implements FromCollection, WithTitle, WithMapp
 
     public function startCell(): string
     {
-        return 'A7'; // Fixed clean start row for individual category sheets
+        return 'A7';
     }
 
     public function map($attendee): array

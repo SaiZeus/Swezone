@@ -40,7 +40,6 @@ class EventAttendeesSheet implements
         $this->sheetTitle = $sheetTitle;
     }
 
-    // Dummy collection required by FromCollection (we populate rows via AfterSheet)
     public function collection()
     {
         return collect([]);
@@ -71,12 +70,10 @@ class EventAttendeesSheet implements
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
-                // 1. Fetch Attendees Sorted Numerically (REG-1, REG-2...)
                 $query = Attendee::with(['ticketCategory', 'promoCode', 'order'])
                     ->whereHas('ticketCategory', function ($q) {
                         $q->where('event_id', $this->event->id);
-                    })
-                    ->whereNull('deleted_at');
+                    });
 
                 if (!is_null($this->categoryId)) {
                     $query->where('ticket_category_id', $this->categoryId);
@@ -95,7 +92,6 @@ class EventAttendeesSheet implements
                     return $numA <=> $numB;
                 })->values();
 
-                // 2. Calculate Metrics
                 $totalRevenue = Order::where(function ($q) {
                     $q->where('event_id', $this->event->id)
                       ->orWhereHas('attendees.ticketCategory', function ($sub) {
@@ -107,9 +103,9 @@ class EventAttendeesSheet implements
 
                 $totalParticipants = Attendee::whereHas('ticketCategory', function ($q) {
                     $q->where('event_id', $this->event->id);
-                })->whereNull('deleted_at')->count();
+                })->count();
 
-                // 3. Render Main Title (Row 1)
+                // Title
                 $sheet->mergeCells('A1:M1');
                 $sheet->setCellValue('A1', strtoupper($this->event->title) . ' - PARTICIPANTS & TICKET SALES REPORT');
                 $sheet->getStyle('A1:M1')->applyFromArray([
@@ -119,7 +115,7 @@ class EventAttendeesSheet implements
                 ]);
                 $sheet->getRowDimension(1)->setRowHeight(32);
 
-                // 4. Render Summary (Row 2)
+                // Summary
                 $sheet->setCellValue('A2', 'TOTAL REVENUE');
                 $sheet->setCellValue('B2', number_format($totalRevenue) . ' MMK');
                 $sheet->setCellValue('D2', 'TOTAL PARTICIPANTS');
@@ -131,7 +127,7 @@ class EventAttendeesSheet implements
                 ]);
                 $sheet->getRowDimension(2)->setRowHeight(24);
 
-                // 5. Render Category Breakdown (Rows 4 to N)
+                // Category Breakdown
                 $sheet->setCellValue('A4', 'TICKET CATEGORY BREAKDOWN');
                 $sheet->getStyle('A4')->getFont()->setBold(true)->setSize(11)->getColor()->setARGB('4F46E5');
 
@@ -147,10 +143,7 @@ class EventAttendeesSheet implements
 
                 $currentRow = 6;
                 foreach ($this->event->ticketCategories as $category) {
-                    $soldCount = Attendee::where('ticket_category_id', $category->id)
-                        ->whereNull('deleted_at')
-                        ->count();
-
+                    $soldCount = Attendee::where('ticket_category_id', $category->id)->count();
                     $catRevenue = $soldCount * $category->local_price;
 
                     $sheet->setCellValue('A' . $currentRow, $category->name);
@@ -165,7 +158,6 @@ class EventAttendeesSheet implements
                     $currentRow++;
                 }
 
-                // 6. Render Participant Table Headers
                 $tableHeaderRow = $currentRow + 1;
                 $headings = [
                     'Reg Code', 'Runner Name', 'Father Name', 'BIB', 'Category', 
@@ -187,7 +179,6 @@ class EventAttendeesSheet implements
                 ]);
                 $sheet->getRowDimension($tableHeaderRow)->setRowHeight(32);
 
-                // 7. Render Attendee Rows Explicitly Starting from $tableHeaderRow + 1
                 $dataRow = $tableHeaderRow + 1;
                 foreach ($attendees as $attendee) {
                     $promoText = '';
@@ -229,7 +220,6 @@ class EventAttendeesSheet implements
                     $sheet->setCellValue('L' . $dataRow, $healthText);
                     $sheet->setCellValue('M' . $dataRow, $addressExp);
 
-                    // Style data row
                     $sheet->getStyle('A' . $dataRow . ':M' . $dataRow)->applyFromArray([
                         'font' => ['size' => 9, 'color' => ['argb' => '1F2937']],
                         'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['argb' => 'E5E7EB']]],
@@ -258,7 +248,6 @@ class EventAttendeesSheet implements
                 $sheet->freezePane('A' . ($tableHeaderRow + 1));
                 $sheet->getSheetView()->setZoomScale(80);
 
-                // Page setup
                 $sheet->getPageSetup()->setOrientation(PageSetup::ORIENTATION_LANDSCAPE);
                 $sheet->getPageSetup()->setPaperSize(PageSetup::PAPERSIZE_A4);
                 $sheet->getPageSetup()->setFitToWidth(1);

@@ -107,7 +107,6 @@ class CheckoutController extends Controller
                     $dbBibs = Attendee::whereHas('ticketCategory', function ($q) use ($event) {
                             $q->where('event_id', $event->id);
                         })
-                        ->withTrashed()
                         ->pluck('bib_name')
                         ->map(function ($bib) use ($prefix) {
                             $clean = str_replace(strtoupper($prefix) . '-', '', strtoupper($bib));
@@ -133,7 +132,6 @@ class CheckoutController extends Controller
                     $startNum = $category->bib_start_number ?? 1;
                     
                     $dbBibs = Attendee::where('ticket_category_id', $category->id)
-                        ->withTrashed()
                         ->pluck('bib_name')
                         ->map(function ($bib) use ($prefix) {
                             $clean = str_replace(strtoupper($prefix) . '-', '', strtoupper($bib));
@@ -162,7 +160,6 @@ class CheckoutController extends Controller
             $dbRegs = Attendee::whereHas('ticketCategory', function ($q) use ($event) {
                     $q->where('event_id', $event->id);
                 })
-                ->withTrashed()
                 ->pluck('ticket_code')
                 ->map(function ($code) {
                     $clean = str_replace('REG-', '', $code);
