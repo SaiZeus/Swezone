@@ -774,7 +774,7 @@ const districtOptions = {
     "6": ["ကစန", "ကရရ", "ကလအ", "ကသန", "ခမန", "တသရ", "ထဝန", "ပလတ", "ပလန", "ဘပန", "မတန", "မမန", "ရဖြန", "လလန", "သရခ"],
     "7": ["ကကန", "ကတခ", "ကပက", "ကဝန", "ဇကန", "ညလပ", "တငန", "ထတပ", "ဒဥန", "နတလ", "ပခတ", "ပခန", "ပတဆ", "ပတတ", "ပတန", "ပနက", "ပမန", "ဖမန", "မညန", "မလန", "ရကန", "ရတန", "ရတရှ", "လပတ", "ဝမန", "သကန", "သဆန", "သနပ", "သဝတ", "အတန", "အဖန"],
     "8": ["ကထန", "ကမန", "ခမန", "ဂဂန", "ငဖန", "စတရ", "စလန", "ဆပဝ", "ဆဖန", "ဆမန", "တတက", "ထလန", "နမန", "ပခက", "ပဖြန", "ပမန", "မကန", "မတန", "မထန", "မဘန", "မမန", "မလန", "မသန", "ရစက", "ရနခ", "သရန", "အလန"],
-    "9": ["ကဆန", "ကပတ", "ခမစ", "ခအစ", "ငဇန", "ငသရ", "စကတ", "စကန", "ဇဗသ", "ဇယသ", "ညဥန", "တကတ", "တကန", "တတဥ", "တသန", "ဒခသ", "နထက", "ပကခ", "ပဗသ", "ပဘန", "ပမန", "ပသက", "ပဥလ", "မကန", "မခန", "မတရ", "မထလ", "မမန", "မလန", "မသန", "မဟမ", "ရမသ", "လဝန", "ဝတန", "သစန", "သပက", "အမစ", "အမရ", "ဥတသ"],
+    "9": ["ကဆန", "ကပတ", "ခမစ", "ခအစ", "ငဇန", "ငသရ", "စကတ", "စကန", "ဇဗသ", "ဇယသ", "ညဥန", "တကတ", "တကန", "တတဥ", "တသန", "ဒခသ", "နထက", "ပကခ", "ပဗသ", "pဘန", "ပမန", "ပသက", "ပဥလ", "မကန", "မခန", "မတရ", "မထလ", "မမန", "မလန", "မသန", "မဟမ", "ရမသ", "လဝန", "ဝတန", "သစန", "သပက", "အမစ", "အမရ", "ဥတသ"],
     "10": ["ကထန", "ကမရ", "ခဆန", "ခဇန", "ပမန", "ဘလန", "မဒန", "မလမ", "ရမန", "လမန", "သထန", "သဖြရ"],
     "11": ["ကတန", "ကတလ", "ကဖန", "ဂမန", "စတန", "တကန", "တပဝ", "ပဏတ", "ပတန", "ဗတထ", "ဘသတ", "မတန", "မပတ", "မပန", "မအတ", "မအန", "မဥန", "ရဗန", "ရသတ", "သတန", "အမန"],
     "12": ["ကကက", "ကခက", "ကတတ", "ကတန", "ကမတ", "ကမန", "ကမရ", "ခရန", "စခန", "ဆကခ", "ဆကန", "တကန", "တတထ", "တတန", "တမန", "ထတပ", "ဒဂဆ", "ဒဂတ", "ဒဂန", "ဒဂမ", "ဒဂရ", "ဒပန", "ဒလန", "ပဇတ", "ပဘတ", "ဗဟန", "မဂတ", "မဂဒ", "မဘန", "မရက", "ရကန", "ရပသ", "လကန", "လမတ", "လမန", "လသန", "လသယ", "သကတ", "သခန", "သဃက", "သလန", "အစန", "အလန", "ဥကတ", "ဥကန", "ဥကမ"],
@@ -1229,17 +1229,17 @@ document.addEventListener('DOMContentLoaded', function () {
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Phone Number <span class="required-star">*</span></label>
-                                    <input type="text" name="attendees[${formIndex}][phone]" class="form-control" placeholder="09xxxxxxxxx" required>
+                                    <input type="tel" inputmode="numeric" name="attendees[${formIndex}][phone]" class="form-control" placeholder="09xxxxxxxxx" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
                                 </div>
                                 ${isFieldEnabled('viber') ? `
                                 <div class="col-md-6">
                                     <label class="form-label">Viber Number</label>
-                                    <input type="text" name="attendees[${formIndex}][viber]" class="form-control" placeholder="Viber number">
+                                    <input type="tel" inputmode="numeric" name="attendees[${formIndex}][viber]" class="form-control" placeholder="09xxxxxxxxx" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                 </div>
                                 ` : ''}
                                 <div class="col-md-6">
                                     <label class="form-label">Emergency Contact Number <span class="required-star">*</span></label>
-                                    <input type="tel" name="attendees[${formIndex}][emergency_contact]" class="form-control" placeholder="09xxxxxxxxx" required>
+                                    <input type="tel" inputmode="numeric" name="attendees[${formIndex}][emergency_contact]" class="form-control" placeholder="09xxxxxxxxx" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
                                 </div>
                             </div>
                         </div>
@@ -1266,8 +1266,8 @@ document.addEventListener('DOMContentLoaded', function () {
                                     </select>
                                 </div>
 
-                                <!-- Promo Code Input (Per Attendee) -->
-                                <div class="col-md-4">
+                                <!-- Promo Code Input (Per Attendee) - Hidden for now -->
+                                <div class="col-md-4" style="display: none;">
                                     <label class="form-label">Promo Code (Optional)</label>
                                     <div class="promo-input-wrap">
                                         <input type="text" id="promo_code_${formIndex}" class="form-control promo-input" placeholder="ENTER CODE" value="${savedPromo ? savedPromo.code : ''}">
