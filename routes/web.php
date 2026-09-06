@@ -6,6 +6,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminEventController;
 use App\Http\Controllers\Admin\AdminAuthController;
+use App\Http\Controllers\Admin\AdminManagementController;
 use App\Http\Controllers\TicketVerificationController;
 use App\Models\Attendee;
 use App\Models\PromoCode;
@@ -89,8 +90,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/login', [AdminAuthController::class, 'login'])->name('login.post');
 });
 
-// Protected Admin Routes (Requires Login)
-Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
+// Protected Admin Routes (Requires Admin Guard)
+Route::prefix('admin')->name('admin.')->middleware(['auth:admin'])->group(function () {
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
 
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
@@ -102,6 +103,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('/events/{event:slug}/edit', [AdminEventController::class, 'edit'])->name('events.edit');
     Route::put('/events/{event:slug}', [AdminEventController::class, 'update'])->name('events.update');
     Route::delete('/events/{event:slug}', [AdminEventController::class, 'destroy'])->name('events.destroy');
+    Route::get('/events/{event:slug}/attendees/export', [AdminEventController::class, 'exportAttendees'])->name('events.attendees.export');
     
     // Dedicated Event Promo Code Management Routes
     Route::get('/events/{event:slug}/promo-codes', [AdminEventController::class, 'promoCodes'])->name('events.promo_codes');
@@ -113,6 +115,14 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('/attendees/{id}/download-ticket', [AdminEventController::class, 'downloadAttendeeTicket'])->name('attendees.download_ticket');
     Route::put('/attendees/{id}', [AdminEventController::class, 'updateAttendee'])->name('attendees.update');
     Route::delete('/attendees/{id}', [AdminEventController::class, 'destroyAttendee'])->name('attendees.destroy');
+
+    // Admin Management Routes
+    Route::get('/admins', [AdminManagementController::class, 'index'])->name('admins.index');
+    Route::get('/admins/create', [AdminManagementController::class, 'create'])->name('admins.create');
+    Route::post('/admins', [AdminManagementController::class, 'store'])->name('admins.store');
+    Route::get('/admins/{admin}/edit', [AdminManagementController::class, 'edit'])->name('admins.edit');
+    Route::put('/admins/{admin}', [AdminManagementController::class, 'update'])->name('admins.update');
+    Route::delete('/admins/{admin}', [AdminManagementController::class, 'destroy'])->name('admins.destroy');
 });
 
 // Test Email Route

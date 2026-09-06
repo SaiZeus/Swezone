@@ -7,6 +7,7 @@
 
     <title>@yield('title', 'Admin Dashboard - Marathon Ticketing')</title>
 
+    <link rel="icon" type="image/png" href="{{ asset('assets/img/logo/Swezon_Logo1.1V.svg') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Alpine.js for lightweight dropdown interactivity -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -534,6 +535,14 @@
                     </span>
 
                 </a>
+
+                <a
+    href="{{ route('admin.admins.index') }}"
+    class="admin-nav-link {{ request()->routeIs('admin.admins.*') ? 'active' : '' }}"
+>
+    <i class="fa-solid fa-shield-halved"></i>
+    <span>Manage Admins</span>
+</a>
 
 
                 <!-- Main Site -->

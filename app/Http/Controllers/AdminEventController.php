@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Throwable;
+use App\Exports\EventAttendeesExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AdminEventController extends Controller
 {
@@ -92,6 +94,7 @@ class AdminEventController extends Controller
                 'english_race_guide.mimes' => 'The English race guide must be a valid PDF file.',
                 'english_race_guide.max' => 'The English race guide must not be larger than 10MB.',
                 'burmese_race_guide.mimes' => 'The Burmese race guide must be a valid PDF file.',
+                'burmese_race_guide.max' => 'The Burmese race guide must not be larger than 10MB.',
                 'items.*.image.max' => 'An event item image must not be larger than 2MB.',
             ]
         );
@@ -622,6 +625,7 @@ class AdminEventController extends Controller
             $attendee->ticketCategory->decrement('tickets_sold');
         }
 
+        // Using Soft Delete so the record remains in the database and its sequence/BIB/Reg gaps can be reused
         $attendee->delete();
 
         return back()->with('success', 'Attendee deleted successfully!');
@@ -783,5 +787,11 @@ class AdminEventController extends Controller
         return redirect()
             ->route('admin.events.index')
             ->with('success', 'Event deleted successfully!');
+    }
+
+    public function exportAttendees(Event $event)
+    {
+        $fileName = Str::slug($event->title) . '-attendees-' . date('Y-m-d') . '.xlsx';
+        return Excel::download(new EventAttendeesExport($event), $fileName);
     }
 }

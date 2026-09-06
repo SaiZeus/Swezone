@@ -549,9 +549,16 @@
             </div>
         </div>
 
-        <a href="{{ route('admin.events.index') }}" class="back-events-button">
-            <i class="fa-solid fa-arrow-left"></i> Back to Events
-        </a>
+        <div class="flex items-center gap-3">
+            {{-- Excel Download Button --}}
+            <a href="{{ route('admin.events.attendees.export', $event->slug) }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all">
+                <i class="fa-solid fa-file-excel text-sm"></i> Download Excel Report
+            </a>
+
+            <a href="{{ route('admin.events.index') }}" class="back-events-button">
+                <i class="fa-solid fa-arrow-left"></i> Back to Events
+            </a>
+        </div>
     </div>
 
     {{-- SUCCESS MESSAGE --}}

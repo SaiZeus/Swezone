@@ -11,21 +11,15 @@ use Illuminate\Validation\ValidationException;
 
 class AdminAuthController extends Controller
 {
-    /**
-     * Show the admin login form.
-     */
     public function showLoginForm()
     {
-        if (Auth::check()) {
+        if (Auth::guard('admin')->check()) {
             return redirect()->route('admin.dashboard');
         }
 
         return view('admin.auth.login');
     }
 
-    /**
-     * Handle admin login attempt with rate limiting.
-     */
     public function login(Request $request)
     {
         $request->validate([
@@ -33,7 +27,6 @@ class AdminAuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        // Rate limiting key: max 5 attempts per minute per IP + email
         $throttleKey = Str::transliterate(Str::lower($request->input('email')) . '|' . $request->ip());
 
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
@@ -45,10 +38,9 @@ class AdminAuthController extends Controller
 
         $credentials = $request->only('email', 'password');
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        // Authenticate using the 'admin' guard against the admins table
+        if (Auth::guard('admin')->attempt($credentials, $request->boolean('remember'))) {
             RateLimiter::clear($throttleKey);
-
-            // Prevent session fixation
             $request->session()->regenerate();
 
             return redirect()->intended(route('admin.dashboard'));
@@ -61,12 +53,9 @@ class AdminAuthController extends Controller
         ])->onlyInput('email');
     }
 
-    /**
-     * Log the admin user out.
-     */
     public function logout(Request $request)
     {
-        Auth::logout();
+        Auth::guard('admin')->logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
