@@ -4,13 +4,14 @@ namespace App\Mail;
 
 use App\Models\Attendee;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue; // Added ShouldQueue contract
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
 
-class TicketConfirmationMail extends Mailable
+class TicketConfirmationMail extends Mailable implements ShouldQueue // Added implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
