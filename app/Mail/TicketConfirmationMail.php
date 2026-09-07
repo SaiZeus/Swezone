@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
 
-class TicketConfirmationMail extends Mailable implements ShouldQueue // Added implements ShouldQueue
+class TicketConfirmationMail extends Mailable implements ShouldQueue // Added implements ShouldQueue[cite: 9]
 {
     use Queueable, SerializesModels;
 
