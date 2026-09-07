@@ -9,7 +9,7 @@ use App\Models\PromoCode;
 use App\Models\TicketCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use App\Mail\TicketConfirmationMail;
+use App\Jobs\SendTicketEmailJob;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -358,10 +358,8 @@ class CheckoutController extends Controller
                 }
             }
 
-            // Send confirmation email to attendee with BCC to audit inbox
-            Mail::to($attendee->email)
-                ->bcc('swezonticketing@gmail.com')
-                ->send(new TicketConfirmationMail($attendee));
+            // Dispatch email job to background queue for instant checkout completion
+            SendTicketEmailJob::dispatch($attendee);
 
             $attendeeSummary[] = "Name: {$attendee->full_name} | Email: {$attendee->email} | Ticket Code: {$attendee->ticket_code}";
         }

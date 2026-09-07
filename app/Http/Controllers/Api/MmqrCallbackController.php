@@ -4,10 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
-use App\Mail\TicketConfirmationMail;
+use App\Jobs\SendTicketEmailJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use Exception;
 
@@ -88,18 +87,14 @@ class MmqrCallbackController extends Controller
                         'transaction_id' => $request->input('transactionId'),
                     ]);
 
-                    // Increment tickets sold and attempt mail dispatch safely
+                    // Increment tickets sold and dispatch email jobs to queue instantly
                     foreach ($order->attendees as $attendee) {
                         if ($attendee->ticketCategory) {
                             $attendee->ticketCategory->increment('tickets_sold');
                         }
 
-                        // Wrap mail in try-catch so SMTP timeouts don't block callback response
-                        try {
-                            Mail::to($attendee->email)->send(new TicketConfirmationMail($attendee));
-                        } catch (Exception $mailEx) {
-                            Log::error("Failed to send ticket email to {$attendee->email}: " . $mailEx->getMessage());
-                        }
+                        // Dispatch to background queue instead of blocking the webhook response
+                        SendTicketEmailJob::dispatch($attendee);
                     }
 
                     return response()->json([
