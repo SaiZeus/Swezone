@@ -21,19 +21,21 @@
 
     .event-banner {
         position: relative;
+        width: 100%;
+        aspect-ratio: 16 / 9; /* Locks container to true 16:9 widescreen ratio */
+        max-height: 540px;
         overflow: hidden;
         border-radius: 18px !important;
-        background: #fff;
+        background: transparent;
         box-shadow: 0 12px 35px rgba(147, 51, 234, .08);
         border: 1px solid rgba(233, 213, 255, .8);
     }
 
     .event-banner img {
-        display: block;
         width: 100%;
-        min-height: 240px;
-        max-height: 380px;
-        object-fit: cover;
+        height: 100%;
+        object-fit: cover; /* Fills container edge-to-edge in 16:9 without white letterbox margins */
+        background: transparent;
         transition: transform .5s ease;
     }
 
@@ -221,19 +223,21 @@
     .ticket-table-wrap {
         border: 1px solid #e9d5ff;
         border-radius: 12px;
-        overflow: hidden;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .ticket-table {
         margin-bottom: 0 !important;
+        min-width: 500px;
     }
 
     .ticket-table thead th {
         background: #6b21a8 !important;
         color: #faf5ff;
         border: 0;
-        padding: 10px 14px;
-        font-size: .68rem;
+        padding: 12px 14px;
+        font-size: .7rem;
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: .06em;
@@ -245,11 +249,11 @@
     }
 
     .ticket-table tbody td {
-        padding: 10px 14px;
+        padding: 12px 14px;
         border-color: #f3e8ff;
         color: #6b21a8;
         vertical-align: middle;
-        font-size: .85rem;
+        font-size: .88rem;
     }
 
     .ticket-table tbody td strong {
@@ -258,22 +262,23 @@
     }
 
     .ticket-table .input-group {
-        min-width: 105px;
-        max-width: 120px;
+        width: 120px !important;
         margin: 0 auto;
+        flex-wrap: nowrap !important;
     }
 
     .ticket-table .btn-minus,
     .ticket-table .btn-plus {
-        width: 30px;
-        height: 30px;
+        width: 34px !important;
+        height: 34px !important;
         padding: 0;
         border-radius: 7px !important;
         border-color: #d8b4fe;
         background: #fff;
         color: #6b21a8;
-        font-size: .82rem;
+        font-size: .9rem;
         font-weight: 800;
+        flex-shrink: 0;
         transition: all .15s ease;
     }
 
@@ -291,16 +296,19 @@
     }
 
     .ticket-table .ticket-qty {
-        height: 30px !important;
-        min-height: 30px !important;
-        max-height: 30px !important;
-        line-height: 30px !important;
-        font-size: .82rem;
+        width: 40px !important;
+        height: 34px !important;
+        min-height: 34px !important;
+        max-height: 34px !important;
+        line-height: 34px !important;
+        font-size: .88rem;
         border-color: #d8b4fe;
         background: #faf5ff;
         font-weight: 800;
         color: #3b0764;
         padding: 0 !important;
+        text-align: center;
+        flex-grow: 1;
     }
 
     .attendee-card {
@@ -533,8 +541,9 @@
             padding-bottom: 40px !important;
         }
 
-        .event-banner img {
-            min-height: 180px;
+        .event-banner {
+            aspect-ratio: 16 / 9;
+            max-height: 240px;
         }
 
         .event-description,
@@ -550,7 +559,7 @@
 
         .ticket-table thead th,
         .ticket-table tbody td {
-            padding: 8px 10px;
+            padding: 10px 8px;
         }
 
         .checkout-summary {
@@ -657,7 +666,7 @@
                                             <th>Local Price</th>
                                             <th>Foreign Price</th>
                                             <th>Availability</th>
-                                            <th style="width: 130px;" class="text-center">Quantity</th>
+                                            <th style="width: 140px;" class="text-center">Quantity</th>
                                         </tr>
                                     </thead>
                                     <tbody>
