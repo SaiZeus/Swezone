@@ -200,17 +200,17 @@
             </div>
             <div class="img img--2" data-speed="3" data-parallax='{"y" : 90, "scale" : 0.3}'>
                 <div class="wow zoomIn" data-wow-delay="ms">
-                    <img src="{{ asset('assets/img/shape/man-shape.png') }}" alt="">
+                    <img src="{{ asset('assets/img/shape/star-shape.png') }}" alt="">
                 </div>
             </div>
             <div class="img img--3" data-speed="-3" data-parallax='{"y" : 90, "scale" : 0.3}'>
                 <div class="wow zoomIn" data-wow-delay="ms">
-                    <img src="{{ asset('assets/img/shape/man-shape02.png') }}" alt="">
+                    <img src="{{ asset('assets/img/shape/star-shape.png') }}" alt="">
                 </div>
             </div>
             <div class="img img--4" data-speed="2" data-parallax='{"y" : 180, "x" : -90, "scale" : 0.3}'>
                 <div class="wow zoomIn" data-wow-delay="ms">
-                    <img src="{{ asset('assets/img/shape/cursor-shape.png') }}" alt="">
+                    <img src="{{ asset('assets/img/shape/star-shape.png') }}" alt="">
                 </div>
             </div>
         </div>
