@@ -348,7 +348,7 @@
     }
 
     /* =========================================================
-       FREE OPENSTREETMAP + LEAFLET LOCATION PICKER
+       OPENSTREETMAP + LEAFLET LOCATION PICKER
        ========================================================= */
 
     .location-picker {
@@ -391,6 +391,83 @@
         font-size: 0.67rem;
     }
 
+    .location-search-status {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        margin-top: 8px;
+        color: #667085;
+        font-size: .66rem;
+        min-height: 18px;
+    }
+
+    .location-search-status i {
+        color: #6366f1;
+    }
+
+    .location-search-results {
+        position: relative;
+        z-index: 1000;
+        margin-top: 8px;
+        border-radius: 11px;
+        overflow: hidden;
+    }
+
+    .location-result {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        width: 100%;
+        padding: 11px 12px;
+        border: 1px solid #e5e7eb;
+        border-bottom: 0;
+        background: #fff;
+        color: #344054;
+        text-align: left;
+        cursor: pointer;
+        transition: background .15s ease;
+    }
+
+    .location-result:last-child {
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .location-result:hover {
+        background: #f5f7ff;
+    }
+
+    .location-result-icon {
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: #eef2ff;
+        color: #4f46e5;
+        font-size: .65rem;
+    }
+
+    .location-result-text {
+        min-width: 0;
+    }
+
+    .location-result-title {
+        display: block;
+        margin-bottom: 2px;
+        color: #273245;
+        font-size: .71rem;
+        font-weight: 800;
+    }
+
+    .location-result-address {
+        display: block;
+        color: #8a94a5;
+        font-size: .62rem;
+        line-height: 1.4;
+    }
+
     #event-location-map {
         width: 100%;
         height: 350px;
@@ -399,6 +476,7 @@
         border-radius: 13px;
         background: #eef1f5;
         z-index: 1;
+        margin-top: 10px;
     }
 
     .map-instruction {
@@ -513,6 +591,7 @@
     .current-image-icon {
         width: 30px;
         height: 30px;
+        min-width: 30px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -541,11 +620,66 @@
         font-size: .66rem;
         font-weight: 800;
         text-decoration: none;
+        white-space: nowrap;
     }
 
     .view-file-link:hover {
         color: #4338ca;
         text-decoration: underline;
+    }
+
+    /* DELETE FILE BUTTON */
+
+    .delete-file-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        padding: 7px 9px;
+        margin-left: 4px;
+        border: 1px solid #fecaca;
+        border-radius: 8px;
+        background: #fff5f5;
+        color: #dc2626;
+        font-size: .62rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all .16s ease;
+        white-space: nowrap;
+    }
+
+    .delete-file-button:hover {
+        background: #fee2e2;
+        border-color: #fca5a5;
+    }
+
+    .file-delete-confirmation {
+        display: none;
+        align-items: center;
+        gap: 7px;
+        margin-top: 8px;
+        padding: 8px 10px;
+        border: 1px solid #fecaca;
+        border-radius: 8px;
+        background: #fef2f2;
+        color: #b91c1c;
+        font-size: .62rem;
+    }
+
+    .file-delete-confirmation.show {
+        display: flex;
+    }
+
+    .undo-delete-button {
+        margin-left: auto;
+        padding: 4px 7px;
+        border: 1px solid #fca5a5;
+        border-radius: 6px;
+        background: #fff;
+        color: #b91c1c;
+        font-size: .6rem;
+        font-weight: 800;
+        cursor: pointer;
     }
 
     /* CREATOR */
@@ -736,10 +870,17 @@
     }
 
     .waiver-file {
+        position: relative;
         padding: 13px;
         border: 1px solid #e3e7ed;
         border-radius: 11px;
         background: white;
+        transition: all .18s ease;
+    }
+
+    .waiver-file.deleted {
+        border-color: #fecaca;
+        background: #fffafa;
     }
 
     .waiver-file label {
@@ -765,6 +906,10 @@
         border: 1px solid #e3e7ed;
         border-radius: 13px;
         background: #fff;
+    }
+
+    .item-row.marked-for-delete {
+        display: none;
     }
 
     .existing-item-image {
@@ -812,6 +957,11 @@
         background: #fff5f5;
         color: #ef4444;
         cursor: pointer;
+    }
+
+    .remove-item-btn:hover {
+        background: #fee2e2;
+        border-color: #fca5a5;
     }
 
     .event-divider {
@@ -926,6 +1076,14 @@
 
         #event-location-map {
             height: 300px;
+        }
+
+        .current-image {
+            flex-wrap: wrap;
+        }
+
+        .delete-file-button {
+            margin-left: 0;
         }
     }
 
@@ -1103,10 +1261,26 @@
                     action="{{ route('admin.events.update', $event) }}"
                     method="POST"
                     enctype="multipart/form-data"
+                    id="edit-event-form"
                 >
 
                     @csrf
                     @method('PUT')
+
+                    {{-- =====================================================
+                         DELETION TRACKING
+                         ===================================================== --}}
+
+                    <div id="deleted-items-container"></div>
+
+                    <div id="deleted-files-container">
+                        <input type="hidden" name="delete_english_waiver" id="delete_english_waiver" value="0">
+                        <input type="hidden" name="delete_burmese_waiver" id="delete_burmese_waiver" value="0">
+                        <input type="hidden" name="delete_english_consent" id="delete_english_consent" value="0">
+                        <input type="hidden" name="delete_burmese_consent" id="delete_burmese_consent" value="0">
+                        <input type="hidden" name="delete_english_race_guide" id="delete_english_race_guide" value="0">
+                        <input type="hidden" name="delete_burmese_race_guide" id="delete_burmese_race_guide" value="0">
+                    </div>
 
                     {{-- =====================================================
                          SECTION 01 - EVENT INFORMATION
@@ -1169,7 +1343,8 @@
                                     id="location"
                                     required
                                     value="{{ old('location', $event->location) }}"
-                                    placeholder="e.g. Yangon, Myanmar"
+                                    placeholder="Type a venue, street, city or place..."
+                                    autocomplete="off"
                                     class="event-input"
                                 >
 
@@ -1186,16 +1361,33 @@
                                         <div>
 
                                             <h4>
-                                                Select Exact Event Location
+                                                Automatic Event Location
                                             </h4>
 
                                             <p>
-                                                Click the map or drag the marker to set the exact location.
+                                                Type the location above and the map will automatically find it.
                                             </p>
 
                                         </div>
 
                                     </div>
+
+                                    <div
+                                        id="location-search-status"
+                                        class="location-search-status"
+                                        style="display:none;"
+                                    >
+                                        <i class="fa-solid fa-spinner fa-spin"></i>
+
+                                        <span>
+                                            Searching for location...
+                                        </span>
+                                    </div>
+
+                                    <div
+                                        id="location-search-results"
+                                        class="location-search-results"
+                                    ></div>
 
                                     <div id="event-location-map"></div>
 
@@ -1204,7 +1396,7 @@
                                         <i class="fa-solid fa-circle-info"></i>
 
                                         <span>
-                                            The map is free to use. Click anywhere on the map or drag the marker to update the exact event coordinates.
+                                            Type a place in the Location field. The map is preview-only; you do not need to click or drag anything.
                                         </span>
 
                                     </div>
@@ -2056,7 +2248,10 @@
 
                                 @forelse($event->items as $index => $item)
 
-                                    <div class="item-row">
+                                    <div
+                                        class="item-row"
+                                        data-item-id="{{ $item->id }}"
+                                    >
 
                                         <input
                                             type="hidden"
@@ -2115,6 +2310,8 @@
                                         <button
                                             type="button"
                                             class="remove-item-btn"
+                                            data-existing-item="true"
+                                            title="Delete this event item"
                                         >
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
@@ -2158,6 +2355,8 @@
                                         <button
                                             type="button"
                                             class="remove-item-btn"
+                                            data-existing-item="false"
+                                            title="Remove item"
                                         >
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
@@ -2225,7 +2424,10 @@
 
                                 {{-- ENGLISH WAIVER --}}
 
-                                <div class="waiver-file">
+                                <div
+                                    class="waiver-file"
+                                    data-file-container="english_waiver"
+                                >
 
                                     <label class="event-label">
                                         English Waiver PDF
@@ -2267,6 +2469,36 @@
                                                 View PDF
                                             </a>
 
+                                            <button
+                                                type="button"
+                                                class="delete-file-button"
+                                                data-delete-file="english_waiver"
+                                            >
+                                                <i class="fa-solid fa-trash"></i>
+                                                Delete
+                                            </button>
+
+                                        </div>
+
+                                        <div
+                                            class="file-delete-confirmation"
+                                            data-delete-message="english_waiver"
+                                        >
+
+                                            <i class="fa-solid fa-triangle-exclamation"></i>
+
+                                            <span>
+                                                This PDF will be deleted when you update the event.
+                                            </span>
+
+                                            <button
+                                                type="button"
+                                                class="undo-delete-button"
+                                                data-undo-file="english_waiver"
+                                            >
+                                                Undo
+                                            </button>
+
                                         </div>
 
                                     @endif
@@ -2275,7 +2507,10 @@
 
                                 {{-- BURMESE WAIVER --}}
 
-                                <div class="waiver-file">
+                                <div
+                                    class="waiver-file"
+                                    data-file-container="burmese_waiver"
+                                >
 
                                     <label class="event-label">
                                         Burmese Waiver PDF
@@ -2317,6 +2552,36 @@
                                                 View PDF
                                             </a>
 
+                                            <button
+                                                type="button"
+                                                class="delete-file-button"
+                                                data-delete-file="burmese_waiver"
+                                            >
+                                                <i class="fa-solid fa-trash"></i>
+                                                Delete
+                                            </button>
+
+                                        </div>
+
+                                        <div
+                                            class="file-delete-confirmation"
+                                            data-delete-message="burmese_waiver"
+                                        >
+
+                                            <i class="fa-solid fa-triangle-exclamation"></i>
+
+                                            <span>
+                                                This PDF will be deleted when you update the event.
+                                            </span>
+
+                                            <button
+                                                type="button"
+                                                class="undo-delete-button"
+                                                data-undo-file="burmese_waiver"
+                                            >
+                                                Undo
+                                            </button>
+
                                         </div>
 
                                     @endif
@@ -2325,7 +2590,10 @@
 
                                 {{-- ENGLISH CONSENT FORM --}}
 
-                                <div class="waiver-file">
+                                <div
+                                    class="waiver-file"
+                                    data-file-container="english_consent"
+                                >
 
                                     <label class="event-label">
                                         English Consent Form PDF (Optional)
@@ -2367,6 +2635,36 @@
                                                 View PDF
                                             </a>
 
+                                            <button
+                                                type="button"
+                                                class="delete-file-button"
+                                                data-delete-file="english_consent"
+                                            >
+                                                <i class="fa-solid fa-trash"></i>
+                                                Delete
+                                            </button>
+
+                                        </div>
+
+                                        <div
+                                            class="file-delete-confirmation"
+                                            data-delete-message="english_consent"
+                                        >
+
+                                            <i class="fa-solid fa-triangle-exclamation"></i>
+
+                                            <span>
+                                                This PDF will be deleted when you update the event.
+                                            </span>
+
+                                            <button
+                                                type="button"
+                                                class="undo-delete-button"
+                                                data-undo-file="english_consent"
+                                            >
+                                                Undo
+                                            </button>
+
                                         </div>
 
                                     @endif
@@ -2375,7 +2673,10 @@
 
                                 {{-- BURMESE CONSENT FORM --}}
 
-                                <div class="waiver-file">
+                                <div
+                                    class="waiver-file"
+                                    data-file-container="burmese_consent"
+                                >
 
                                     <label class="event-label">
                                         Burmese Consent Form PDF (Optional)
@@ -2417,6 +2718,36 @@
                                                 View PDF
                                             </a>
 
+                                            <button
+                                                type="button"
+                                                class="delete-file-button"
+                                                data-delete-file="burmese_consent"
+                                            >
+                                                <i class="fa-solid fa-trash"></i>
+                                                Delete
+                                            </button>
+
+                                        </div>
+
+                                        <div
+                                            class="file-delete-confirmation"
+                                            data-delete-message="burmese_consent"
+                                        >
+
+                                            <i class="fa-solid fa-triangle-exclamation"></i>
+
+                                            <span>
+                                                This PDF will be deleted when you update the event.
+                                            </span>
+
+                                            <button
+                                                type="button"
+                                                class="undo-delete-button"
+                                                data-undo-file="burmese_consent"
+                                            >
+                                                Undo
+                                            </button>
+
                                         </div>
 
                                     @endif
@@ -2425,7 +2756,10 @@
 
                                 {{-- ENGLISH RACE GUIDE --}}
 
-                                <div class="waiver-file">
+                                <div
+                                    class="waiver-file"
+                                    data-file-container="english_race_guide"
+                                >
 
                                     <label class="event-label">
                                         English Race Guide PDF (Optional)
@@ -2467,6 +2801,36 @@
                                                 View File
                                             </a>
 
+                                            <button
+                                                type="button"
+                                                class="delete-file-button"
+                                                data-delete-file="english_race_guide"
+                                            >
+                                                <i class="fa-solid fa-trash"></i>
+                                                Delete
+                                            </button>
+
+                                        </div>
+
+                                        <div
+                                            class="file-delete-confirmation"
+                                            data-delete-message="english_race_guide"
+                                        >
+
+                                            <i class="fa-solid fa-triangle-exclamation"></i>
+
+                                            <span>
+                                                This PDF will be deleted when you update the event.
+                                            </span>
+
+                                            <button
+                                                type="button"
+                                                class="undo-delete-button"
+                                                data-undo-file="english_race_guide"
+                                            >
+                                                Undo
+                                            </button>
+
                                         </div>
 
                                     @endif
@@ -2475,7 +2839,10 @@
 
                                 {{-- BURMESE RACE GUIDE --}}
 
-                                <div class="waiver-file">
+                                <div
+                                    class="waiver-file"
+                                    data-file-container="burmese_race_guide"
+                                >
 
                                     <label class="event-label">
                                         Burmese Race Guide PDF (Optional)
@@ -2517,6 +2884,36 @@
                                                 View File
                                             </a>
 
+                                            <button
+                                                type="button"
+                                                class="delete-file-button"
+                                                data-delete-file="burmese_race_guide"
+                                            >
+                                                <i class="fa-solid fa-trash"></i>
+                                                Delete
+                                            </button>
+
+                                        </div>
+
+                                        <div
+                                            class="file-delete-confirmation"
+                                            data-delete-message="burmese_race_guide"
+                                        >
+
+                                            <i class="fa-solid fa-triangle-exclamation"></i>
+
+                                            <span>
+                                                This PDF will be deleted when you update the event.
+                                            </span>
+
+                                            <button
+                                                type="button"
+                                                class="undo-delete-button"
+                                                data-undo-file="burmese_race_guide"
+                                            >
+                                                Undo
+                                            </button>
+
                                         </div>
 
                                     @endif
@@ -2529,18 +2926,14 @@
 
                     </div>
 
-                    {{-- UPDATE BUTTON --}}
-
-                    <div class="pt-2">
-
+                    <div class="mt-8">
                         <button
                             type="submit"
                             class="publish-button"
                         >
-                            <i class="fa-solid fa-check"></i>
+                            <i class="fa-solid fa-floppy-disk"></i>
                             Update Event
                         </button>
-
                     </div>
 
                 </form>
@@ -2553,685 +2946,241 @@
 
 </div>
 
-{{-- =========================================================
-     LEAFLET JS
-     ========================================================= --}}
-
+{{-- LEAFLET JS --}}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-
-document.addEventListener('DOMContentLoaded', function () {
-
-    /*
-    |--------------------------------------------------------------------------
-    | EXISTING EVENT LOCATION
-    |--------------------------------------------------------------------------
-    */
-
-    const savedLatitude = parseFloat(
-        @json(old('latitude', $event->latitude))
-    );
-
-    const savedLongitude = parseFloat(
-        @json(old('longitude', $event->longitude))
-    );
-
-    /*
-    |--------------------------------------------------------------------------
-    | DEFAULT LOCATION
-    |--------------------------------------------------------------------------
-    | Yangon is only used when the event does not already have coordinates.
-    */
-
-    const defaultLatitude = Number.isFinite(savedLatitude)
-        ? savedLatitude
-        : 16.8409;
-
-    const defaultLongitude = Number.isFinite(savedLongitude)
-        ? savedLongitude
-        : 96.1735;
-
-    /*
-    |--------------------------------------------------------------------------
-    | MAP ELEMENTS
-    |--------------------------------------------------------------------------
-    */
-
-    const mapElement = document.getElementById('event-location-map');
-
-    const locationInput = document.getElementById('location');
-
-    const latitudeInput = document.getElementById('latitude');
-
-    const longitudeInput = document.getElementById('longitude');
-
-    const selectedLocationBox = document.getElementById(
-        'selected-location-box'
-    );
-
-    const selectedLocationText = document.getElementById(
-        'selected-location-text'
-    );
-
-    /*
-    |--------------------------------------------------------------------------
-    | INITIALIZE MAP
-    |--------------------------------------------------------------------------
-    */
-
-    if (
-        !mapElement ||
-        typeof L === 'undefined'
-    ) {
-        return;
-    }
-
-    const hasSavedCoordinates =
-        Number.isFinite(savedLatitude) &&
-        Number.isFinite(savedLongitude);
-
-    const eventMap = L.map(
-        mapElement
-    ).setView(
-        [
-            defaultLatitude,
-            defaultLongitude
-        ],
-        hasSavedCoordinates ? 16 : 12
-    );
-
-    /*
-    |--------------------------------------------------------------------------
-    | OPENSTREETMAP TILE LAYER
-    |--------------------------------------------------------------------------
-    */
-
-    L.tileLayer(
-        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-        {
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- Leaflet Map & Location Picker ---
+        const initialLat = parseFloat(document.getElementById('latitude').value) || 16.8661;
+        const initialLng = parseFloat(document.getElementById('longitude').value) || 96.1951;
+        
+        const map = L.map('event-location-map').setView([initialLat, initialLng], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
 
-            attribution:
-                '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors'
-        }
-    ).addTo(eventMap);
+        let marker = L.marker([initialLat, initialLng]).addTo(map);
 
-    /*
-    |--------------------------------------------------------------------------
-    | EVENT MARKER
-    |--------------------------------------------------------------------------
-    */
+        const locationInput = document.getElementById('location');
+        const statusBox = document.getElementById('location-search-status');
+        const resultsBox = document.getElementById('location-search-results');
+        const selectedBox = document.getElementById('selected-location-box');
+        const selectedText = document.getElementById('selected-location-text');
+        const latInput = document.getElementById('latitude');
+        const lngInput = document.getElementById('longitude');
 
-    const eventMarker = L.marker(
-        [
-            defaultLatitude,
-            defaultLongitude
-        ],
-        {
-            draggable: true
-        }
-    ).addTo(eventMap);
-
-    /*
-    |--------------------------------------------------------------------------
-    | UPDATE SELECTED LOCATION
-    |--------------------------------------------------------------------------
-    */
-
-    function setMapLocation(
-        latitude,
-        longitude
-    ) {
-
-        latitude = Number(latitude);
-        longitude = Number(longitude);
-
-        /*
-        | Store coordinates in hidden form fields
-        */
-
-        latitudeInput.value =
-            latitude.toFixed(7);
-
-        longitudeInput.value =
-            longitude.toFixed(7);
-
-        /*
-        | Move marker
-        */
-
-        eventMarker.setLatLng([
-            latitude,
-            longitude
-        ]);
-
-        /*
-        | Move map to selected location
-        */
-
-        eventMap.panTo([
-            latitude,
-            longitude
-        ]);
-
-        /*
-        | Show selected location information
-        */
-
-        selectedLocationBox.style.display = 'flex';
-
-        const locationName =
-            locationInput.value.trim();
-
-        if (locationName) {
-
-            selectedLocationText.textContent =
-                locationName +
-                ' — ' +
-                latitude.toFixed(7) +
-                ', ' +
-                longitude.toFixed(7);
-
-        } else {
-
-            selectedLocationText.textContent =
-                'Coordinates selected: ' +
-                latitude.toFixed(7) +
-                ', ' +
-                longitude.toFixed(7);
-
+        if (latInput.value && lngInput.value) {
+            selectedBox.style.display = 'flex';
+            selectedText.textContent = locationInput.value;
         }
 
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | MAP CLICK
-    |--------------------------------------------------------------------------
-    */
-
-    eventMap.on(
-        'click',
-        function (event) {
-
-            setMapLocation(
-                event.latlng.lat,
-                event.latlng.lng
-            );
-
-        }
-    );
-
-    /*
-    |--------------------------------------------------------------------------
-    | MARKER DRAG
-    |--------------------------------------------------------------------------
-    */
-
-    eventMarker.on(
-        'dragend',
-        function (event) {
-
-            const position =
-                event.target.getLatLng();
-
-            setMapLocation(
-                position.lat,
-                position.lng
-            );
-
-        }
-    );
-
-    /*
-    |--------------------------------------------------------------------------
-    | UPDATE DISPLAY WHEN LOCATION NAME CHANGES
-    |--------------------------------------------------------------------------
-    */
-
-    locationInput.addEventListener(
-        'input',
-        function () {
-
-            const latitude =
-                parseFloat(latitudeInput.value);
-
-            const longitude =
-                parseFloat(longitudeInput.value);
-
-            if (
-                Number.isFinite(latitude) &&
-                Number.isFinite(longitude)
-            ) {
-
-                selectedLocationBox.style.display =
-                    'flex';
-
-                selectedLocationText.textContent =
-                    this.value.trim()
-                        ? this.value.trim() +
-                          ' — ' +
-                          latitude.toFixed(7) +
-                          ', ' +
-                          longitude.toFixed(7)
-                        : 'Coordinates selected: ' +
-                          latitude.toFixed(7) +
-                          ', ' +
-                          longitude.toFixed(7);
-
-            }
-
-        }
-    );
-
-    /*
-    |--------------------------------------------------------------------------
-    | LOAD EXISTING EVENT COORDINATES
-    |--------------------------------------------------------------------------
-    */
-
-    if (hasSavedCoordinates) {
-
-        setMapLocation(
-            savedLatitude,
-            savedLongitude
-        );
-
-    } else if (locationInput.value.trim()) {
-
-        selectedLocationBox.style.display =
-            'flex';
-
-        selectedLocationText.textContent =
-            locationInput.value.trim();
-
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | FIX MAP SIZE AFTER PAGE LOAD
-    |--------------------------------------------------------------------------
-    */
-
-    setTimeout(
-        function () {
-            eventMap.invalidateSize();
-        },
-        300
-    );
-
-    /*
-    |--------------------------------------------------------------------------
-    | FIX MAP SIZE WHEN WINDOW RESIZES
-    |--------------------------------------------------------------------------
-    */
-
-    window.addEventListener(
-        'resize',
-        function () {
-            eventMap.invalidateSize();
-        }
-    );
-
-});
-
-
-/*
-|--------------------------------------------------------------------------
-| EXISTING EVENT FORM JAVASCRIPT
-|--------------------------------------------------------------------------
-*/
-
-document.addEventListener('DOMContentLoaded', function () {
-
-    let categoryIndex =
-        {{ max($event->ticketCategories->count(), 1) }};
-
-    let itemIndex =
-        {{ max($event->items->count(), 1) }};
-
-    /*
-    |--------------------------------------------------------------------------
-    | BIB CONFIG TOGGLE LOGIC
-    |--------------------------------------------------------------------------
-    */
-
-    const enableBibCheckbox =
-        document.getElementById(
-            'enable_bib_number'
-        );
-
-    const bibConfigWrapper =
-        document.getElementById(
-            'bib_config_wrapper'
-        );
-
-    const shareBibRadios =
-        document.querySelectorAll(
-            'input[name="share_bib_prefix"]'
-        );
-
-    const sharedPrefixBox =
-        document.getElementById(
-            'shared_prefix_box'
-        );
-
-    enableBibCheckbox.addEventListener(
-        'change',
-        function () {
-
-            bibConfigWrapper.style.display =
-                this.checked
-                    ? 'block'
-                    : 'none';
-
-        }
-    );
-
-    shareBibRadios.forEach(
-        radio => {
-
-            radio.addEventListener(
-                'change',
-                function () {
-
-                    if (this.value === '1') {
-
-                        sharedPrefixBox.style.display =
-                            'grid';
-
-                        document
-                            .querySelectorAll(
-                                '.separate-bib-inputs'
-                            )
-                            .forEach(
-                                el => {
-                                    el.style.display =
-                                        'none';
-                                }
-                            );
-
-                    } else {
-
-                        sharedPrefixBox.style.display =
-                            'none';
-
-                        document
-                            .querySelectorAll(
-                                '.separate-bib-inputs'
-                            )
-                            .forEach(
-                                el => {
-                                    el.style.display =
-                                        'flex';
-                                }
-                            );
-
-                    }
-
-                }
-            );
-
-        }
-    );
-
-    /*
-    |--------------------------------------------------------------------------
-    | TICKET CATEGORIES
-    |--------------------------------------------------------------------------
-    */
-
-    const categoryContainer =
-        document.getElementById(
-            'categories-container'
-        );
-
-    const addCategoryBtn =
-        document.getElementById(
-            'add-category-btn'
-        );
-
-    /*
-    |--------------------------------------------------------------------------
-    | ADD TICKET CATEGORY
-    |--------------------------------------------------------------------------
-    */
-
-    addCategoryBtn.addEventListener(
-        'click',
-        function () {
-
-            const row =
-                document.createElement('div');
-
-            const selectedShareBib =
-                document.querySelector(
-                    'input[name="share_bib_prefix"]:checked'
-                );
-
-            const separateMode =
-                selectedShareBib &&
-                selectedShareBib.value === '0';
-
-            row.className =
-                'category-row grid grid-cols-1 md:grid-cols-6 gap-3';
-
-            row.innerHTML = `
-
-                <input
-                    type="text"
-                    name="categories[${categoryIndex}][name]"
-                    placeholder="Category (e.g., 21km)"
-                    required
-                    class="md:col-span-2"
-                >
-
-                <input
-                    type="number"
-                    step="0.01"
-                    name="categories[${categoryIndex}][local_price]"
-                    placeholder="Local Price (MMK)"
-                    required
-                >
-
-                <input
-                    type="number"
-                    step="0.01"
-                    name="categories[${categoryIndex}][foreign_price]"
-                    placeholder="Foreign Price (Optional)"
-                >
-
-                <input
-                    type="number"
-                    name="categories[${categoryIndex}][capacity]"
-                    min="1"
-                    placeholder="Capacity"
-                >
-
-                <div
-                    class="flex items-center space-x-2 separate-bib-inputs"
-                    style="${separateMode ? 'display:flex;' : 'display:none;'}"
-                >
-
-                    <input
-                        type="text"
-                        name="categories[${categoryIndex}][bib_prefix]"
-                        maxlength="3"
-                        placeholder="Prefix"
-                        class="uppercase"
-                    >
-
-                    <input
-                        type="number"
-                        name="categories[${categoryIndex}][bib_start_number]"
-                        value="1"
-                        min="1"
-                        placeholder="Start #"
-                    >
-
-                    <button
-                        type="button"
-                        class="remove-category-btn"
-                    >
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-
-                </div>
-
-            `;
-
-            categoryContainer.appendChild(row);
-
-            categoryIndex++;
-
-        }
-    );
-
-    /*
-    |--------------------------------------------------------------------------
-    | REMOVE TICKET CATEGORY
-    |--------------------------------------------------------------------------
-    */
-
-    categoryContainer.addEventListener(
-        'click',
-        function (e) {
-
-            const removeButton =
-                e.target.closest(
-                    '.remove-category-btn'
-                );
-
-            if (!removeButton) {
+        let searchTimeout;
+        locationInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            const query = this.value.trim();
+            if (query.length < 3) {
+                resultsBox.innerHTML = '';
+                statusBox.style.display = 'none';
                 return;
             }
 
-            const row =
-                removeButton.closest(
-                    '.category-row'
-                );
+            statusBox.style.display = 'flex';
+            searchTimeout = setTimeout(() => {
+                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        statusBox.style.display = 'none';
+                        resultsBox.innerHTML = '';
+                        if (data && data.length > 0) {
+                            data.slice(0, 5).forEach(place => {
+                                const btn = document.createElement('button');
+                                btn.type = 'button';
+                                btn.className = 'location-result';
+                                btn.innerHTML = `
+                                    <div class="location-result-icon"><i class="fa-solid fa-location-dot"></i></div>
+                                    <div class="location-result-text">
+                                        <span class="location-result-title">${place.name || place.display_name.split(',')[0]}</span>
+                                        <span class="location-result-address">${place.display_name}</span>
+                                    </div>
+                                `;
+                                btn.addEventListener('click', () => {
+                                    locationInput.value = place.display_name;
+                                    latInput.value = place.lat;
+                                    lngInput.value = place.lon;
 
-            if (row) {
-                row.remove();
-            }
+                                    const lat = parseFloat(place.lat);
+                                    const lon = parseFloat(place.lon);
+                                    map.setView([lat, lon], 15);
+                                    marker.setLatLng([lat, lon]);
 
-        }
-    );
+                                    selectedText.textContent = place.display_name;
+                                    selectedBox.style.display = 'flex';
+                                    resultsBox.innerHTML = '';
+                                });
+                                resultsBox.appendChild(btn);
+                            });
+                        }
+                    })
+                    .catch(() => {
+                        statusBox.style.display = 'none';
+                    });
+            }, 400);
+        });
 
-    /*
-    |--------------------------------------------------------------------------
-    | EVENT ITEMS
-    |--------------------------------------------------------------------------
-    */
+        // --- PDF Deletion Handlers ---
+        document.querySelectorAll('.delete-file-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const fileType = this.getAttribute('data-delete-file');
+                const container = document.querySelector(`[data-file-container="${fileType}"]`);
+                const confirmationBox = container.querySelector(`[data-delete-message="${fileType}"]`);
+                const hiddenInput = document.getElementById(`delete_${fileType}`);
 
-    const itemsContainer =
-        document.getElementById(
-            'items-container'
-        );
+                if (hiddenInput) {
+                    hiddenInput.value = '1';
+                }
+                container.classList.add('deleted');
+                this.closest('.current-image').style.display = 'none';
+                if (confirmationBox) {
+                    confirmationBox.classList.add('show');
+                }
+            });
+        });
 
-    const addItemBtn =
-        document.getElementById(
-            'add-item-btn'
-        );
+        document.querySelectorAll('.undo-delete-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const fileType = this.getAttribute('data-undo-file');
+                const container = document.querySelector(`[data-file-container="${fileType}"]`);
+                const confirmationBox = container.querySelector(`[data-delete-message="${fileType}"]`);
+                const hiddenInput = document.getElementById(`delete_${fileType}`);
+                const currentImageDiv = container.querySelector('.current-image');
 
-    /*
-    |--------------------------------------------------------------------------
-    | ADD EVENT ITEM
-    |--------------------------------------------------------------------------
-    */
+                if (hiddenInput) {
+                    hiddenInput.value = '0';
+                }
+                container.classList.remove('deleted');
+                if (currentImageDiv) {
+                    currentImageDiv.style.display = 'flex';
+                }
+                if (confirmationBox) {
+                    confirmationBox.classList.remove('show');
+                }
+            });
+        });
 
-    addItemBtn.addEventListener(
-        'click',
-        function () {
+        // --- Ticket Categories Builder ---
+        const addCategoryBtn = document.getElementById('add-category-btn');
+        const categoriesContainer = document.getElementById('categories-container');
+        let categoryIndex = categoriesContainer.querySelectorAll('.category-row').length;
 
-            const row =
-                document.createElement('div');
-
-            row.className =
-                'item-row';
-
+        addCategoryBtn.addEventListener('click', function() {
+            const isShared = document.querySelector('input[name="share_bib_prefix"]:checked').value === '1';
+            const row = document.createElement('div');
+            row.className = 'category-row grid grid-cols-1 md:grid-cols-6 gap-3';
             row.innerHTML = `
-
-                <div>
-
-                    <label class="event-label">
-                        Item Title
-                    </label>
-
-                    <input
-                        type="text"
-                        name="items[${itemIndex}][title]"
-                        placeholder="e.g. Finisher Medal"
-                        class="event-input"
-                    >
-
+                <input type="text" name="categories[${categoryIndex}][name]" placeholder="Category (e.g., 10km)" required class="md:col-span-2">
+                <input type="number" step="0.01" name="categories[${categoryIndex}][local_price]" placeholder="Local Price (MMK)" required>
+                <input type="number" step="0.01" name="categories[${categoryIndex}][foreign_price]" placeholder="Foreign Price (Optional)">
+                <input type="number" name="categories[${categoryIndex}][capacity]" min="1" placeholder="Capacity">
+                <div class="flex items-center space-x-2 separate-bib-inputs" style="${!isShared ? 'display:flex;' : 'display:none;'}">
+                    <input type="text" name="categories[${categoryIndex}][bib_prefix]" maxlength="3" placeholder="Prefix" class="uppercase">
+                    <input type="number" name="categories[${categoryIndex}][bib_start_number]" value="1" min="1" placeholder="Start #">
+                    <button type="button" class="remove-category-btn"><i class="fa-solid fa-trash"></i></button>
                 </div>
+            `;
+            categoriesContainer.appendChild(row);
+            categoryIndex++;
+        });
 
+        categoriesContainer.addEventListener('click', function(e) {
+            const removeBtn = e.target.closest('.remove-category-btn');
+            if (removeBtn) {
+                const row = removeBtn.closest('.category-row');
+                if (categoriesContainer.querySelectorAll('.category-row').length > 1) {
+                    row.remove();
+                } else {
+                    alert('You must have at least one ticket category.');
+                }
+            }
+        });
+
+        // --- Event Items Builder ---
+        const addItemBtn = document.getElementById('add-item-btn');
+        const itemsContainer = document.getElementById('items-container');
+        const deletedItemsContainer = document.getElementById('deleted-items-container');
+        let itemIndex = itemsContainer.querySelectorAll('.item-row').length;
+
+        addItemBtn.addEventListener('click', function() {
+            const row = document.createElement('div');
+            row.className = 'item-row';
+            row.innerHTML = `
                 <div>
-
-                    <label class="event-label">
-                        Item Image
-                    </label>
-
-                    <input
-                        type="file"
-                        name="items[${itemIndex}][image]"
-                        accept="image/jpeg,image/png,image/jpg,image/gif"
-                        class="event-file-input"
-                    >
-
+                    <label class="event-label">Item Title</label>
+                    <input type="text" name="items[${itemIndex}][title]" placeholder="e.g. Running Shirt" class="event-input">
                 </div>
-
-                <button
-                    type="button"
-                    class="remove-item-btn"
-                >
+                <div>
+                    <label class="event-label">Item Image</label>
+                    <input type="file" name="items[${itemIndex}][image]" accept="image/jpeg,image/png,image/jpg,image/gif" class="event-file-input">
+                </div>
+                <button type="button" class="remove-item-btn" data-existing-item="false" title="Remove item">
                     <i class="fa-solid fa-trash"></i>
                 </button>
-
             `;
-
             itemsContainer.appendChild(row);
-
             itemIndex++;
+        });
 
-        }
-    );
+        itemsContainer.addEventListener('click', function(e) {
+            const removeBtn = e.target.closest('.remove-item-btn');
+            if (removeBtn) {
+                const row = removeBtn.closest('.item-row');
+                const isExisting = removeBtn.getAttribute('data-existing-item') === 'true';
+                const itemId = row.getAttribute('data-item-id');
 
-    /*
-    |--------------------------------------------------------------------------
-    | REMOVE EVENT ITEM
-    |--------------------------------------------------------------------------
-    */
+                if (isExisting && itemId) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'deleted_items[]';
+                    input.value = itemId;
+                    deletedItemsContainer.appendChild(input);
+                }
 
-    itemsContainer.addEventListener(
-        'click',
-        function (e) {
-
-            const removeButton =
-                e.target.closest(
-                    '.remove-item-btn'
-                );
-
-            if (!removeButton) {
-                return;
+                if (itemsContainer.querySelectorAll('.item-row').length > 1) {
+                    row.remove();
+                } else {
+                    row.querySelector('input[type="text"]').value = '';
+                    const fileInput = row.querySelector('input[type="file"]');
+                    if (fileInput) fileInput.value = '';
+                    const imgDiv = row.querySelector('.existing-item-image');
+                    if (imgDiv) imgDiv.remove();
+                }
             }
+        });
 
-            const row =
-                removeButton.closest(
-                    '.item-row'
-                );
-
-            if (row) {
-                row.remove();
-            }
-
+        // --- BIB Prefix Mode toggles ---
+        const enableBibCheckbox = document.getElementById('enable_bib_number');
+        const bibConfigWrapper = document.getElementById('bib_config_wrapper');
+        if (enableBibCheckbox) {
+            enableBibCheckbox.addEventListener('change', function() {
+                bibConfigWrapper.style.display = this.checked ? 'block' : 'none';
+            });
         }
-    );
 
-});
+        const sharePrefixRadios = document.querySelectorAll('input[name="share_bib_prefix"]');
+        const sharedPrefixBox = document.getElementById('shared_prefix_box');
+        const separateBibInputs = document.querySelectorAll('.separate-bib-inputs');
 
+        sharePrefixRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                const isShared = this.value === '1';
+                sharedPrefixBox.style.display = isShared ? 'grid' : 'none';
+                separateBibInputs.forEach(el => {
+                    el.style.display = isShared ? 'none' : 'flex';
+                });
+            });
+        });
+    });
 </script>
 
 @endsection

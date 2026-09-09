@@ -55,17 +55,22 @@ class AdminEventController extends Controller
 
                 'event_date' => 'required|date',
                 'status' => 'required|in:upcoming,live,past',
+
                 'creator_name' => 'required|string|max:255',
                 'creator_phone' => 'required|string|max:50',
                 'creator_email' => 'required|email|max:255',
+
                 'overall_capacity' => 'nullable|integer|min:1',
+
                 'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+
                 'english_waiver' => 'nullable|file|mimes:pdf|max:10240',
                 'burmese_waiver' => 'nullable|file|mimes:pdf|max:10240',
                 'english_consent' => 'nullable|file|mimes:pdf|max:10240',
                 'burmese_consent' => 'nullable|file|mimes:pdf|max:10240',
                 'english_race_guide' => 'nullable|file|mimes:pdf|max:10240',
                 'burmese_race_guide' => 'nullable|file|mimes:pdf|max:10240',
+
                 'categories' => 'required|array|min:1',
                 'categories.*.name' => 'required|string|max:255',
                 'categories.*.local_price' => 'required|numeric|min:0',
@@ -73,6 +78,7 @@ class AdminEventController extends Controller
                 'categories.*.capacity' => 'nullable|integer|min:1',
                 'categories.*.bib_prefix' => 'nullable|string|max:3',
                 'categories.*.bib_start_number' => 'nullable|integer|min:1',
+
                 'promo_code' => 'nullable|string|max:100',
                 'promo_type' => 'nullable|in:fixed,percentage',
                 'promo_value' => 'nullable|numeric|min:0',
@@ -80,6 +86,7 @@ class AdminEventController extends Controller
                 'company_name' => 'nullable|string|max:255',
                 'promo_quantity' => 'nullable|integer|min:1|max:500',
                 'max_uses' => 'nullable|integer|min:1',
+
                 'items' => 'nullable|array',
                 'items.*.title' => 'nullable|string|max:255',
                 'items.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -90,22 +97,31 @@ class AdminEventController extends Controller
                 'categories.*.name.required' => 'Every ticket category must have a name.',
                 'categories.*.local_price.required' => 'Every ticket category must have a local price.',
                 'categories.*.local_price.numeric' => 'Ticket category price must be a valid number.',
+
                 'creator_name.required' => 'Please enter the event creator name.',
                 'creator_phone.required' => 'Please enter the event creator phone number.',
                 'creator_email.required' => 'Please enter the event creator email address.',
+
                 'image.max' => 'The event banner must not be larger than 2MB.',
+
                 'english_waiver.mimes' => 'The English waiver must be a valid PDF file.',
                 'english_waiver.max' => 'The English waiver must not be larger than 10MB.',
+
                 'burmese_waiver.mimes' => 'The Burmese waiver must be a valid PDF file.',
                 'burmese_waiver.max' => 'The Burmese waiver must not be larger than 10MB.',
+
                 'english_consent.mimes' => 'The English consent form must be a valid PDF file.',
                 'english_consent.max' => 'The English consent form must not be larger than 10MB.',
+
                 'burmese_consent.mimes' => 'The Burmese consent form must be a valid PDF file.',
                 'burmese_consent.max' => 'The Burmese consent form must not be larger than 10MB.',
+
                 'english_race_guide.mimes' => 'The English race guide must be a valid PDF file.',
                 'english_race_guide.max' => 'The English race guide must not be larger than 10MB.',
+
                 'burmese_race_guide.mimes' => 'The Burmese race guide must be a valid PDF file.',
                 'burmese_race_guide.max' => 'The Burmese race guide must not be larger than 10MB.',
+
                 'items.*.image.max' => 'An event item image must not be larger than 2MB.',
             ]
         );
@@ -161,27 +177,42 @@ class AdminEventController extends Controller
 
                     'event_date' => $request->event_date,
                     'status' => $request->status,
+
                     'image' => $imagePath,
+
                     'english_waiver' => $englishWaiverPath,
                     'burmese_waiver' => $burmeseWaiverPath,
                     'english_consent' => $englishConsentPath,
                     'burmese_consent' => $burmeseConsentPath,
                     'english_race_guide' => $englishRaceGuidePath,
                     'burmese_race_guide' => $burmeseRaceGuidePath,
+
                     'creator_name' => $request->creator_name,
                     'creator_phone' => $request->creator_phone,
                     'creator_email' => $request->creator_email,
+
                     'overall_capacity' => $request->overall_capacity,
+
                     'enabled_fields' => $request->input('enabled_fields', []),
+
                     'enable_bib_number' => $request->has('enable_bib_number'),
+
                     'share_bib_prefix' => $request->input('share_bib_prefix', '1') === '1',
-                    'event_bib_prefix' => strtoupper(substr($request->input('event_bib_prefix', ''), 0, 3)),
-                    'event_bib_start_number' => $request->input('event_bib_start_number', 1),
+
+                    'event_bib_prefix' => strtoupper(
+                        substr($request->input('event_bib_prefix', ''), 0, 3)
+                    ),
+
+                    'event_bib_start_number' => $request->input(
+                        'event_bib_start_number',
+                        1
+                    ),
                 ]);
 
                 $categoryMap = [];
 
                 foreach ($request->categories as $index => $categoryData) {
+
                     $cat = TicketCategory::create([
                         'event_id' => $event->id,
                         'name' => $categoryData['name'],
@@ -189,7 +220,11 @@ class AdminEventController extends Controller
                         'foreign_price' => $categoryData['foreign_price'] ?? null,
                         'capacity' => $categoryData['capacity'] ?? null,
                         'tickets_sold' => 0,
-                        'bib_prefix' => strtoupper(substr($categoryData['bib_prefix'] ?? '', 0, 3)),
+
+                        'bib_prefix' => strtoupper(
+                            substr($categoryData['bib_prefix'] ?? '', 0, 3)
+                        ),
+
                         'bib_start_number' => $categoryData['bib_start_number'] ?? 1,
                     ]);
 
@@ -197,21 +232,30 @@ class AdminEventController extends Controller
                     $categoryMap[$cat->id] = $cat;
                 }
 
-                if ($request->filled('promo_code') && $request->filled('promo_value')) {
+                if (
+                    $request->filled('promo_code') &&
+                    $request->filled('promo_value')
+                ) {
 
                     $promoTicketCategoryId = null;
 
                     if ($request->filled('promo_ticket_category_id')) {
+
                         $selectedVal = $request->promo_ticket_category_id;
 
                         if (isset($categoryMap[$selectedVal])) {
-                            $promoTicketCategoryId = $categoryMap[$selectedVal]->id;
+                            $promoTicketCategoryId =
+                                $categoryMap[$selectedVal]->id;
                         }
                     }
 
                     $quantity = (int) $request->input('promo_quantity', 1);
+
                     $companyName = $request->input('company_name');
-                    $baseCode = strtoupper(trim($request->promo_code));
+
+                    $baseCode = strtoupper(
+                        trim($request->promo_code)
+                    );
 
                     if ($quantity > 1) {
 
@@ -257,7 +301,10 @@ class AdminEventController extends Controller
 
                     foreach ($request->items as $itemData) {
 
-                        if (empty($itemData['title']) && empty($itemData['image'])) {
+                        if (
+                            empty($itemData['title']) &&
+                            empty($itemData['image'])
+                        ) {
                             continue;
                         }
 
@@ -267,7 +314,8 @@ class AdminEventController extends Controller
                             isset($itemData['image']) &&
                             $itemData['image'] instanceof \Illuminate\Http\UploadedFile
                         ) {
-                            $itemImage = $itemData['image']->store('event-items', 'public');
+                            $itemImage = $itemData['image']
+                                ->store('event-items', 'public');
                         }
 
                         EventItem::create([
@@ -329,18 +377,34 @@ class AdminEventController extends Controller
 
             'event_date' => 'required|date',
             'status' => 'required|in:upcoming,live,past',
+
             'creator_name' => 'required|string|max:255',
             'creator_phone' => 'required|string|max:50',
             'creator_email' => 'required|email|max:255',
+
             'overall_capacity' => 'nullable|integer|min:1',
+
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+
             'english_waiver' => 'nullable|file|mimes:pdf|max:10240',
             'burmese_waiver' => 'nullable|file|mimes:pdf|max:10240',
             'english_consent' => 'nullable|file|mimes:pdf|max:10240',
             'burmese_consent' => 'nullable|file|mimes:pdf|max:10240',
             'english_race_guide' => 'nullable|file|mimes:pdf|max:10240',
             'burmese_race_guide' => 'nullable|file|mimes:pdf|max:10240',
+
+            /*
+             * PDF deletion flags
+             */
+            'delete_english_waiver' => 'nullable|boolean',
+            'delete_burmese_waiver' => 'nullable|boolean',
+            'delete_english_consent' => 'nullable|boolean',
+            'delete_burmese_consent' => 'nullable|boolean',
+            'delete_english_race_guide' => 'nullable|boolean',
+            'delete_burmese_race_guide' => 'nullable|boolean',
+
             'categories' => 'required|array|min:1',
+
             'categories.*.id' => 'nullable|integer',
             'categories.*.name' => 'required|string|max:255',
             'categories.*.local_price' => 'required|numeric|min:0',
@@ -348,6 +412,7 @@ class AdminEventController extends Controller
             'categories.*.capacity' => 'nullable|integer|min:1',
             'categories.*.bib_prefix' => 'nullable|string|max:3',
             'categories.*.bib_start_number' => 'nullable|integer|min:1',
+
             'promo_code' => 'nullable|string|max:100',
             'promo_type' => 'nullable|in:fixed,percentage',
             'promo_value' => 'nullable|numeric|min:0',
@@ -355,15 +420,26 @@ class AdminEventController extends Controller
             'company_name' => 'nullable|string|max:255',
             'promo_quantity' => 'nullable|integer|min:1|max:500',
             'max_uses' => 'nullable|integer|min:1',
+
             'items' => 'nullable|array',
             'items.*.id' => 'nullable|integer',
             'items.*.title' => 'nullable|string|max:255',
             'items.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+
+            /*
+             * Event item deletion
+             */
             'deleted_items' => 'nullable|array',
             'deleted_items.*' => 'integer',
         ]);
 
         DB::transaction(function () use ($request, $event) {
+
+            /*
+             * =========================================================
+             * SLUG
+             * =========================================================
+             */
 
             $slug = Str::slug($request->title);
             $originalSlug = $slug;
@@ -377,74 +453,198 @@ class AdminEventController extends Controller
                 $slug = $originalSlug . '-' . $count++;
             }
 
+            /*
+             * =========================================================
+             * EVENT IMAGE
+             * =========================================================
+             */
+
             if ($request->hasFile('image')) {
 
                 if ($event->image) {
                     Storage::disk('public')->delete($event->image);
                 }
 
-                $event->image = $request->file('image')->store('events', 'public');
+                $event->image = $request->file('image')
+                    ->store('events', 'public');
+            }
+
+            /*
+             * =========================================================
+             * PDF DELETE / REPLACE
+             *
+             * If delete flag is sent:
+             * - Delete existing file
+             * - Set database field to null
+             *
+             * If a new file is uploaded:
+             * - Delete old file
+             * - Store new file
+             *
+             * Therefore both operations work independently.
+             * =========================================================
+             */
+
+            // English Waiver
+            if ($request->boolean('delete_english_waiver')) {
+
+                if ($event->english_waiver) {
+                    Storage::disk('public')->delete(
+                        $event->english_waiver
+                    );
+                }
+
+                $event->english_waiver = null;
             }
 
             if ($request->hasFile('english_waiver')) {
 
                 if ($event->english_waiver) {
-                    Storage::disk('public')->delete($event->english_waiver);
+                    Storage::disk('public')->delete(
+                        $event->english_waiver
+                    );
                 }
 
-                $event->english_waiver = $request->file('english_waiver')
+                $event->english_waiver = $request
+                    ->file('english_waiver')
                     ->store('waivers', 'public');
+            }
+
+
+            // Burmese Waiver
+            if ($request->boolean('delete_burmese_waiver')) {
+
+                if ($event->burmese_waiver) {
+                    Storage::disk('public')->delete(
+                        $event->burmese_waiver
+                    );
+                }
+
+                $event->burmese_waiver = null;
             }
 
             if ($request->hasFile('burmese_waiver')) {
 
                 if ($event->burmese_waiver) {
-                    Storage::disk('public')->delete($event->burmese_waiver);
+                    Storage::disk('public')->delete(
+                        $event->burmese_waiver
+                    );
                 }
 
-                $event->burmese_waiver = $request->file('burmese_waiver')
+                $event->burmese_waiver = $request
+                    ->file('burmese_waiver')
                     ->store('waivers', 'public');
+            }
+
+
+            // English Consent
+            if ($request->boolean('delete_english_consent')) {
+
+                if ($event->english_consent) {
+                    Storage::disk('public')->delete(
+                        $event->english_consent
+                    );
+                }
+
+                $event->english_consent = null;
             }
 
             if ($request->hasFile('english_consent')) {
 
                 if ($event->english_consent) {
-                    Storage::disk('public')->delete($event->english_consent);
+                    Storage::disk('public')->delete(
+                        $event->english_consent
+                    );
                 }
 
-                $event->english_consent = $request->file('english_consent')
+                $event->english_consent = $request
+                    ->file('english_consent')
                     ->store('consents', 'public');
+            }
+
+
+            // Burmese Consent
+            if ($request->boolean('delete_burmese_consent')) {
+
+                if ($event->burmese_consent) {
+                    Storage::disk('public')->delete(
+                        $event->burmese_consent
+                    );
+                }
+
+                $event->burmese_consent = null;
             }
 
             if ($request->hasFile('burmese_consent')) {
 
                 if ($event->burmese_consent) {
-                    Storage::disk('public')->delete($event->burmese_consent);
+                    Storage::disk('public')->delete(
+                        $event->burmese_consent
+                    );
                 }
 
-                $event->burmese_consent = $request->file('burmese_consent')
+                $event->burmese_consent = $request
+                    ->file('burmese_consent')
                     ->store('consents', 'public');
+            }
+
+
+            // English Race Guide
+            if ($request->boolean('delete_english_race_guide')) {
+
+                if ($event->english_race_guide) {
+                    Storage::disk('public')->delete(
+                        $event->english_race_guide
+                    );
+                }
+
+                $event->english_race_guide = null;
             }
 
             if ($request->hasFile('english_race_guide')) {
 
                 if ($event->english_race_guide) {
-                    Storage::disk('public')->delete($event->english_race_guide);
+                    Storage::disk('public')->delete(
+                        $event->english_race_guide
+                    );
                 }
 
-                $event->english_race_guide = $request->file('english_race_guide')
+                $event->english_race_guide = $request
+                    ->file('english_race_guide')
                     ->store('race_guides', 'public');
+            }
+
+
+            // Burmese Race Guide
+            if ($request->boolean('delete_burmese_race_guide')) {
+
+                if ($event->burmese_race_guide) {
+                    Storage::disk('public')->delete(
+                        $event->burmese_race_guide
+                    );
+                }
+
+                $event->burmese_race_guide = null;
             }
 
             if ($request->hasFile('burmese_race_guide')) {
 
                 if ($event->burmese_race_guide) {
-                    Storage::disk('public')->delete($event->burmese_race_guide);
+                    Storage::disk('public')->delete(
+                        $event->burmese_race_guide
+                    );
                 }
 
-                $event->burmese_race_guide = $request->file('burmese_race_guide')
+                $event->burmese_race_guide = $request
+                    ->file('burmese_race_guide')
                     ->store('race_guides', 'public');
             }
+
+            /*
+             * =========================================================
+             * UPDATE EVENT
+             * =========================================================
+             */
 
             $event->update([
                 'title' => $request->title,
@@ -458,28 +658,50 @@ class AdminEventController extends Controller
 
                 'event_date' => $request->event_date,
                 'status' => $request->status,
+
                 'creator_name' => $request->creator_name,
                 'creator_phone' => $request->creator_phone,
                 'creator_email' => $request->creator_email,
+
                 'overall_capacity' => $request->overall_capacity,
+
                 'enabled_fields' => $request->input('enabled_fields', []),
+
                 'enable_bib_number' => $request->has('enable_bib_number'),
-                'share_bib_prefix' => $request->input('share_bib_prefix', '1') === '1',
+
+                'share_bib_prefix' =>
+                    $request->input('share_bib_prefix', '1') === '1',
+
                 'event_bib_prefix' => strtoupper(
-                    substr($request->input('event_bib_prefix', ''), 0, 3)
+                    substr(
+                        $request->input('event_bib_prefix', ''),
+                        0,
+                        3
+                    )
                 ),
+
                 'event_bib_start_number' => $request->input(
                     'event_bib_start_number',
                     1
                 ),
+
                 'image' => $event->image,
+
                 'english_waiver' => $event->english_waiver,
                 'burmese_waiver' => $event->burmese_waiver,
+
                 'english_consent' => $event->english_consent,
                 'burmese_consent' => $event->burmese_consent,
+
                 'english_race_guide' => $event->english_race_guide,
                 'burmese_race_guide' => $event->burmese_race_guide,
             ]);
+
+            /*
+             * =========================================================
+             * TICKET CATEGORIES
+             * =========================================================
+             */
 
             $submittedCategoryIds = [];
             $categoryMap = [];
@@ -488,7 +710,10 @@ class AdminEventController extends Controller
 
                 if (!empty($categoryData['id'])) {
 
-                    $category = TicketCategory::where('id', $categoryData['id'])
+                    $category = TicketCategory::where(
+                            'id',
+                            $categoryData['id']
+                        )
                         ->where('event_id', $event->id)
                         ->first();
 
@@ -497,15 +722,25 @@ class AdminEventController extends Controller
                         $category->update([
                             'name' => $categoryData['name'],
                             'local_price' => $categoryData['local_price'],
-                            'foreign_price' => $categoryData['foreign_price'] ?? null,
-                            'capacity' => $categoryData['capacity'] ?? null,
+                            'foreign_price' =>
+                                $categoryData['foreign_price'] ?? null,
+                            'capacity' =>
+                                $categoryData['capacity'] ?? null,
+
                             'bib_prefix' => strtoupper(
-                                substr($categoryData['bib_prefix'] ?? '', 0, 3)
+                                substr(
+                                    $categoryData['bib_prefix'] ?? '',
+                                    0,
+                                    3
+                                )
                             ),
-                            'bib_start_number' => $categoryData['bib_start_number'] ?? 1,
+
+                            'bib_start_number' =>
+                                $categoryData['bib_start_number'] ?? 1,
                         ]);
 
                         $submittedCategoryIds[] = $category->id;
+
                         $categoryMap[$category->id] = $category;
                         $categoryMap[$index] = $category;
                     }
@@ -516,16 +751,26 @@ class AdminEventController extends Controller
                         'event_id' => $event->id,
                         'name' => $categoryData['name'],
                         'local_price' => $categoryData['local_price'],
-                        'foreign_price' => $categoryData['foreign_price'] ?? null,
-                        'capacity' => $categoryData['capacity'] ?? null,
+                        'foreign_price' =>
+                            $categoryData['foreign_price'] ?? null,
+                        'capacity' =>
+                            $categoryData['capacity'] ?? null,
                         'tickets_sold' => 0,
+
                         'bib_prefix' => strtoupper(
-                            substr($categoryData['bib_prefix'] ?? '', 0, 3)
+                            substr(
+                                $categoryData['bib_prefix'] ?? '',
+                                0,
+                                3
+                            )
                         ),
-                        'bib_start_number' => $categoryData['bib_start_number'] ?? 1,
+
+                        'bib_start_number' =>
+                            $categoryData['bib_start_number'] ?? 1,
                     ]);
 
                     $submittedCategoryIds[] = $category->id;
+
                     $categoryMap[$category->id] = $category;
                     $categoryMap[$index] = $category;
                 }
@@ -544,26 +789,58 @@ class AdminEventController extends Controller
 
                 $category = TicketCategory::find($categoryId);
 
-                if ($category && $category->attendees()->count() === 0) {
+                if (
+                    $category &&
+                    $category->attendees()->count() === 0
+                ) {
                     $category->delete();
                 }
             }
 
-            if ($request->filled('deleted_items')) {
+            /*
+             * =========================================================
+             * EVENT ITEM DELETION
+             *
+             * Only delete EventItems belonging to this event.
+             * This prevents an item ID from another event being deleted.
+             * =========================================================
+             */
 
-                $itemsToDelete = EventItem::where('event_id', $event->id)
-                    ->whereIn('id', $request->deleted_items)
+            $deletedItemIds = $request->input(
+                'deleted_items',
+                []
+            );
+
+            if (!empty($deletedItemIds)) {
+
+                $itemsToDelete = EventItem::where(
+                        'event_id',
+                        $event->id
+                    )
+                    ->whereIn('id', $deletedItemIds)
                     ->get();
 
                 foreach ($itemsToDelete as $item) {
 
                     if ($item->image) {
-                        Storage::disk('public')->delete($item->image);
+                        Storage::disk('public')->delete(
+                            $item->image
+                        );
                     }
 
                     $item->delete();
                 }
             }
+
+            /*
+             * =========================================================
+             * EVENT ITEMS
+             *
+             * Existing items are updated.
+             * New items are created.
+             * Items sent in deleted_items are already removed above.
+             * =========================================================
+             */
 
             if ($request->has('items')) {
 
@@ -571,9 +848,15 @@ class AdminEventController extends Controller
 
                     $title = $itemData['title'] ?? null;
 
+                    /*
+                     * Existing item
+                     */
                     if (!empty($itemData['id'])) {
 
-                        $item = EventItem::where('id', $itemData['id'])
+                        $item = EventItem::where(
+                                'id',
+                                $itemData['id']
+                            )
                             ->where('event_id', $event->id)
                             ->first();
 
@@ -589,7 +872,9 @@ class AdminEventController extends Controller
                         ) {
 
                             if ($item->image) {
-                                Storage::disk('public')->delete($item->image);
+                                Storage::disk('public')->delete(
+                                    $item->image
+                                );
                             }
 
                             $item->image = $itemData['image']
@@ -600,7 +885,13 @@ class AdminEventController extends Controller
 
                     } else {
 
-                        if (empty($title) && empty($itemData['image'])) {
+                        /*
+                         * New item
+                         */
+                        if (
+                            empty($title) &&
+                            empty($itemData['image'])
+                        ) {
                             continue;
                         }
 
@@ -610,6 +901,7 @@ class AdminEventController extends Controller
                             isset($itemData['image']) &&
                             $itemData['image'] instanceof \Illuminate\Http\UploadedFile
                         ) {
+
                             $itemImage = $itemData['image']
                                 ->store('event-items', 'public');
                         }
@@ -634,9 +926,15 @@ class AdminEventController extends Controller
      */
     public function promoCodes(Event $event)
     {
-        $event->load(['ticketCategories', 'promoCodes']);
+        $event->load([
+            'ticketCategories',
+            'promoCodes'
+        ]);
 
-        return view('admin.events.promo_codes', compact('event'));
+        return view(
+            'admin.events.promo_codes',
+            compact('event')
+        );
     }
 
     /**
@@ -654,8 +952,14 @@ class AdminEventController extends Controller
             'ticket_category_id' => 'nullable|exists:ticket_categories,id',
         ]);
 
-        $quantity = (int) $request->input('promo_quantity', 1);
-        $baseCode = strtoupper(trim($request->input('code')));
+        $quantity = (int) $request->input(
+            'promo_quantity',
+            1
+        );
+
+        $baseCode = strtoupper(
+            trim($request->input('code'))
+        );
 
         if ($quantity > 1) {
 
@@ -668,19 +972,29 @@ class AdminEventController extends Controller
                     STR_PAD_LEFT
                 );
 
-                $generatedCode = "{$baseCode}-{$formattedIndex}";
+                $generatedCode =
+                    "{$baseCode}-{$formattedIndex}";
 
                 PromoCode::create([
                     'event_id' => $event->id,
-                    'company_name' => $request->input('company_name'),
+                    'company_name' =>
+                        $request->input('company_name'),
                     'code' => $generatedCode,
-                    'discount_type' => $request->input('discount_type'),
-                    'discount_value' => $request->input('discount_value'),
+
+                    'discount_type' =>
+                        $request->input('discount_type'),
+
+                    'discount_value' =>
+                        $request->input('discount_value'),
+
                     'max_uses' => 1,
                     'uses_count' => 0,
-                    'ticket_category_id' => $request->input('promo_scope') === 'ticket'
-                        ? $request->input('ticket_category_id')
-                        : null,
+
+                    'ticket_category_id' =>
+                        $request->input('promo_scope') === 'ticket'
+                            ? $request->input('ticket_category_id')
+                            : null,
+
                     'status' => 'active',
                 ]);
             }
@@ -695,15 +1009,27 @@ class AdminEventController extends Controller
 
         PromoCode::create([
             'event_id' => $event->id,
-            'company_name' => $request->input('company_name'),
+            'company_name' =>
+                $request->input('company_name'),
+
             'code' => $baseCode,
-            'discount_type' => $request->input('discount_type'),
-            'discount_value' => $request->input('discount_value'),
-            'max_uses' => $request->input('max_uses', 1),
+
+            'discount_type' =>
+                $request->input('discount_type'),
+
+            'discount_value' =>
+                $request->input('discount_value'),
+
+            'max_uses' =>
+                $request->input('max_uses', 1),
+
             'uses_count' => 0,
-            'ticket_category_id' => $request->input('promo_scope') === 'ticket'
-                ? $request->input('ticket_category_id')
-                : null,
+
+            'ticket_category_id' =>
+                $request->input('promo_scope') === 'ticket'
+                    ? $request->input('ticket_category_id')
+                    : null,
+
             'status' => 'active',
         ]);
 
@@ -726,7 +1052,10 @@ class AdminEventController extends Controller
 
         return redirect()
             ->back()
-            ->with('success', 'Promo code deleted successfully!');
+            ->with(
+                'success',
+                'Promo code deleted successfully!'
+            );
     }
 
     public function attendees(Event $event)
@@ -735,25 +1064,45 @@ class AdminEventController extends Controller
 
         $event->load('ticketCategories');
 
-        $attendees = Attendee::whereHas('ticketCategory', function ($q) use ($eventId) {
-                $q->where('event_id', $eventId);
-            })
-            ->whereHas('order', function ($q) {
-                $q->whereRaw(
-                    "LOWER(payment_status) IN ('paid', 'approved', 'completed')"
-                );
-            })
-            ->with(['ticketCategory', 'order', 'promoCode'])
+        $attendees = Attendee::whereHas(
+                'ticketCategory',
+                function ($q) use ($eventId) {
+                    $q->where('event_id', $eventId);
+                }
+            )
+            ->whereHas(
+                'order',
+                function ($q) {
+                    $q->whereRaw(
+                        "LOWER(payment_status) IN ('paid', 'approved', 'completed')"
+                    );
+                }
+            )
+            ->with([
+                'ticketCategory',
+                'order',
+                'promoCode'
+            ])
             ->get();
 
-        $totalRevenue = Order::where(function ($q) use ($eventId) {
+        $totalRevenue = Order::where(
+                function ($q) use ($eventId) {
 
-                $q->where('event_id', $eventId)
-                    ->orWhereHas('attendees.ticketCategory', function ($sub) use ($eventId) {
-                        $sub->where('event_id', $eventId);
-                    });
-
-            })
+                    $q->where(
+                        'event_id',
+                        $eventId
+                    )
+                    ->orWhereHas(
+                        'attendees.ticketCategory',
+                        function ($sub) use ($eventId) {
+                            $sub->where(
+                                'event_id',
+                                $eventId
+                            );
+                        }
+                    );
+                }
+            )
             ->whereRaw(
                 "LOWER(payment_status) IN ('paid', 'approved', 'completed')"
             )
@@ -761,7 +1110,11 @@ class AdminEventController extends Controller
 
         return view(
             'admin.events.attendees',
-            compact('event', 'attendees', 'totalRevenue')
+            compact(
+                'event',
+                'attendees',
+                'totalRevenue'
+            )
         );
     }
 
@@ -809,7 +1162,9 @@ class AdminEventController extends Controller
             $attendee->ticketCategory &&
             $attendee->ticketCategory->tickets_sold > 0
         ) {
-            $attendee->ticketCategory->decrement('tickets_sold');
+            $attendee->ticketCategory->decrement(
+                'tickets_sold'
+            );
         }
 
         // Using Soft Delete so the record remains in the database
@@ -826,12 +1181,15 @@ class AdminEventController extends Controller
     {
         ini_set('memory_limit', '1024M');
 
-        $attendee = Attendee::with('ticketCategory.event')
-            ->findOrFail($id);
+        $attendee = Attendee::with(
+            'ticketCategory.event'
+        )->findOrFail($id);
 
         if (empty($attendee->verification_token)) {
 
-            $attendee->verification_token = Str::random(64);
+            $attendee->verification_token =
+                Str::random(64);
+
             $attendee->save();
         }
 
@@ -841,7 +1199,9 @@ class AdminEventController extends Controller
 
         if (
             $event->image &&
-            Storage::disk('public')->exists($event->image)
+            Storage::disk('public')->exists(
+                $event->image
+            )
         ) {
 
             $bannerPath = storage_path(
@@ -852,11 +1212,13 @@ class AdminEventController extends Controller
                 file_exists($bannerPath) &&
                 filesize($bannerPath) <= 2 * 1024 * 1024
             ) {
-                $bannerBase64 = $this->resizeImageToBase64(
-                    $bannerPath,
-                    800,
-                    300
-                );
+
+                $bannerBase64 =
+                    $this->resizeImageToBase64(
+                        $bannerPath,
+                        800,
+                        300
+                    );
             }
         }
 
@@ -864,30 +1226,37 @@ class AdminEventController extends Controller
             'assets/img/logo/Swezon_Logo1.1V.png'
         );
 
-        $logoBase64 = (
-            file_exists($logoPath) &&
-            filesize($logoPath) <= 2 * 1024 * 1024
-        )
-            ? $this->resizeImageToBase64(
-                $logoPath,
-                300,
-                100
+        $logoBase64 =
+            (
+                file_exists($logoPath) &&
+                filesize($logoPath) <= 2 * 1024 * 1024
             )
-            : null;
+                ? $this->resizeImageToBase64(
+                    $logoPath,
+                    300,
+                    100
+                )
+                : null;
 
         $verificationUrl = route(
             'ticket.verify',
-            ['token' => $attendee->verification_token]
+            [
+                'token' =>
+                    $attendee->verification_token
+            ]
         );
 
         $qrApiUrl =
             'https://api.qrserver.com/v1/create-qr-code/?size=75x75&data=' .
             urlencode($verificationUrl);
 
-        $qrImageData = @file_get_contents($qrApiUrl);
+        $qrImageData = @file_get_contents(
+            $qrApiUrl
+        );
 
         $qrBase64 = $qrImageData
-            ? 'data:image/png;base64,' . base64_encode($qrImageData)
+            ? 'data:image/png;base64,' .
+                base64_encode($qrImageData)
             : null;
 
         $pdf = Pdf::setOptions([
@@ -895,16 +1264,22 @@ class AdminEventController extends Controller
             'isRemoteEnabled' => true,
             'defaultFont' => 'sans-serif',
             'isFontSubsettingEnabled' => true,
-        ])->loadView('emails.ticket_pdf', [
-            'attendee' => $attendee,
-            'bannerBase64' => $bannerBase64,
-            'logoBase64' => $logoBase64,
-            'qrBase64' => $qrBase64
-        ]);
+        ])->loadView(
+            'emails.ticket_pdf',
+            [
+                'attendee' => $attendee,
+                'bannerBase64' => $bannerBase64,
+                'logoBase64' => $logoBase64,
+                'qrBase64' => $qrBase64
+            ]
+        );
 
         $filename =
             'Ticket_' .
-            ($attendee->ticket_uuid ?? $attendee->id) .
+            (
+                $attendee->ticket_uuid ??
+                $attendee->id
+            ) .
             '.pdf';
 
         return $pdf->download($filename);
@@ -934,15 +1309,18 @@ class AdminEventController extends Controller
         switch ($imageType) {
 
             case IMAGETYPE_JPEG:
-                $sourceImage = @imagecreatefromjpeg($filePath);
+                $sourceImage =
+                    @imagecreatefromjpeg($filePath);
                 break;
 
             case IMAGETYPE_PNG:
-                $sourceImage = @imagecreatefrompng($filePath);
+                $sourceImage =
+                    @imagecreatefrompng($filePath);
                 break;
 
             case IMAGETYPE_GIF:
-                $sourceImage = @imagecreatefromgif($filePath);
+                $sourceImage =
+                    @imagecreatefromgif($filePath);
                 break;
 
             default:
@@ -1073,6 +1451,7 @@ class AdminEventController extends Controller
         )->delete();
 
         $event->ticketCategories()->delete();
+
         $event->promoCodes()->delete();
 
         foreach ($event->items as $item) {
@@ -1152,4 +1531,3 @@ class AdminEventController extends Controller
         );
     }
 }
-

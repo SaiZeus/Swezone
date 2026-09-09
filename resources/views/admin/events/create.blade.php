@@ -318,7 +318,7 @@
     }
 
     /* =========================================================
-       OPENSTREETMAP / LEAFLET LOCATION PICKER
+       OPENSTREETMAP / LEAFLET LOCATION SEARCH
        ========================================================= */
 
     .location-picker {
@@ -366,7 +366,7 @@
         margin-bottom: 10px;
     }
 
-    .location-search-wrapper i {
+    .location-search-wrapper > i {
         position: absolute;
         left: 13px;
         top: 50%;
@@ -378,7 +378,7 @@
 
     #location-search {
         padding-left: 37px;
-        padding-right: 105px;
+        padding-right: 110px;
     }
 
     .location-search-button {
@@ -478,6 +478,10 @@
         background: #f8f9ff;
     }
 
+    .location-result.selected {
+        background: #eef2ff;
+    }
+
     .location-result-title {
         color: #273245;
         font-size: .73rem;
@@ -491,7 +495,28 @@
         line-height: 1.4;
     }
 
-    /* Leaflet popup */
+    .location-auto-status {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 18px;
+        margin: 5px 2px 8px;
+        color: #8a94a5;
+        font-size: .65rem;
+    }
+
+    .location-auto-status.loading {
+        color: #4f46e5;
+    }
+
+    .location-auto-status.success {
+        color: #059669;
+    }
+
+    .location-auto-status.error {
+        color: #dc2626;
+    }
+
     .leaflet-popup-content {
         font-size: 12px;
         line-height: 1.5;
@@ -763,6 +788,12 @@
         background: #fff;
     }
 
+    .item-row.removing {
+        opacity: 0;
+        transform: scale(.98);
+        transition: all .15s ease;
+    }
+
     .add-item-button {
         display: inline-flex;
         align-items: center;
@@ -788,6 +819,23 @@
         background: #fff5f5;
         color: #ef4444;
         cursor: pointer;
+    }
+
+    .remove-item-btn:hover {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .empty-items-message {
+        display: none;
+        padding: 18px;
+        margin-bottom: 12px;
+        border: 1px dashed #dfe3ea;
+        border-radius: 12px;
+        background: #fff;
+        color: #929baa;
+        text-align: center;
+        font-size: .72rem;
     }
 
     .event-divider {
@@ -904,8 +952,9 @@
 </style>
 
 {{-- =============================================================
-     LEAFLET CSS
+LEAFLET CSS
 ============================================================= --}}
+
 <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -914,785 +963,485 @@
 <div class="create-event-page">
     <div class="event-form-wrapper">
 
-        <div class="event-page-header">
-            <h1>Create Marathon Event</h1>
-            <p>
-                Set up your event details, tickets, capacity and participant information.
-            </p>
+```
+    <div class="event-page-header">
+        <h1>Create Marathon Event</h1>
+        <p>
+            Set up your event details, tickets, capacity and participant information.
+        </p>
+    </div>
+
+    <div class="event-form-card">
+
+        <div class="event-form-header">
+            <div class="event-form-header-content">
+
+                <div class="event-header-icon">
+                    <i class="fa-solid fa-person-running"></i>
+                </div>
+
+                <div>
+                    <h2>New Marathon Event</h2>
+                    <p>
+                        Complete the information below to publish your event.
+                    </p>
+                </div>
+
+            </div>
         </div>
 
-        <div class="event-form-card">
+        <div class="event-form-body">
 
-            <div class="event-form-header">
-                <div class="event-form-header-content">
+            {{-- SUCCESS MESSAGE --}}
+            @if(session('success'))
+                <div class="event-alert event-alert-success">
 
-                    <div class="event-header-icon">
-                        <i class="fa-solid fa-person-running"></i>
+                    <div class="event-alert-icon">
+                        <i class="fa-solid fa-circle-check"></i>
                     </div>
 
-                    <div>
-                        <h2>New Marathon Event</h2>
-                        <p>
-                            Complete the information below to publish your event.
-                        </p>
+                    <div class="event-alert-content">
+                        <strong>Success</strong>
+                        <p>{{ session('success') }}</p>
                     </div>
+
+                    <button
+                        type="button"
+                        class="event-alert-close"
+                        onclick="this.parentElement.remove()">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
 
                 </div>
-            </div>
+            @endif
 
-            <div class="event-form-body">
+            {{-- GENERAL ERROR MESSAGE --}}
+            @if(session('error'))
+                <div class="event-alert event-alert-danger">
 
-                {{-- SUCCESS MESSAGE --}}
-                @if(session('success'))
-                    <div class="event-alert event-alert-success">
+                    <div class="event-alert-icon">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                    </div>
 
-                        <div class="event-alert-icon">
-                            <i class="fa-solid fa-circle-check"></i>
-                        </div>
+                    <div class="event-alert-content">
+                        <strong>Event Could Not Be Published</strong>
+                        <p>{{ session('error') }}</p>
+                    </div>
 
-                        <div class="event-alert-content">
-                            <strong>Success</strong>
-                            <p>{{ session('success') }}</p>
-                        </div>
+                    <button
+                        type="button"
+                        class="event-alert-close"
+                        onclick="this.parentElement.remove()">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
 
-                        <button
-                            type="button"
-                            class="event-alert-close"
-                            onclick="this.parentElement.remove()">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
+                </div>
+            @endif
+
+            {{-- VALIDATION ERRORS --}}
+            @if($errors->any())
+                <div class="event-alert event-alert-danger">
+
+                    <div class="event-alert-icon">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+
+                    <div class="event-alert-content">
+
+                        <strong>Please fix the following errors:</strong>
+
+                        <ul class="event-error-list">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
 
                     </div>
-                @endif
 
-                {{-- GENERAL ERROR MESSAGE --}}
-                @if(session('error'))
-                    <div class="event-alert event-alert-danger">
+                    <button
+                        type="button"
+                        class="event-alert-close"
+                        onclick="this.parentElement.remove()">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
 
-                        <div class="event-alert-icon">
-                            <i class="fa-solid fa-circle-exclamation"></i>
-                        </div>
+                </div>
+            @endif
 
-                        <div class="event-alert-content">
-                            <strong>Event Could Not Be Published</strong>
-                            <p>{{ session('error') }}</p>
-                        </div>
+            <form
+                action="{{ route('admin.events.store') }}"
+                method="POST"
+                enctype="multipart/form-data">
 
-                        <button
-                            type="button"
-                            class="event-alert-close"
-                            onclick="this.parentElement.remove()">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
+                @csrf
 
-                    </div>
-                @endif
+                {{-- =====================================================
+                     SECTION 01 - EVENT INFORMATION
+                ====================================================== --}}
 
-                {{-- VALIDATION ERRORS --}}
-                @if($errors->any())
-                    <div class="event-alert event-alert-danger">
+                <div class="form-section">
 
-                        <div class="event-alert-icon">
-                            <i class="fa-solid fa-triangle-exclamation"></i>
-                        </div>
+                    <div class="form-section-heading">
 
-                        <div class="event-alert-content">
+                        <div class="section-number">01</div>
 
-                            <strong>Please fix the following errors:</strong>
-
-                            <ul class="event-error-list">
-                                @foreach($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-
-                        </div>
-
-                        <button
-                            type="button"
-                            class="event-alert-close"
-                            onclick="this.parentElement.remove()">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-
-                    </div>
-                @endif
-
-                <form
-                    action="{{ route('admin.events.store') }}"
-                    method="POST"
-                    enctype="multipart/form-data">
-
-                    @csrf
-
-                    {{-- =====================================================
-                         SECTION 01 - EVENT INFORMATION
-                    ====================================================== --}}
-
-                    <div class="form-section">
-
-                        <div class="form-section-heading">
-
-                            <div class="section-number">01</div>
-
-                            <div>
-                                <h3>Event Information</h3>
-                                <p>Basic details about your marathon event.</p>
-                            </div>
-
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-
-                            {{-- EVENT TITLE --}}
-                            <div>
-                                <label class="event-label">
-                                    Event Title
-                                </label>
-
-                                <input
-                                    type="text"
-                                    name="title"
-                                    required
-                                    value="{{ old('title') }}"
-                                    placeholder="e.g. Yangon International Marathon"
-                                    class="event-input">
-                            </div>
-
-                            {{-- LOCATION --}}
-                            <div>
-
-                                <label class="event-label">
-                                    Location
-                                </label>
-
-                                <input
-                                    type="text"
-                                    name="location"
-                                    id="location"
-                                    required
-                                    value="{{ old('location') }}"
-                                    placeholder="Search for your event location"
-                                    class="event-input">
-
-                                {{-- OPENSTREETMAP LOCATION PICKER --}}
-                                <div class="location-picker">
-
-                                    <div class="location-picker-header">
-
-                                        <div class="location-picker-icon">
-                                            <i class="fa-solid fa-location-dot"></i>
-                                        </div>
-
-                                        <div>
-                                            <h4>Select Event Location</h4>
-                                            <p>
-                                                Search for a place or click anywhere on the map.
-                                            </p>
-                                        </div>
-
-                                    </div>
-
-                                    <div class="location-search-wrapper">
-
-                                        <i class="fa-solid fa-magnifying-glass"></i>
-
-                                        <input
-                                            type="text"
-                                            id="location-search"
-                                            class="event-input"
-                                            placeholder="Search for a venue, street or city..."
-                                            autocomplete="off">
-
-                                        <button
-                                            type="button"
-                                            id="location-search-button"
-                                            class="location-search-button">
-
-                                            Search
-
-                                        </button>
-
-                                    </div>
-
-                                    <div
-                                        id="location-search-results"
-                                        class="location-search-results">
-                                    </div>
-
-                                    <div id="event-location-map"></div>
-
-                                    <div class="map-instruction">
-
-                                        <i class="fa-solid fa-circle-info"></i>
-
-                                        <span>
-                                            You can drag the marker or click the map to adjust the exact event location.
-                                        </span>
-
-                                    </div>
-
-                                    <div
-                                        id="selected-location-box"
-                                        class="selected-location-box"
-                                        style="display: none;">
-
-                                        <i class="fa-solid fa-location-crosshairs"></i>
-
-                                        <span id="selected-location-text">
-                                            Location selected
-                                        </span>
-
-                                    </div>
-
-                                </div>
-
-                                {{-- HIDDEN COORDINATES --}}
-                                <input
-                                    type="hidden"
-                                    name="latitude"
-                                    id="latitude"
-                                    value="{{ old('latitude') }}">
-
-                                <input
-                                    type="hidden"
-                                    name="longitude"
-                                    id="longitude"
-                                    value="{{ old('longitude') }}">
-
-                            </div>
-
-                            {{-- EVENT DATE --}}
-                            <div>
-
-                                <label class="event-label">
-                                    Event Date & Time
-                                </label>
-
-                                <input
-                                    type="datetime-local"
-                                    name="event_date"
-                                    required
-                                    value="{{ old('event_date') }}"
-                                    class="event-input">
-
-                            </div>
-
-                            {{-- STATUS --}}
-                            <div>
-
-                                <label class="event-label">
-                                    Status
-                                </label>
-
-                                <select
-                                    name="status"
-                                    class="event-select">
-
-                                    <option
-                                        value="upcoming"
-                                        {{ old('status') === 'upcoming' ? 'selected' : '' }}>
-                                        Upcoming
-                                    </option>
-
-                                    <option
-                                        value="live"
-                                        {{ old('status') === 'live' ? 'selected' : '' }}>
-                                        Live Now
-                                    </option>
-
-                                    <option
-                                        value="past"
-                                        {{ old('status') === 'past' ? 'selected' : '' }}>
-                                        Past
-                                    </option>
-
-                                </select>
-
-                            </div>
-
-                            {{-- CAPACITY --}}
-                            <div class="md:col-span-2">
-
-                                <label class="event-label">
-                                    Overall Event Capacity
-                                </label>
-
-                                <input
-                                    type="number"
-                                    name="overall_capacity"
-                                    min="1"
-                                    value="{{ old('overall_capacity') }}"
-                                    placeholder="e.g. 5000"
-                                    class="event-input">
-
-                                <div class="field-help">
-                                    Optional. This limits the total number of participants across all ticket types. Leave empty for unlimited event capacity.
-                                </div>
-
-                            </div>
-
+                        <div>
+                            <h3>Event Information</h3>
+                            <p>Basic details about your marathon event.</p>
                         </div>
 
                     </div>
 
-                    <hr class="event-divider">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-                    {{-- =====================================================
-                         SECTION 02 - FORM FIELDS & BIB
-                    ====================================================== --}}
-
-                    <div class="form-section">
-
-                        <div class="form-section-heading">
-
-                            <div class="section-number">02</div>
-
-                            <div>
-                                <h3>Form Customization & BIB Setup</h3>
-                                <p>
-                                    Choose which fields appear on the registration form and configure BIB sequence generation.
-                                </p>
-                            </div>
-
-                        </div>
-
-                        <div class="fields-toggle-box mb-4">
-
-                            <label class="event-label mb-2">
-                                Display Fields in Registration Form
+                        {{-- EVENT TITLE --}}
+                        <div>
+                            <label class="event-label">
+                                Event Title
                             </label>
 
-                            <div class="toggle-grid">
-
-                                @php
-                                    $availableFields = [
-                                        'viber' => 'Viber Number',
-                                        'father_name' => 'Father Name',
-                                        'blood_type' => 'Blood Type',
-                                        'tshirt_size' => 'T-Shirt Size',
-                                        'has_medical_condition' => 'Medical Condition',
-                                        'itra' => 'ITRA Details',
-                                        'experience' => 'Running Experience',
-                                        'address' => 'Address'
-                                    ];
-                                @endphp
-
-                                @foreach($availableFields as $fieldKey => $fieldLabel)
-
-                                    <label class="toggle-card">
-
-                                        <input
-                                            type="checkbox"
-                                            name="enabled_fields[]"
-                                            value="{{ $fieldKey }}"
-                                            checked>
-
-                                        <span>{{ $fieldLabel }}</span>
-
-                                    </label>
-
-                                @endforeach
-
-                            </div>
-
+                            <input
+                                type="text"
+                                name="title"
+                                required
+                                value="{{ old('title') }}"
+                                placeholder="e.g. Yangon International Marathon"
+                                class="event-input">
                         </div>
 
-                        <div class="fields-toggle-box">
+                        {{-- LOCATION --}}
+                        <div>
 
-                            <div class="flex items-center gap-3 mb-3">
+                            <label class="event-label">
+                                Location
+                            </label>
 
-                                <input
-                                    type="checkbox"
-                                    name="enable_bib_number"
-                                    id="enable_bib_number"
-                                    value="1"
-                                    checked
-                                    class="w-4 h-4 accent-indigo-600">
+                            <input
+                                type="text"
+                                name="location"
+                                id="location"
+                                required
+                                value="{{ old('location') }}"
+                                placeholder="e.g. Shwedagon Pagoda, Yangon"
+                                class="event-input">
 
-                                <label
-                                    for="enable_bib_number"
-                                    class="event-label mb-0 cursor-pointer">
+                            {{-- OPENSTREETMAP LOCATION PICKER --}}
+                            <div class="location-picker">
 
-                                    Enable Automatic BIB Generation
+                                <div class="location-picker-header">
 
-                                </label>
+                                    <div class="location-picker-icon">
+                                        <i class="fa-solid fa-location-dot"></i>
+                                    </div>
 
-                            </div>
+                                    <div>
+                                        <h4>Find Event Location</h4>
+                                        <p>
+                                            Type a venue, street or city. The map will locate it automatically.
+                                        </p>
+                                    </div>
 
-                            <div
-                                id="bib_config_wrapper"
-                                class="mt-3 border-t border-gray-200 pt-3">
+                                </div>
 
-                                <label class="event-label mb-2">
-                                    BIB Prefix Mode
-                                </label>
+                                <div class="location-search-wrapper">
 
-                                <div class="flex gap-4 mb-4">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
 
-                                    <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700">
+                                    <input
+                                        type="text"
+                                        id="location-search"
+                                        class="event-input"
+                                        value="{{ old('location') }}"
+                                        placeholder="Type a venue, street or city..."
+                                        autocomplete="off">
 
-                                        <input
-                                            type="radio"
-                                            name="share_bib_prefix"
-                                            value="1"
-                                            checked
-                                            class="accent-indigo-600">
-
-                                        Entire Event Shares Same Prefix (e.g. NA-0001)
-
-                                    </label>
-
-                                    <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700">
-
-                                        <input
-                                            type="radio"
-                                            name="share_bib_prefix"
-                                            value="0"
-                                            class="accent-indigo-600">
-
-                                        Separate Prefix Per Ticket Category
-
-                                    </label>
+                                    <button
+                                        type="button"
+                                        id="location-search-button"
+                                        class="location-search-button">
+                                        Search
+                                    </button>
 
                                 </div>
 
                                 <div
-                                    id="shared_prefix_box"
-                                    class="grid grid-cols-1 md:grid-cols-2 gap-3">
-
-                                    <div>
-
-                                        <label class="event-label">
-                                            Event BIB Prefix (Max 3 Chars)
-                                        </label>
-
-                                        <input
-                                            type="text"
-                                            name="event_bib_prefix"
-                                            maxlength="3"
-                                            placeholder="e.g. NA"
-                                            class="event-input uppercase">
-
-                                    </div>
-
-                                    <div>
-
-                                        <label class="event-label">
-                                            Start Number
-                                        </label>
-
-                                        <input
-                                            type="number"
-                                            name="event_bib_start_number"
-                                            value="1"
-                                            min="1"
-                                            class="event-input">
-
-                                    </div>
-
+                                    id="location-auto-status"
+                                    class="location-auto-status">
                                 </div>
 
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <hr class="event-divider">
-
-                    {{-- =====================================================
-                         SECTION 03 - EVENT CREATOR
-                    ====================================================== --}}
-
-                    <div class="form-section">
-
-                        <div class="form-section-heading">
-
-                            <div class="section-number">03</div>
-
-                            <div>
-                                <h3>Event Creator</h3>
-                                <p>
-                                    Contact information for the person responsible for this event.
-                                </p>
-                            </div>
-
-                        </div>
-
-                        <div class="creator-box">
-
-                            <div class="creator-header">
-
-                                <div class="creator-icon">
-                                    <i class="fa-solid fa-user-tie"></i>
+                                <div
+                                    id="location-search-results"
+                                    class="location-search-results">
                                 </div>
 
-                                <div>
-                                    <h3>Event Organizer / Creator</h3>
-                                    <p>
-                                        Clients can use this information to contact the event creator.
-                                    </p>
-                                </div>
+                                <div id="event-location-map"></div>
 
-                            </div>
+                                <div class="map-instruction">
 
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-                                <div>
-
-                                    <label class="event-label">
-                                        Creator Name
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        name="creator_name"
-                                        value="{{ old('creator_name') }}"
-                                        placeholder="e.g. John Doe"
-                                        class="event-input"
-                                        required>
-
-                                </div>
-
-                                <div>
-
-                                    <label class="event-label">
-                                        Creator Phone Number
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        name="creator_phone"
-                                        value="{{ old('creator_phone') }}"
-                                        placeholder="e.g. 09 123 456 789"
-                                        class="event-input"
-                                        required>
-
-                                </div>
-
-                                <div>
-
-                                    <label class="event-label">
-                                        Creator Email
-                                    </label>
-
-                                    <input
-                                        type="email"
-                                        name="creator_email"
-                                        value="{{ old('creator_email') }}"
-                                        placeholder="organizer@example.com"
-                                        class="event-input"
-                                        required>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <hr class="event-divider">
-
-                    {{-- =====================================================
-                         SECTION 04 - DESCRIPTION
-                    ====================================================== --}}
-
-                    <div class="form-section">
-
-                        <div class="form-section-heading">
-
-                            <div class="section-number">04</div>
-
-                            <div>
-                                <h3>Event Description</h3>
-                                <p>
-                                    Tell runners what they need to know about this event.
-                                </p>
-                            </div>
-
-                        </div>
-
-                        <div>
-
-                            <label class="event-label">
-                                Description
-                            </label>
-
-                            <textarea
-                                name="description"
-                                rows="4"
-                                required
-                                placeholder="Write a description about your marathon event..."
-                                class="event-textarea">{{ old('description') }}</textarea>
-
-                        </div>
-
-                    </div>
-
-                    <hr class="event-divider">
-
-                    {{-- =====================================================
-                         SECTION 05 - EVENT BANNER
-                    ====================================================== --}}
-
-                    <div class="form-section">
-
-                        <div class="form-section-heading">
-
-                            <div class="section-number">05</div>
-
-                            <div>
-                                <h3>Event Banner</h3>
-                                <p>
-                                    Upload an image to represent your event.
-                                </p>
-                            </div>
-
-                        </div>
-
-                        <div class="image-upload-box">
-
-                            <div class="image-upload-content">
-
-                                <div class="image-upload-icon">
-                                    <i class="fa-solid fa-image"></i>
-                                </div>
-
-                                <div class="image-upload-text">
-
-                                    <strong>Event Banner Image</strong>
+                                    <i class="fa-solid fa-circle-info"></i>
 
                                     <span>
-                                        Choose a high-quality image for your marathon.
+                                        Type the location above and the map will automatically point to the place. Select a result if you need a more exact venue.
+                                    </span>
+
+                                </div>
+
+                                <div
+                                    id="selected-location-box"
+                                    class="selected-location-box"
+                                    style="display: none;">
+
+                                    <i class="fa-solid fa-location-crosshairs"></i>
+
+                                    <span id="selected-location-text">
+                                        Location selected
                                     </span>
 
                                 </div>
 
                             </div>
 
+                            {{-- HIDDEN COORDINATES --}}
                             <input
-                                type="file"
-                                name="image"
-                                accept="image/jpeg,image/png,image/jpg,image/gif"
-                                class="event-file-input">
+                                type="hidden"
+                                name="latitude"
+                                id="latitude"
+                                value="{{ old('latitude') }}">
+
+                            <input
+                                type="hidden"
+                                name="longitude"
+                                id="longitude"
+                                value="{{ old('longitude') }}">
+
+                        </div>
+
+                        {{-- EVENT DATE --}}
+                        <div>
+
+                            <label class="event-label">
+                                Event Date & Time
+                            </label>
+
+                            <input
+                                type="datetime-local"
+                                name="event_date"
+                                required
+                                value="{{ old('event_date') }}"
+                                class="event-input">
+
+                        </div>
+
+                        {{-- STATUS --}}
+                        <div>
+
+                            <label class="event-label">
+                                Status
+                            </label>
+
+                            <select
+                                name="status"
+                                class="event-select">
+
+                                <option
+                                    value="upcoming"
+                                    {{ old('status') === 'upcoming' ? 'selected' : '' }}>
+                                    Upcoming
+                                </option>
+
+                                <option
+                                    value="live"
+                                    {{ old('status') === 'live' ? 'selected' : '' }}>
+                                    Live Now
+                                </option>
+
+                                <option
+                                    value="past"
+                                    {{ old('status') === 'past' ? 'selected' : '' }}>
+                                    Past
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        {{-- CAPACITY --}}
+                        <div class="md:col-span-2">
+
+                            <label class="event-label">
+                                Overall Event Capacity
+                            </label>
+
+                            <input
+                                type="number"
+                                name="overall_capacity"
+                                min="1"
+                                value="{{ old('overall_capacity') }}"
+                                placeholder="e.g. 5000"
+                                class="event-input">
+
+                            <div class="field-help">
+                                Optional. This limits the total number of participants across all ticket types. Leave empty for unlimited event capacity.
+                            </div>
 
                         </div>
 
                     </div>
 
-                    <hr class="event-divider">
+                </div>
 
-                    {{-- =====================================================
-                         SECTION 06 - TICKET CATEGORIES
-                    ====================================================== --}}
+                <hr class="event-divider">
 
-                    <div class="form-section">
+                {{-- =====================================================
+                     SECTION 02 - FORM FIELDS & BIB
+                ====================================================== --}}
 
-                        <div class="form-section-heading">
+                <div class="form-section">
 
-                            <div class="section-number">06</div>
+                    <div class="form-section-heading">
 
-                            <div>
-                                <h3>Ticket Categories</h3>
-                                <p>
-                                    Create ticket types, prices and participant capacity.
-                                </p>
-                            </div>
+                        <div class="section-number">02</div>
+
+                        <div>
+                            <h3>Form Customization & BIB Setup</h3>
+                            <p>
+                                Choose which fields appear on the registration form and configure BIB sequence generation.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div class="fields-toggle-box mb-4">
+
+                        <label class="event-label mb-2">
+                            Display Fields in Registration Form
+                        </label>
+
+                        <div class="toggle-grid">
+
+                            @php
+                                $availableFields = [
+                                    'viber' => 'Viber Number',
+                                    'father_name' => 'Father Name',
+                                    'blood_type' => 'Blood Type',
+                                    'tshirt_size' => 'T-Shirt Size',
+                                    'has_medical_condition' => 'Medical Condition',
+                                    'itra' => 'ITRA Details',
+                                    'experience' => 'Running Experience',
+                                    'address' => 'Address'
+                                ];
+                            @endphp
+
+                            @foreach($availableFields as $fieldKey => $fieldLabel)
+
+                                <label class="toggle-card">
+
+                                    <input
+                                        type="checkbox"
+                                        name="enabled_fields[]"
+                                        value="{{ $fieldKey }}"
+                                        checked>
+
+                                    <span>{{ $fieldLabel }}</span>
+
+                                </label>
+
+                            @endforeach
 
                         </div>
 
-                        <div class="ticket-builder">
+                    </div>
 
-                            <div class="ticket-builder-header">
+                    <div class="fields-toggle-box">
 
-                                <div class="ticket-builder-title">
+                        <div class="flex items-center gap-3 mb-3">
 
-                                    <div class="ticket-builder-title-icon">
-                                        <i class="fa-solid fa-ticket"></i>
-                                    </div>
+                            <input
+                                type="checkbox"
+                                name="enable_bib_number"
+                                id="enable_bib_number"
+                                value="1"
+                                checked
+                                class="w-4 h-4 accent-indigo-600">
 
-                                    <div>
-                                        <h3>Ticket Types</h3>
-                                        <p>
-                                            Add different distances or registration options.
-                                        </p>
-                                    </div>
+                            <label
+                                for="enable_bib_number"
+                                class="event-label mb-0 cursor-pointer">
 
-                                </div>
+                                Enable Automatic BIB Generation
 
-                                <button
-                                    type="button"
-                                    id="add-category-btn"
-                                    class="add-category-button">
+                            </label>
 
-                                    <i class="fa-solid fa-plus"></i>
-                                    Add Another Ticket Type
+                        </div>
 
-                                </button>
+                        <div
+                            id="bib_config_wrapper"
+                            class="mt-3 border-t border-gray-200 pt-3">
+
+                            <label class="event-label mb-2">
+                                BIB Prefix Mode
+                            </label>
+
+                            <div class="flex gap-4 mb-4">
+
+                                <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700">
+
+                                    <input
+                                        type="radio"
+                                        name="share_bib_prefix"
+                                        value="1"
+                                        checked
+                                        class="accent-indigo-600">
+
+                                    Entire Event Shares Same Prefix (e.g. NA-0001)
+
+                                </label>
+
+                                <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700">
+
+                                    <input
+                                        type="radio"
+                                        name="share_bib_prefix"
+                                        value="0"
+                                        class="accent-indigo-600">
+
+                                    Separate Prefix Per Ticket Category
+
+                                </label>
 
                             </div>
 
                             <div
-                                id="categories-container"
-                                class="space-y-3">
+                                id="shared_prefix_box"
+                                class="grid grid-cols-1 md:grid-cols-2 gap-3">
 
-                                <div class="category-row grid grid-cols-1 md:grid-cols-6 gap-3">
+                                <div>
+
+                                    <label class="event-label">
+                                        Event BIB Prefix (Max 3 Chars)
+                                    </label>
 
                                     <input
                                         type="text"
-                                        name="categories[0][name]"
-                                        placeholder="Category (e.g., 10km)"
-                                        required
-                                        class="md:col-span-2">
+                                        name="event_bib_prefix"
+                                        maxlength="3"
+                                        placeholder="e.g. NA"
+                                        class="event-input uppercase">
+
+                                </div>
+
+                                <div>
+
+                                    <label class="event-label">
+                                        Start Number
+                                    </label>
 
                                     <input
                                         type="number"
-                                        step="0.01"
-                                        name="categories[0][local_price]"
-                                        placeholder="Local Price (MMK)"
-                                        required>
-
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        name="categories[0][foreign_price]"
-                                        placeholder="Foreign Price (Optional)">
-
-                                    <input
-                                        type="number"
-                                        name="categories[0][capacity]"
+                                        name="event_bib_start_number"
+                                        value="1"
                                         min="1"
-                                        placeholder="Capacity">
-
-                                    <div
-                                        class="flex items-center space-x-2 separate-bib-inputs"
-                                        style="display:none;">
-
-                                        <input
-                                            type="text"
-                                            name="categories[0][bib_prefix]"
-                                            maxlength="3"
-                                            placeholder="Prefix"
-                                            class="uppercase">
-
-                                        <input
-                                            type="number"
-                                            name="categories[0][bib_start_number]"
-                                            value="1"
-                                            min="1"
-                                            placeholder="Start #">
-
-                                        <button
-                                            type="button"
-                                            class="remove-category-btn">
-
-                                            <i class="fa-solid fa-trash"></i>
-
-                                        </button>
-
-                                    </div>
+                                        class="event-input">
 
                                 </div>
 
@@ -1702,49 +1451,378 @@
 
                     </div>
 
-                    <hr class="event-divider">
+                </div>
 
-                    {{-- =====================================================
-                         SECTION 07 - EVENT ITEMS
-                    ====================================================== --}}
+                <hr class="event-divider">
 
-                    <div class="form-section">
+                {{-- =====================================================
+                     SECTION 03 - EVENT CREATOR
+                ====================================================== --}}
 
-                        <div class="form-section-heading">
+                <div class="form-section">
 
-                            <div class="section-number">07</div>
+                    <div class="form-section-heading">
+
+                        <div class="section-number">03</div>
+
+                        <div>
+                            <h3>Event Creator</h3>
+                            <p>
+                                Contact information for the person responsible for this event.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div class="creator-box">
+
+                        <div class="creator-header">
+
+                            <div class="creator-icon">
+                                <i class="fa-solid fa-user-tie"></i>
+                            </div>
 
                             <div>
-                                <h3>Event Items</h3>
+                                <h3>Event Organizer / Creator</h3>
                                 <p>
-                                    Add any items or benefits included with the event.
+                                    Clients can use this information to contact the event creator.
                                 </p>
                             </div>
 
                         </div>
 
-                        <div class="items-builder">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-                            <div class="promo-heading">
+                            <div>
 
-                                <div
-                                    class="promo-icon"
-                                    style="background:#ecfdf5;color:#059669;">
+                                <label class="event-label">
+                                    Creator Name
+                                </label>
 
-                                    <i class="fa-solid fa-gift"></i>
+                                <input
+                                    type="text"
+                                    name="creator_name"
+                                    value="{{ old('creator_name') }}"
+                                    placeholder="e.g. John Doe"
+                                    class="event-input"
+                                    required>
 
+                            </div>
+
+                            <div>
+
+                                <label class="event-label">
+                                    Creator Phone Number
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="creator_phone"
+                                    value="{{ old('creator_phone') }}"
+                                    placeholder="e.g. 09 123 456 789"
+                                    class="event-input"
+                                    required>
+
+                            </div>
+
+                            <div>
+
+                                <label class="event-label">
+                                    Creator Email
+                                </label>
+
+                                <input
+                                    type="email"
+                                    name="creator_email"
+                                    value="{{ old('creator_email') }}"
+                                    placeholder="organizer@example.com"
+                                    class="event-input"
+                                    required>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <hr class="event-divider">
+
+                {{-- =====================================================
+                     SECTION 04 - DESCRIPTION
+                ====================================================== --}}
+
+                <div class="form-section">
+
+                    <div class="form-section-heading">
+
+                        <div class="section-number">04</div>
+
+                        <div>
+                            <h3>Event Description</h3>
+                            <p>
+                                Tell runners what they need to know about this event.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div>
+
+                        <label class="event-label">
+                            Description
+                        </label>
+
+                        <textarea
+                            name="description"
+                            rows="4"
+                            required
+                            placeholder="Write a description about your marathon event..."
+                            class="event-textarea">{{ old('description') }}</textarea>
+
+                    </div>
+
+                </div>
+
+                <hr class="event-divider">
+
+                {{-- =====================================================
+                     SECTION 05 - EVENT BANNER
+                ====================================================== --}}
+
+                <div class="form-section">
+
+                    <div class="form-section-heading">
+
+                        <div class="section-number">05</div>
+
+                        <div>
+                            <h3>Event Banner</h3>
+                            <p>
+                                Upload an image to represent your event.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div class="image-upload-box">
+
+                        <div class="image-upload-content">
+
+                            <div class="image-upload-icon">
+                                <i class="fa-solid fa-image"></i>
+                            </div>
+
+                            <div class="image-upload-text">
+
+                                <strong>Event Banner Image</strong>
+
+                                <span>
+                                    Choose a high-quality image for your marathon.
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <input
+                            type="file"
+                            name="image"
+                            accept="image/jpeg,image/png,image/jpg,image/gif"
+                            class="event-file-input">
+
+                    </div>
+
+                </div>
+
+                <hr class="event-divider">
+
+                {{-- =====================================================
+                     SECTION 06 - TICKET CATEGORIES
+                ====================================================== --}}
+
+                <div class="form-section">
+
+                    <div class="form-section-heading">
+
+                        <div class="section-number">06</div>
+
+                        <div>
+                            <h3>Ticket Categories</h3>
+                            <p>
+                                Create ticket types, prices and participant capacity.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div class="ticket-builder">
+
+                        <div class="ticket-builder-header">
+
+                            <div class="ticket-builder-title">
+
+                                <div class="ticket-builder-title-icon">
+                                    <i class="fa-solid fa-ticket"></i>
                                 </div>
 
                                 <div>
-                                    <h3>What's Included?</h3>
+                                    <h3>Ticket Types</h3>
                                     <p>
-                                        These items are independent from ticket categories.
+                                        Add different distances or registration options.
                                     </p>
                                 </div>
 
                             </div>
 
-                            <div id="items-container">
+                            <button
+                                type="button"
+                                id="add-category-btn"
+                                class="add-category-button">
+
+                                <i class="fa-solid fa-plus"></i>
+                                Add Another Ticket Type
+
+                            </button>
+
+                        </div>
+
+                        <div
+                            id="categories-container"
+                            class="space-y-3">
+
+                            <div class="category-row grid grid-cols-1 md:grid-cols-6 gap-3">
+
+                                <input
+                                    type="text"
+                                    name="categories[0][name]"
+                                    placeholder="Category (e.g., 10km)"
+                                    required
+                                    class="md:col-span-2">
+
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    name="categories[0][local_price]"
+                                    placeholder="Local Price (MMK)"
+                                    required>
+
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    name="categories[0][foreign_price]"
+                                    placeholder="Foreign Price (Optional)">
+
+                                <input
+                                    type="number"
+                                    name="categories[0][capacity]"
+                                    min="1"
+                                    placeholder="Capacity">
+
+                                <div
+                                    class="flex items-center space-x-2 separate-bib-inputs"
+                                    style="display:none;">
+
+                                    <input
+                                        type="text"
+                                        name="categories[0][bib_prefix]"
+                                        maxlength="3"
+                                        placeholder="Prefix"
+                                        class="uppercase">
+
+                                    <input
+                                        type="number"
+                                        name="categories[0][bib_start_number]"
+                                        value="1"
+                                        min="1"
+                                        placeholder="Start #">
+
+                                    <button
+                                        type="button"
+                                        class="remove-category-btn"
+                                        title="Delete ticket category">
+
+                                        <i class="fa-solid fa-trash"></i>
+
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <hr class="event-divider">
+
+                {{-- =====================================================
+                     SECTION 07 - EVENT ITEMS
+                ====================================================== --}}
+
+                <div class="form-section">
+
+                    <div class="form-section-heading">
+
+                        <div class="section-number">07</div>
+
+                        <div>
+                            <h3>Event Items</h3>
+                            <p>
+                                Add any items or benefits included with the event.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div class="items-builder">
+
+                        <div class="promo-heading">
+
+                            <div
+                                class="promo-icon"
+                                style="background:#ecfdf5;color:#059669;">
+
+                                <i class="fa-solid fa-gift"></i>
+
+                            </div>
+
+                            <div>
+                                <h3>What's Included?</h3>
+                                <p>
+                                    These items are independent from ticket categories.
+                                </p>
+                            </div>
+
+                        </div>
+
+                        <div id="items-container">
+
+                            @php
+                                /*
+                                 * If validation failed, rebuild only the
+                                 * item rows that were actually submitted.
+                                 *
+                                 * This prevents deleted rows from being
+                                 * recreated from the old request.
+                                 */
+                                $oldItems = old('items');
+
+                                if (is_array($oldItems) && count($oldItems) > 0) {
+                                    $itemsForDisplay = $oldItems;
+                                } else {
+                                    $itemsForDisplay = [
+                                        0 => [
+                                            'title' => ''
+                                        ]
+                                    ];
+                                }
+                            @endphp
+
+                            @foreach($itemsForDisplay as $index => $oldItem)
 
                                 <div class="item-row">
 
@@ -1756,7 +1834,8 @@
 
                                         <input
                                             type="text"
-                                            name="items[0][title]"
+                                            name="items[{{ $index }}][title]"
+                                            value="{{ old("items.$index.title", $oldItem['title'] ?? '') }}"
                                             placeholder="e.g. Running Shirt"
                                             class="event-input">
 
@@ -1770,7 +1849,7 @@
 
                                         <input
                                             type="file"
-                                            name="items[0][image]"
+                                            name="items[{{ $index }}][image]"
                                             accept="image/jpeg,image/png,image/jpg,image/gif"
                                             class="event-file-input">
 
@@ -1778,7 +1857,8 @@
 
                                     <button
                                         type="button"
-                                        class="remove-item-btn">
+                                        class="remove-item-btn"
+                                        title="Delete event item">
 
                                         <i class="fa-solid fa-trash"></i>
 
@@ -1786,205 +1866,218 @@
 
                                 </div>
 
-                            </div>
-
-                            <button
-                                type="button"
-                                id="add-item-btn"
-                                class="add-item-button">
-
-                                <i class="fa-solid fa-plus"></i>
-                                Add Another Item
-
-                            </button>
+                            @endforeach
 
                         </div>
 
-                    </div>
+                        <div
+                            id="empty-items-message"
+                            class="empty-items-message">
 
-                    <hr class="event-divider">
-
-                    {{-- =====================================================
-                         SECTION 08 - WAIVERS
-                    ====================================================== --}}
-
-                    <div class="form-section">
-
-                        <div class="form-section-heading">
-
-                            <div class="section-number">08</div>
-
-                            <div>
-                                <h3>
-                                    Participant Waivers, Consents & Race Guides
-                                </h3>
-
-                                <p>
-                                    Upload rules, terms, consent forms, and event guides for registered runners.
-                                </p>
-                            </div>
+                            <i class="fa-solid fa-box-open me-1"></i>
+                            No event items added. Click "Add Another Item" if you want to include an item.
 
                         </div>
-
-                        <div class="waiver-box">
-
-                            <div class="waiver-info">
-
-                                <i class="fa-solid fa-circle-info"></i>
-
-                                <div>
-                                    Participants will see the waiver and optional consent forms before completing payment. Race guides provide additional event day details. English and Burmese PDF documents can be uploaded separately. If no consent form PDF is uploaded, it will be skipped automatically.
-                                </div>
-
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                                {{-- ENGLISH WAIVER --}}
-                                <div class="waiver-file">
-
-                                    <label class="event-label">
-                                        English Waiver PDF
-                                    </label>
-
-                                    <input
-                                        type="file"
-                                        name="english_waiver"
-                                        accept="application/pdf"
-                                        class="event-file-input">
-
-                                    <div class="field-help">
-                                        Optional PDF document.
-                                    </div>
-
-                                </div>
-
-                                {{-- BURMESE WAIVER --}}
-                                <div class="waiver-file">
-
-                                    <label class="event-label">
-                                        Burmese Waiver PDF
-                                    </label>
-
-                                    <input
-                                        type="file"
-                                        name="burmese_waiver"
-                                        accept="application/pdf"
-                                        class="event-file-input">
-
-                                    <div class="field-help">
-                                        Optional PDF document.
-                                    </div>
-
-                                </div>
-
-                                {{-- ENGLISH CONSENT --}}
-                                <div class="waiver-file">
-
-                                    <label class="event-label">
-                                        English Consent Form PDF (Optional)
-                                    </label>
-
-                                    <input
-                                        type="file"
-                                        name="english_consent"
-                                        accept="application/pdf"
-                                        class="event-file-input">
-
-                                    <div class="field-help">
-                                        Optional downloadable consent form. Skipped if left empty.
-                                    </div>
-
-                                </div>
-
-                                {{-- BURMESE CONSENT --}}
-                                <div class="waiver-file">
-
-                                    <label class="event-label">
-                                        Burmese Consent Form PDF (Optional)
-                                    </label>
-
-                                    <input
-                                        type="file"
-                                        name="burmese_consent"
-                                        accept="application/pdf"
-                                        class="event-file-input">
-
-                                    <div class="field-help">
-                                        Optional downloadable consent form. Skipped if left empty.
-                                    </div>
-
-                                </div>
-
-                                {{-- ENGLISH RACE GUIDE --}}
-                                <div class="waiver-file">
-
-                                    <label class="event-label">
-                                        English Race Guide PDF (Optional)
-                                    </label>
-
-                                    <input
-                                        type="file"
-                                        name="english_race_guide"
-                                        accept="application/pdf"
-                                        class="event-file-input">
-
-                                    <div class="field-help">
-                                        Optional PDF document for race instructions.
-                                    </div>
-
-                                </div>
-
-                                {{-- BURMESE RACE GUIDE --}}
-                                <div class="waiver-file">
-
-                                    <label class="event-label">
-                                        Burmese Race Guide PDF (Optional)
-                                    </label>
-
-                                    <input
-                                        type="file"
-                                        name="burmese_race_guide"
-                                        accept="application/pdf"
-                                        class="event-file-input">
-
-                                    <div class="field-help">
-                                        Optional PDF document for race instructions.
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    {{-- PUBLISH BUTTON --}}
-                    <div class="pt-2">
 
                         <button
-                            type="submit"
-                            class="publish-button">
+                            type="button"
+                            id="add-item-btn"
+                            class="add-item-button">
 
-                            <i class="fa-solid fa-rocket"></i>
-                            Publish Event
+                            <i class="fa-solid fa-plus"></i>
+                            Add Another Item
 
                         </button>
 
                     </div>
 
-                </form>
+                </div>
 
-            </div>
+                <hr class="event-divider">
+
+                {{-- =====================================================
+                     SECTION 08 - WAIVERS
+                ====================================================== --}}
+
+                <div class="form-section">
+
+                    <div class="form-section-heading">
+
+                        <div class="section-number">08</div>
+
+                        <div>
+                            <h3>
+                                Participant Waivers, Consents & Race Guides
+                            </h3>
+
+                            <p>
+                                Upload rules, terms, consent forms, and event guides for registered runners.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div class="waiver-box">
+
+                        <div class="waiver-info">
+
+                            <i class="fa-solid fa-circle-info"></i>
+
+                            <div>
+                                Participants will see the waiver and optional consent forms before completing payment. Race guides provide additional event day details. English and Burmese PDF documents can be uploaded separately. If no consent form PDF is uploaded, it will be skipped automatically.
+                            </div>
+
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                            {{-- ENGLISH WAIVER --}}
+                            <div class="waiver-file">
+
+                                <label class="event-label">
+                                    English Waiver PDF
+                                </label>
+
+                                <input
+                                    type="file"
+                                    name="english_waiver"
+                                    accept="application/pdf"
+                                    class="event-file-input">
+
+                                <div class="field-help">
+                                    Optional PDF document.
+                                </div>
+
+                            </div>
+
+                            {{-- BURMESE WAIVER --}}
+                            <div class="waiver-file">
+
+                                <label class="event-label">
+                                    Burmese Waiver PDF
+                                </label>
+
+                                <input
+                                    type="file"
+                                    name="burmese_waiver"
+                                    accept="application/pdf"
+                                    class="event-file-input">
+
+                                <div class="field-help">
+                                    Optional PDF document.
+                                </div>
+
+                            </div>
+
+                            {{-- ENGLISH CONSENT --}}
+                            <div class="waiver-file">
+
+                                <label class="event-label">
+                                    English Consent Form PDF (Optional)
+                                </label>
+
+                                <input
+                                    type="file"
+                                    name="english_consent"
+                                    accept="application/pdf"
+                                    class="event-file-input">
+
+                                <div class="field-help">
+                                    Optional downloadable consent form. Skipped if left empty.
+                                </div>
+
+                            </div>
+
+                            {{-- BURMESE CONSENT --}}
+                            <div class="waiver-file">
+
+                                <label class="event-label">
+                                    Burmese Consent Form PDF (Optional)
+                                </label>
+
+                                <input
+                                    type="file"
+                                    name="burmese_consent"
+                                    accept="application/pdf"
+                                    class="event-file-input">
+
+                                <div class="field-help">
+                                    Optional downloadable consent form. Skipped if left empty.
+                                </div>
+
+                            </div>
+
+                            {{-- ENGLISH RACE GUIDE --}}
+                            <div class="waiver-file">
+
+                                <label class="event-label">
+                                    English Race Guide PDF (Optional)
+                                </label>
+
+                                <input
+                                    type="file"
+                                    name="english_race_guide"
+                                    accept="application/pdf"
+                                    class="event-file-input">
+
+                                <div class="field-help">
+                                    Optional PDF document for race instructions.
+                                </div>
+
+                            </div>
+
+                            {{-- BURMESE RACE GUIDE --}}
+                            <div class="waiver-file">
+
+                                <label class="event-label">
+                                    Burmese Race Guide PDF (Optional)
+                                </label>
+
+                                <input
+                                    type="file"
+                                    name="burmese_race_guide"
+                                    accept="application/pdf"
+                                    class="event-file-input">
+
+                                <div class="field-help">
+                                    Optional PDF document for race instructions.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                {{-- PUBLISH BUTTON --}}
+                <div class="pt-2">
+
+                    <button
+                        type="submit"
+                        class="publish-button">
+
+                        <i class="fa-solid fa-rocket"></i>
+                        Publish Event
+
+                    </button>
+
+                </div>
+
+            </form>
 
         </div>
 
     </div>
+
+</div>
+```
+
 </div>
 
 {{-- =============================================================
-     LEAFLET JAVASCRIPT
+LEAFLET JAVASCRIPT
 ============================================================= --}}
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1994,14 +2087,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /*
      * ============================================================
-     * OPENSTREETMAP / LEAFLET LOCATION PICKER
+     * OPENSTREETMAP / LEAFLET AUTOMATIC LOCATION SEARCH
      * ============================================================
+     *
+     * User types a location.
+     * After a short delay, Nominatim searches automatically.
+     * The first/best result is placed on the map.
+     *
+     * The user can also click Search or press Enter.
+     *
+     * No map dragging/clicking is required.
      */
 
     const mapElement =
         document.getElementById('event-location-map');
 
-    if (!mapElement) {
+    if (!mapElement || typeof L === 'undefined') {
         return;
     }
 
@@ -2029,9 +2130,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const selectedLocationText =
         document.getElementById('selected-location-text');
 
+    const autoStatus =
+        document.getElementById('location-auto-status');
+
 
     /*
-     * Existing coordinates after validation error
+     * Existing coordinates after validation error.
      */
     const oldLatitude =
         parseFloat(@json(old('latitude')));
@@ -2041,7 +2145,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /*
-     * Default location: Yangon
+     * Default location: Yangon.
      */
     const defaultLatitude =
         Number.isFinite(oldLatitude)
@@ -2056,14 +2160,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /*
      * ============================================================
-     * CREATE LEAFLET MAP
+     * CREATE MAP
      * ============================================================
      */
 
     const eventMap =
         L.map('event-location-map', {
             zoomControl: true,
-            scrollWheelZoom: true
+            scrollWheelZoom: true,
+            dragging: true
         }).setView(
             [
                 defaultLatitude,
@@ -2077,7 +2182,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /*
-     * OpenStreetMap tiles
+     * OpenStreetMap tiles.
      */
     L.tileLayer(
         'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -2085,14 +2190,14 @@ document.addEventListener('DOMContentLoaded', function () {
             maxZoom: 19,
 
             attribution:
-                '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'
+                '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'
         }
     ).addTo(eventMap);
 
 
     /*
      * ============================================================
-     * MARKER
+     * READ-ONLY MARKER
      * ============================================================
      */
 
@@ -2103,9 +2208,33 @@ document.addEventListener('DOMContentLoaded', function () {
                 defaultLongitude
             ],
             {
-                draggable: true
+                draggable: false
             }
         ).addTo(eventMap);
+
+
+    /*
+     * ============================================================
+     * STATUS
+     * ============================================================
+     */
+
+    function setAutoStatus(
+        message,
+        type = ''
+    ) {
+
+        if (!autoStatus) {
+            return;
+        }
+
+        autoStatus.className =
+            'location-auto-status ' + type;
+
+        autoStatus.innerHTML =
+            message;
+
+    }
 
 
     /*
@@ -2138,87 +2267,15 @@ document.addEventListener('DOMContentLoaded', function () {
         text
     ) {
 
+        if (!selectedLocationBox || !selectedLocationText) {
+            return;
+        }
+
         selectedLocationBox.style.display =
             'flex';
 
         selectedLocationText.textContent =
             text;
-
-    }
-
-
-    /*
-     * ============================================================
-     * REVERSE GEOCODING
-     * ============================================================
-     */
-
-    async function reverseGeocode(
-        latitude,
-        longitude
-    ) {
-
-        try {
-
-            const response =
-                await fetch(
-                    'https://nominatim.openstreetmap.org/reverse?' +
-                    new URLSearchParams({
-                        format: 'jsonv2',
-                        lat: latitude,
-                        lon: longitude,
-                        zoom: 18,
-                        addressdetails: 1
-                    }),
-                    {
-                        headers: {
-                            'Accept':
-                                'application/json'
-                        }
-                    }
-                );
-
-
-            if (!response.ok) {
-                throw new Error(
-                    'Reverse geocoding failed.'
-                );
-            }
-
-
-            const data =
-                await response.json();
-
-
-            if (data.display_name) {
-
-                locationInput.value =
-                    data.display_name;
-
-                searchInput.value =
-                    data.display_name;
-
-                showSelectedLocation(
-                    data.display_name
-                );
-
-            }
-
-        } catch (error) {
-
-            console.error(
-                'Reverse geocoding error:',
-                error
-            );
-
-            showSelectedLocation(
-                'Location selected: ' +
-                Number(latitude).toFixed(7) +
-                ', ' +
-                Number(longitude).toFixed(7)
-            );
-
-        }
 
     }
 
@@ -2232,7 +2289,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function setMapLocation(
         latitude,
         longitude,
-        shouldReverseGeocode = true
+        locationName = ''
     ) {
 
         latitude =
@@ -2242,8 +2299,16 @@ document.addEventListener('DOMContentLoaded', function () {
             Number(longitude);
 
 
+        if (
+            !Number.isFinite(latitude) ||
+            !Number.isFinite(longitude)
+        ) {
+            return;
+        }
+
+
         /*
-         * Save coordinates
+         * Save coordinates.
          */
         updateCoordinates(
             latitude,
@@ -2252,7 +2317,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
         /*
-         * Move marker
+         * Move marker.
          */
         eventMarker.setLatLng([
             latitude,
@@ -2261,86 +2326,57 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
         /*
-         * Move map
+         * Move map.
          */
-        eventMap.panTo([
-            latitude,
-            longitude
-        ]);
+        eventMap.setView(
+            [
+                latitude,
+                longitude
+            ],
+            16,
+            {
+                animate: true
+            }
+        );
 
 
         /*
-         * Reverse geocode
+         * Update selected location.
          */
-        if (shouldReverseGeocode) {
+        if (locationName) {
 
-            reverseGeocode(
-                latitude,
-                longitude
+            locationInput.value =
+                locationName;
+
+            searchInput.value =
+                locationName;
+
+            showSelectedLocation(
+                locationName
             );
 
-        } else {
-
-            const existingLocation =
-                locationInput.value.trim();
-
-            if (existingLocation) {
-
-                searchInput.value =
-                    existingLocation;
-
-                showSelectedLocation(
-                    existingLocation
-                );
-
-            }
-
         }
+
+
+        /*
+         * Popup.
+         */
+        const popupTitle =
+            locationName || 'Event Location';
+
+        eventMarker
+            .bindPopup(
+                `<strong>${escapeHtml(popupTitle)}</strong>`
+            )
+            .openPopup();
+
+
+        setAutoStatus(
+            '<i class="fa-solid fa-circle-check"></i> Location found and coordinates saved automatically.',
+            'success'
+        );
 
     }
-
-
-    /*
-     * ============================================================
-     * MAP CLICK
-     * ============================================================
-     */
-
-    eventMap.on(
-        'click',
-        function (event) {
-
-            setMapLocation(
-                event.latlng.lat,
-                event.latlng.lng,
-                true
-            );
-
-        }
-    );
-
-
-    /*
-     * ============================================================
-     * MARKER DRAG
-     * ============================================================
-     */
-
-    eventMarker.on(
-        'dragend',
-        function () {
-
-            const position =
-                eventMarker.getLatLng();
-
-            setMapLocation(
-                position.lat,
-                position.lng,
-                true
-            );
-
-        }
-    );
 
 
     /*
@@ -2349,7 +2385,14 @@ document.addEventListener('DOMContentLoaded', function () {
      * ============================================================
      */
 
-    async function searchLocation() {
+    let searchTimer = null;
+
+    let currentSearchController = null;
+
+
+    async function searchLocation(
+        automatic = false
+    ) {
 
         const query =
             searchInput.value.trim();
@@ -2357,18 +2400,60 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (!query) {
 
-            searchInput.focus();
+            if (!automatic) {
+                searchInput.focus();
+            }
 
             return;
 
         }
 
 
-        searchButton.disabled =
-            true;
+        /*
+         * Avoid unnecessary API requests for very short text.
+         */
+        if (query.length < 3) {
 
-        searchButton.textContent =
-            'Searching...';
+            if (automatic) {
+                return;
+            }
+
+            setAutoStatus(
+                '<i class="fa-solid fa-circle-info"></i> Type at least 3 characters.',
+                ''
+            );
+
+            return;
+
+        }
+
+
+        /*
+         * Cancel previous request.
+         */
+        if (currentSearchController) {
+            currentSearchController.abort();
+        }
+
+        currentSearchController =
+            new AbortController();
+
+
+        if (!automatic) {
+
+            searchButton.disabled =
+                true;
+
+            searchButton.textContent =
+                'Searching...';
+
+        }
+
+
+        setAutoStatus(
+            '<i class="fa-solid fa-spinner fa-spin"></i> Finding location...',
+            'loading'
+        );
 
 
         searchResults.innerHTML =
@@ -2393,7 +2478,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         headers: {
                             'Accept':
                                 'application/json'
-                        }
+                        },
+                        signal:
+                            currentSearchController.signal
                     }
                 );
 
@@ -2412,9 +2499,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
             /*
-             * No results
+             * No result.
              */
             if (!results.length) {
+
+                setAutoStatus(
+                    '<i class="fa-solid fa-circle-exclamation"></i> Location not found. Try adding the city or country.',
+                    'error'
+                );
+
 
                 searchResults.innerHTML = `
                     <div class="location-result">
@@ -2423,7 +2516,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         </div>
 
                         <div class="location-result-address">
-                            Try a different venue, street or city name.
+                            Try a more specific venue, street or city name.
                         </div>
                     </div>
                 `;
@@ -2437,16 +2530,56 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
             /*
-             * Display search results
+             * ====================================================
+             * AUTOMATICALLY SELECT BEST RESULT
+             * ====================================================
+             *
+             * This is the important part:
+             *
+             * User types:
+             * "Shwedagon Pagoda Yangon"
+             *
+             * The first/best Nominatim result is automatically
+             * placed on the map.
              */
+
+            const bestResult =
+                results[0];
+
+            const bestLatitude =
+                parseFloat(bestResult.lat);
+
+            const bestLongitude =
+                parseFloat(bestResult.lon);
+
+            const bestLocationName =
+                bestResult.display_name ||
+                bestResult.name ||
+                query;
+
+
+            setMapLocation(
+                bestLatitude,
+                bestLongitude,
+                bestLocationName
+            );
+
+
+            /*
+             * ====================================================
+             * DISPLAY ALL SEARCH RESULTS
+             * ====================================================
+             */
+
             results.forEach(
-                function (result) {
+                function (result, index) {
 
                     const resultElement =
                         document.createElement('div');
 
                     resultElement.className =
-                        'location-result';
+                        'location-result' +
+                        (index === 0 ? ' selected' : '');
 
 
                     const title =
@@ -2461,6 +2594,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     resultElement.innerHTML = `
                         <div class="location-result-title">
+                            ${index === 0 ? '<i class="fa-solid fa-check me-1"></i>' : ''}
                             ${escapeHtml(title)}
                         </div>
 
@@ -2471,7 +2605,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
                     /*
-                     * Select result
+                     * Select exact result manually.
                      */
                     resultElement.addEventListener(
                         'click',
@@ -2483,68 +2617,19 @@ document.addEventListener('DOMContentLoaded', function () {
                             const longitude =
                                 parseFloat(result.lon);
 
-
                             const locationName =
                                 result.display_name ||
                                 result.name ||
                                 query;
 
 
-                            /*
-                             * Main location field
-                             */
-                            locationInput.value =
-                                locationName;
-
-
-                            /*
-                             * Search field
-                             */
-                            searchInput.value =
-                                locationName;
-
-
-                            /*
-                             * Coordinates
-                             */
-                            updateCoordinates(
+                            setMapLocation(
                                 latitude,
-                                longitude
-                            );
-
-
-                            /*
-                             * Marker
-                             */
-                            eventMarker.setLatLng([
-                                latitude,
-                                longitude
-                            ]);
-
-
-                            /*
-                             * Map
-                             */
-                            eventMap.setView(
-                                [
-                                    latitude,
-                                    longitude
-                                ],
-                                16
-                            );
-
-
-                            /*
-                             * Selected location
-                             */
-                            showSelectedLocation(
+                                longitude,
                                 locationName
                             );
 
 
-                            /*
-                             * Hide results
-                             */
                             searchResults.style.display =
                                 'none';
 
@@ -2560,15 +2645,32 @@ document.addEventListener('DOMContentLoaded', function () {
             );
 
 
+            /*
+             * Show results for a short time.
+             */
             searchResults.style.display =
                 'block';
 
 
         } catch (error) {
 
+            /*
+             * AbortError is normal when the user keeps typing.
+             */
+            if (error.name === 'AbortError') {
+                return;
+            }
+
+
             console.error(
                 'Location search error:',
                 error
+            );
+
+
+            setAutoStatus(
+                '<i class="fa-solid fa-circle-exclamation"></i> Unable to search location. Please try again.',
+                'error'
             );
 
 
@@ -2587,17 +2689,96 @@ document.addEventListener('DOMContentLoaded', function () {
             searchResults.style.display =
                 'block';
 
+
         } finally {
 
-            searchButton.disabled =
-                false;
+            if (!automatic) {
 
-            searchButton.textContent =
-                'Search';
+                searchButton.disabled =
+                    false;
+
+                searchButton.textContent =
+                    'Search';
+
+            }
 
         }
 
     }
+
+
+    /*
+     * ============================================================
+     * AUTOMATIC SEARCH WHILE TYPING
+     * ============================================================
+     */
+
+    searchInput.addEventListener(
+        'input',
+        function () {
+
+            const query =
+                this.value.trim();
+
+
+            /*
+             * Keep main Location field synchronized.
+             */
+            locationInput.value =
+                query;
+
+
+            /*
+             * Clear coordinates while the user is typing a
+             * different location.
+             *
+             * This prevents old coordinates from being submitted
+             * for a newly typed location.
+             */
+            if (query.length >= 3) {
+
+                latitudeInput.value =
+                    '';
+
+                longitudeInput.value =
+                    '';
+
+            }
+
+
+            clearTimeout(searchTimer);
+
+
+            if (query.length < 3) {
+
+                searchResults.style.display =
+                    'none';
+
+                setAutoStatus(
+                    '',
+                    ''
+                );
+
+                return;
+
+            }
+
+
+            /*
+             * Wait 800ms after typing stops.
+             */
+            searchTimer =
+                setTimeout(
+                    function () {
+
+                        searchLocation(true);
+
+                    },
+                    800
+                );
+
+        }
+    );
 
 
     /*
@@ -2608,13 +2789,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     searchButton.addEventListener(
         'click',
-        searchLocation
+        function () {
+
+            clearTimeout(searchTimer);
+
+            searchLocation(false);
+
+        }
     );
 
 
     /*
      * ============================================================
-     * ENTER KEY SEARCH
+     * ENTER KEY
      * ============================================================
      */
 
@@ -2626,7 +2813,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 event.preventDefault();
 
-                searchLocation();
+                clearTimeout(searchTimer);
+
+                searchLocation(false);
 
             }
 
@@ -2636,7 +2825,61 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /*
      * ============================================================
-     * CLOSE RESULTS WHEN CLICKING OUTSIDE
+     * MAIN LOCATION FIELD
+     * ============================================================
+     *
+     * If the user types directly into the main Location field,
+     * keep the search box synchronized.
+     */
+
+    locationInput.addEventListener(
+        'input',
+        function () {
+
+            searchInput.value =
+                this.value;
+
+            clearTimeout(searchTimer);
+
+
+            const query =
+                this.value.trim();
+
+
+            if (query.length < 3) {
+
+                searchResults.style.display =
+                    'none';
+
+                return;
+
+            }
+
+
+            latitudeInput.value =
+                '';
+
+            longitudeInput.value =
+                '';
+
+
+            searchTimer =
+                setTimeout(
+                    function () {
+
+                        searchLocation(true);
+
+                    },
+                    800
+                );
+
+        }
+    );
+
+
+    /*
+     * ============================================================
+     * CLOSE SEARCH RESULTS
      * ============================================================
      */
 
@@ -2711,7 +2954,34 @@ document.addEventListener('DOMContentLoaded', function () {
                 oldLocation
             );
 
+
+            eventMarker
+                .bindPopup(
+                    `<strong>${escapeHtml(oldLocation)}</strong>`
+                );
+
         }
+
+    }
+
+
+    /*
+     * If old location exists but coordinates don't,
+     * automatically search it.
+     */
+    else if (
+        locationInput.value.trim().length >= 3
+    ) {
+
+        searchInput.value =
+            locationInput.value.trim();
+
+        setTimeout(
+            function () {
+                searchLocation(true);
+            },
+            500
+        );
 
     }
 
@@ -2733,7 +3003,47 @@ document.addEventListener('DOMContentLoaded', function () {
 document.addEventListener('DOMContentLoaded', function () {
 
     let categoryIndex = 1;
+
+    /*
+     * Start item index after the highest existing item index.
+     * This prevents duplicate input names.
+     */
     let itemIndex = 1;
+
+
+    /* =========================================================
+       FIND EXISTING ITEM INDEX
+    ========================================================== */
+
+    document
+        .querySelectorAll(
+            '#items-container .item-row input[type="text"]'
+        )
+        .forEach(function (input) {
+
+            const match =
+                input.name.match(
+                    /items\[(\d+)\]\[title\]/
+                );
+
+            if (match) {
+
+                const existingIndex =
+                    parseInt(match[1]);
+
+                if (
+                    Number.isFinite(existingIndex) &&
+                    existingIndex >= itemIndex
+                ) {
+
+                    itemIndex =
+                        existingIndex + 1;
+
+                }
+
+            }
+
+        });
 
 
     /* =========================================================
@@ -2755,47 +3065,63 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('shared_prefix_box');
 
 
-    enableBibCheckbox.addEventListener(
-        'change',
-        function () {
+    if (enableBibCheckbox && bibConfigWrapper) {
 
-            bibConfigWrapper.style.display =
-                this.checked ? 'block' : 'none';
+        enableBibCheckbox.addEventListener(
+            'change',
+            function () {
 
-        }
-    );
+                bibConfigWrapper.style.display =
+                    this.checked ? 'block' : 'none';
+
+            }
+        );
+
+    }
 
 
     shareBibRadios.forEach(function (radio) {
 
-        radio.addEventListener('change', function () {
+        radio.addEventListener(
+            'change',
+            function () {
 
-            if (this.value === '1') {
+                if (this.value === '1') {
 
-                sharedPrefixBox.style.display = 'grid';
+                    sharedPrefixBox.style.display =
+                        'grid';
 
-                document
-                    .querySelectorAll('.separate-bib-inputs')
-                    .forEach(function (el) {
+                    document
+                        .querySelectorAll(
+                            '.separate-bib-inputs'
+                        )
+                        .forEach(function (el) {
 
-                        el.style.display = 'none';
+                            el.style.display =
+                                'none';
 
-                    });
+                        });
 
-            } else {
+                } else {
 
-                sharedPrefixBox.style.display = 'none';
+                    sharedPrefixBox.style.display =
+                        'none';
 
-                document
-                    .querySelectorAll('.separate-bib-inputs')
-                    .forEach(function (el) {
+                    document
+                        .querySelectorAll(
+                            '.separate-bib-inputs'
+                        )
+                        .forEach(function (el) {
 
-                        el.style.display = 'flex';
+                            el.style.display =
+                                'flex';
 
-                    });
+                        });
+
+                }
+
             }
-
-        });
+        );
 
     });
 
@@ -2805,119 +3131,142 @@ document.addEventListener('DOMContentLoaded', function () {
     ========================================================== */
 
     const categoryContainer =
-        document.getElementById('categories-container');
+        document.getElementById(
+            'categories-container'
+        );
 
     const addCategoryBtn =
-        document.getElementById('add-category-btn');
+        document.getElementById(
+            'add-category-btn'
+        );
 
 
     /* ADD TICKET CATEGORY */
 
-    addCategoryBtn.addEventListener('click', function () {
+    if (addCategoryBtn && categoryContainer) {
 
-        const row =
-            document.createElement('div');
+        addCategoryBtn.addEventListener(
+            'click',
+            function () {
 
-        const selectedBibRadio =
-            document.querySelector(
-                'input[name="share_bib_prefix"]:checked'
-            );
-
-        const separateMode =
-            selectedBibRadio &&
-            selectedBibRadio.value === '0';
+                const row =
+                    document.createElement('div');
 
 
-        row.className =
-            'category-row grid grid-cols-1 md:grid-cols-6 gap-3';
+                const selectedBibRadio =
+                    document.querySelector(
+                        'input[name="share_bib_prefix"]:checked'
+                    );
 
 
-        row.innerHTML = `
-            <input
-                type="text"
-                name="categories[${categoryIndex}][name]"
-                placeholder="Category (e.g., 21km)"
-                required
-                class="md:col-span-2">
-
-            <input
-                type="number"
-                step="0.01"
-                name="categories[${categoryIndex}][local_price]"
-                placeholder="Local Price (MMK)"
-                required>
-
-            <input
-                type="number"
-                step="0.01"
-                name="categories[${categoryIndex}][foreign_price]"
-                placeholder="Foreign Price (Optional)">
-
-            <input
-                type="number"
-                name="categories[${categoryIndex}][capacity]"
-                min="1"
-                placeholder="Capacity">
-
-            <div
-                class="flex items-center space-x-2 separate-bib-inputs"
-                style="${separateMode ? 'display:flex;' : 'display:none;'}">
-
-                <input
-                    type="text"
-                    name="categories[${categoryIndex}][bib_prefix]"
-                    maxlength="3"
-                    placeholder="Prefix"
-                    class="uppercase">
-
-                <input
-                    type="number"
-                    name="categories[${categoryIndex}][bib_start_number]"
-                    value="1"
-                    min="1"
-                    placeholder="Start #">
-
-                <button
-                    type="button"
-                    class="remove-category-btn">
-
-                    <i class="fa-solid fa-trash"></i>
-
-                </button>
-
-            </div>
-        `;
+                const separateMode =
+                    selectedBibRadio &&
+                    selectedBibRadio.value === '0';
 
 
-        categoryContainer.appendChild(row);
-
-        categoryIndex++;
-
-    });
+                row.className =
+                    'category-row grid grid-cols-1 md:grid-cols-6 gap-3';
 
 
-    /* REMOVE TICKET CATEGORY */
+                row.innerHTML = `
+                    <input
+                        type="text"
+                        name="categories[${categoryIndex}][name]"
+                        placeholder="Category (e.g., 21km)"
+                        required
+                        class="md:col-span-2">
 
-    categoryContainer.addEventListener(
-        'click',
-        function (e) {
+                    <input
+                        type="number"
+                        step="0.01"
+                        name="categories[${categoryIndex}][local_price]"
+                        placeholder="Local Price (MMK)"
+                        required>
 
-            const removeButton =
-                e.target.closest('.remove-category-btn');
+                    <input
+                        type="number"
+                        step="0.01"
+                        name="categories[${categoryIndex}][foreign_price]"
+                        placeholder="Foreign Price (Optional)">
 
-            if (!removeButton) {
-                return;
+                    <input
+                        type="number"
+                        name="categories[${categoryIndex}][capacity]"
+                        min="1"
+                        placeholder="Capacity">
+
+                    <div
+                        class="flex items-center space-x-2 separate-bib-inputs"
+                        style="${separateMode ? 'display:flex;' : 'display:none;'}">
+
+                        <input
+                            type="text"
+                            name="categories[${categoryIndex}][bib_prefix]"
+                            maxlength="3"
+                            placeholder="Prefix"
+                            class="uppercase">
+
+                        <input
+                            type="number"
+                            name="categories[${categoryIndex}][bib_start_number]"
+                            value="1"
+                            min="1"
+                            placeholder="Start #">
+
+                        <button
+                            type="button"
+                            class="remove-category-btn"
+                            title="Delete ticket category">
+
+                            <i class="fa-solid fa-trash"></i>
+
+                        </button>
+
+                    </div>
+                `;
+
+
+                categoryContainer.appendChild(row);
+
+                categoryIndex++;
+
             }
+        );
 
-            const categoryRow =
-                removeButton.closest('.category-row');
 
-            if (categoryRow) {
-                categoryRow.remove();
+        /* REMOVE TICKET CATEGORY */
+
+        categoryContainer.addEventListener(
+            'click',
+            function (e) {
+
+                const removeButton =
+                    e.target.closest(
+                        '.remove-category-btn'
+                    );
+
+
+                if (!removeButton) {
+                    return;
+                }
+
+
+                const categoryRow =
+                    removeButton.closest(
+                        '.category-row'
+                    );
+
+
+                if (categoryRow) {
+
+                    categoryRow.remove();
+
+                }
+
             }
+        );
 
-        }
-    );
+    }
 
 
     /* =========================================================
@@ -2925,90 +3274,186 @@ document.addEventListener('DOMContentLoaded', function () {
     ========================================================== */
 
     const itemsContainer =
-        document.getElementById('items-container');
+        document.getElementById(
+            'items-container'
+        );
 
     const addItemBtn =
-        document.getElementById('add-item-btn');
+        document.getElementById(
+            'add-item-btn'
+        );
+
+    const emptyItemsMessage =
+        document.getElementById(
+            'empty-items-message'
+        );
 
 
-    /* ADD EVENT ITEM */
+    /*
+     * Update empty-state visibility.
+     */
+    function updateItemsEmptyState() {
 
-    addItemBtn.addEventListener('click', function () {
-
-        const row =
-            document.createElement('div');
-
-        row.className = 'item-row';
-
-
-        row.innerHTML = `
-            <div>
-
-                <label class="event-label">
-                    Item Title
-                </label>
-
-                <input
-                    type="text"
-                    name="items[${itemIndex}][title]"
-                    placeholder="e.g. Finisher Medal"
-                    class="event-input">
-
-            </div>
-
-            <div>
-
-                <label class="event-label">
-                    Item Image
-                </label>
-
-                <input
-                    type="file"
-                    name="items[${itemIndex}][image]"
-                    accept="image/jpeg,image/png,image/jpg,image/gif"
-                    class="event-file-input">
-
-            </div>
-
-            <button
-                type="button"
-                class="remove-item-btn">
-
-                <i class="fa-solid fa-trash"></i>
-
-            </button>
-        `;
-
-
-        itemsContainer.appendChild(row);
-
-        itemIndex++;
-
-    });
-
-
-    /* REMOVE EVENT ITEM */
-
-    itemsContainer.addEventListener(
-        'click',
-        function (e) {
-
-            const removeButton =
-                e.target.closest('.remove-item-btn');
-
-            if (!removeButton) {
-                return;
-            }
-
-            const itemRow =
-                removeButton.closest('.item-row');
-
-            if (itemRow) {
-                itemRow.remove();
-            }
-
+        if (!itemsContainer || !emptyItemsMessage) {
+            return;
         }
-    );
+
+
+        const itemRows =
+            itemsContainer.querySelectorAll(
+                '.item-row'
+            );
+
+
+        emptyItemsMessage.style.display =
+            itemRows.length === 0
+                ? 'block'
+                : 'none';
+
+    }
+
+
+    /*
+     * =========================================================
+     * ADD EVENT ITEM
+     * =========================================================
+     */
+
+    if (addItemBtn && itemsContainer) {
+
+        addItemBtn.addEventListener(
+            'click',
+            function () {
+
+                const currentIndex =
+                    itemIndex++;
+
+                const row =
+                    document.createElement('div');
+
+                row.className =
+                    'item-row';
+
+
+                row.innerHTML = `
+                    <div>
+
+                        <label class="event-label">
+                            Item Title
+                        </label>
+
+                        <input
+                            type="text"
+                            name="items[${currentIndex}][title]"
+                            placeholder="e.g. Finisher Medal"
+                            class="event-input">
+
+                    </div>
+
+                    <div>
+
+                        <label class="event-label">
+                            Item Image
+                        </label>
+
+                        <input
+                            type="file"
+                            name="items[${currentIndex}][image]"
+                            accept="image/jpeg,image/png,image/jpg,image/gif"
+                            class="event-file-input">
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="remove-item-btn"
+                        title="Delete event item">
+
+                        <i class="fa-solid fa-trash"></i>
+
+                    </button>
+                `;
+
+
+                itemsContainer.appendChild(row);
+
+                updateItemsEmptyState();
+
+            }
+        );
+
+    }
+
+
+    /*
+     * =========================================================
+     * REMOVE EVENT ITEM
+     * =========================================================
+     *
+     * Event delegation means this works for:
+     *
+     * - Original item
+     * - Dynamically added items
+     * - Any number of items
+     *
+     * The row is actually removed from the DOM, so its
+     * items[index][title] and items[index][image] fields are
+     * no longer submitted.
+     */
+
+    if (itemsContainer) {
+
+        itemsContainer.addEventListener(
+            'click',
+            function (e) {
+
+                const removeButton =
+                    e.target.closest(
+                        '.remove-item-btn'
+                    );
+
+
+                if (!removeButton) {
+                    return;
+                }
+
+
+                e.preventDefault();
+                e.stopPropagation();
+
+
+                const itemRow =
+                    removeButton.closest(
+                        '.item-row'
+                    );
+
+
+                if (!itemRow) {
+                    return;
+                }
+
+
+                /*
+                 * Remove completely.
+                 */
+                itemRow.remove();
+
+
+                /*
+                 * Update empty state.
+                 */
+                updateItemsEmptyState();
+
+            }
+        );
+
+    }
+
+
+    /*
+     * Initial state.
+     */
+    updateItemsEmptyState();
 
 });
 </script>
