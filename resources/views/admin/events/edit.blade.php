@@ -7,6 +7,7 @@
 @section('content')
 
 <style>
+
     .create-event-page {
         --event-primary: #4f46e5;
         --event-primary-dark: #4338ca;
@@ -137,6 +138,7 @@
     }
 
     /* ALERTS */
+
     .event-alert {
         position: relative;
         display: flex;
@@ -241,6 +243,7 @@
             opacity: 0;
             transform: translateY(-7px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
@@ -248,6 +251,7 @@
     }
 
     /* SECTIONS */
+
     .form-section {
         margin-bottom: 30px;
     }
@@ -343,7 +347,99 @@
         font-size: 0.68rem;
     }
 
+    /* =========================================================
+       FREE OPENSTREETMAP + LEAFLET LOCATION PICKER
+       ========================================================= */
+
+    .location-picker {
+        margin-top: 10px;
+        padding: 15px;
+        border: 1px solid #e5e8ee;
+        border-radius: 16px;
+        background: #fafbfc;
+    }
+
+    .location-picker-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+
+    .location-picker-icon {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: #eef2ff;
+        color: #4f46e5;
+    }
+
+    .location-picker-header h4 {
+        margin: 0;
+        color: #273245;
+        font-size: 0.82rem;
+        font-weight: 850;
+    }
+
+    .location-picker-header p {
+        margin: 2px 0 0;
+        color: #929baa;
+        font-size: 0.67rem;
+    }
+
+    #event-location-map {
+        width: 100%;
+        height: 350px;
+        overflow: hidden;
+        border: 1px solid #dfe3ea;
+        border-radius: 13px;
+        background: #eef1f5;
+        z-index: 1;
+    }
+
+    .map-instruction {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        margin-top: 9px;
+        color: #7b8493;
+        font-size: 0.67rem;
+    }
+
+    .map-instruction i {
+        color: #6366f1;
+    }
+
+    .selected-location-box {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        margin-top: 10px;
+        padding: 10px 12px;
+        border: 1px solid #dbeafe;
+        border-radius: 10px;
+        background: #eff6ff;
+        color: #1d4ed8;
+        font-size: 0.69rem;
+    }
+
+    .selected-location-box i {
+        font-size: 0.8rem;
+    }
+
+    .selected-location-box span {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
     /* IMAGE UPLOAD */
+
     .image-upload-box {
         position: relative;
         padding: 18px;
@@ -453,6 +549,7 @@
     }
 
     /* CREATOR */
+
     .creator-box {
         padding: 20px;
         border: 1px solid #e5e8ee;
@@ -492,6 +589,7 @@
     }
 
     /* TICKET CATEGORIES */
+
     .ticket-builder {
         padding: 20px;
         border: 1px solid #e5e8ee;
@@ -617,6 +715,7 @@
     }
 
     /* WAIVER */
+
     .waiver-box {
         padding: 20px;
         border: 1px solid #e5e8ee;
@@ -648,6 +747,7 @@
     }
 
     /* EVENT ITEMS */
+
     .items-builder {
         padding: 20px;
         border: 1px solid #e5e8ee;
@@ -747,6 +847,7 @@
     }
 
     /* FIELD TOGGLE BOX */
+
     .fields-toggle-box {
         padding: 20px;
         border: 1px solid #e5e8ee;
@@ -782,6 +883,7 @@
     }
 
     @media (max-width: 767px) {
+
         .event-form-body {
             padding: 20px;
         }
@@ -821,620 +923,1624 @@
             width: 100%;
             justify-content: center;
         }
+
+        #event-location-map {
+            height: 300px;
+        }
     }
+
 </style>
+
+{{-- LEAFLET CSS --}}
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+>
 
 <div class="create-event-page">
 
     <div class="event-form-wrapper">
 
         <div class="event-page-header">
+
             <div>
+
                 <h1>Edit Marathon Event</h1>
-                <p>Update your event details, tickets, capacity, and participant information[cite: 4].</p>
+
+                <p>
+                    Update your event details, tickets, capacity, and participant information.
+                </p>
+
             </div>
 
-            <a href="{{ route('admin.events.index') }}" class="back-events-button">
+            <a
+                href="{{ route('admin.events.index') }}"
+                class="back-events-button"
+            >
                 <i class="fa-solid fa-arrow-left"></i>
                 Back to Events
             </a>
+
         </div>
 
         <div class="event-form-card">
 
             <div class="event-form-header">
+
                 <div class="event-form-header-content">
+
                     <div class="event-header-icon">
                         <i class="fa-solid fa-pen-to-square"></i>
                     </div>
 
                     <div>
-                        <h2>Edit {{ $event->title }}[cite: 4]</h2>
-                        <p>Modify the information below to update your event[cite: 4].</p>
+
+                        <h2>
+                            Edit {{ $event->title }}
+                        </h2>
+
+                        <p>
+                            Modify the information below to update your event.
+                        </p>
+
                     </div>
+
                 </div>
+
             </div>
 
             <div class="event-form-body">
 
                 {{-- SUCCESS MESSAGE --}}
+
                 @if(session('success'))
+
                     <div class="event-alert event-alert-success">
+
                         <div class="event-alert-icon">
                             <i class="fa-solid fa-circle-check"></i>
                         </div>
 
                         <div class="event-alert-content">
+
                             <strong>Success</strong>
-                            <p>{{ session('success') }}</p>
+
+                            <p>
+                                {{ session('success') }}
+                            </p>
+
                         </div>
 
-                        <button type="button" class="event-alert-close" onclick="this.parentElement.remove()">
+                        <button
+                            type="button"
+                            class="event-alert-close"
+                            onclick="this.parentElement.remove()"
+                        >
                             <i class="fa-solid fa-xmark"></i>
                         </button>
+
                     </div>
+
                 @endif
 
                 {{-- GENERAL ERROR MESSAGE --}}
+
                 @if(session('error'))
+
                     <div class="event-alert event-alert-danger">
+
                         <div class="event-alert-icon">
                             <i class="fa-solid fa-circle-exclamation"></i>
                         </div>
 
                         <div class="event-alert-content">
-                            <strong>Event Could Not Be Updated</strong>
-                            <p>{{ session('error') }}</p>
+
+                            <strong>
+                                Event Could Not Be Updated
+                            </strong>
+
+                            <p>
+                                {{ session('error') }}
+                            </p>
+
                         </div>
 
-                        <button type="button" class="event-alert-close" onclick="this.parentElement.remove()">
+                        <button
+                            type="button"
+                            class="event-alert-close"
+                            onclick="this.parentElement.remove()"
+                        >
                             <i class="fa-solid fa-xmark"></i>
                         </button>
+
                     </div>
+
                 @endif
 
                 {{-- VALIDATION ERRORS --}}
+
                 @if($errors->any())
+
                     <div class="event-alert event-alert-danger">
+
                         <div class="event-alert-icon">
                             <i class="fa-solid fa-triangle-exclamation"></i>
                         </div>
 
                         <div class="event-alert-content">
-                            <strong>Please fix the following errors:</strong>
+
+                            <strong>
+                                Please fix the following errors:
+                            </strong>
+
                             <ul class="event-error-list">
+
                                 @foreach($errors->all() as $error)
-                                    <li>{{ $error }}</li>
+
+                                    <li>
+                                        {{ $error }}
+                                    </li>
+
                                 @endforeach
+
                             </ul>
+
                         </div>
 
-                        <button type="button" class="event-alert-close" onclick="this.parentElement.remove()">
+                        <button
+                            type="button"
+                            class="event-alert-close"
+                            onclick="this.parentElement.remove()"
+                        >
                             <i class="fa-solid fa-xmark"></i>
                         </button>
+
                     </div>
+
                 @endif
 
-                <form action="{{ route('admin.events.update', $event) }}" method="POST" enctype="multipart/form-data">
+                <form
+                    action="{{ route('admin.events.update', $event) }}"
+                    method="POST"
+                    enctype="multipart/form-data"
+                >
+
                     @csrf
                     @method('PUT')
 
-                    {{-- SECTION 01 - EVENT INFORMATION --}}
+                    {{-- =====================================================
+                         SECTION 01 - EVENT INFORMATION
+                         ===================================================== --}}
+
                     <div class="form-section">
+
                         <div class="form-section-heading">
-                            <div class="section-number">01</div>
-                            <div>
-                                <h3>Event Information</h3>
-                                <p>Basic details about your marathon event.</p>
+
+                            <div class="section-number">
+                                01
                             </div>
+
+                            <div>
+
+                                <h3>
+                                    Event Information
+                                </h3>
+
+                                <p>
+                                    Basic details about your marathon event.
+                                </p>
+
+                            </div>
+
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <div>
-                                <label class="event-label">Event Title</label>
-                                <input type="text" name="title" required value="{{ old('title', $event->title) }}" placeholder="e.g. Yangon International Marathon" class="event-input">
-                            </div>
+
+                            {{-- EVENT TITLE --}}
 
                             <div>
-                                <label class="event-label">Location</label>
-                                <input type="text" name="location" required value="{{ old('location', $event->location) }}" placeholder="e.g. Yangon, Myanmar" class="event-input">
+
+                                <label class="event-label">
+                                    Event Title
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="title"
+                                    required
+                                    value="{{ old('title', $event->title) }}"
+                                    placeholder="e.g. Yangon International Marathon"
+                                    class="event-input"
+                                >
+
                             </div>
 
-                            <div>
-                                <label class="event-label">Event Date & Time</label>
-                                <input type="datetime-local" name="event_date" required value="{{ old('event_date', \Carbon\Carbon::parse($event->event_date)->format('Y-m-d\TH:i')) }}" class="event-input">
-                            </div>
+                            {{-- LOCATION --}}
 
                             <div>
-                                <label class="event-label">Status</label>
-                                <select name="status" class="event-select">
-                                    <option value="upcoming" {{ old('status', $event->status) === 'upcoming' ? 'selected' : '' }}>Upcoming</option>
-                                    <option value="live" {{ old('status', $event->status) === 'live' ? 'selected' : '' }}>Live Now</option>
-                                    <option value="past" {{ old('status', $event->status) === 'past' ? 'selected' : '' }}>Past</option>
+
+                                <label class="event-label">
+                                    Location
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="location"
+                                    id="location"
+                                    required
+                                    value="{{ old('location', $event->location) }}"
+                                    placeholder="e.g. Yangon, Myanmar"
+                                    class="event-input"
+                                >
+
+                                <div class="location-picker">
+
+                                    <div class="location-picker-header">
+
+                                        <div class="location-picker-icon">
+
+                                            <i class="fa-solid fa-location-dot"></i>
+
+                                        </div>
+
+                                        <div>
+
+                                            <h4>
+                                                Select Exact Event Location
+                                            </h4>
+
+                                            <p>
+                                                Click the map or drag the marker to set the exact location.
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div id="event-location-map"></div>
+
+                                    <div class="map-instruction">
+
+                                        <i class="fa-solid fa-circle-info"></i>
+
+                                        <span>
+                                            The map is free to use. Click anywhere on the map or drag the marker to update the exact event coordinates.
+                                        </span>
+
+                                    </div>
+
+                                    <div
+                                        id="selected-location-box"
+                                        class="selected-location-box"
+                                        style="display: none;"
+                                    >
+
+                                        <i class="fa-solid fa-location-crosshairs"></i>
+
+                                        <span id="selected-location-text">
+                                            Location selected
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                                {{-- HIDDEN COORDINATES --}}
+
+                                <input
+                                    type="hidden"
+                                    name="latitude"
+                                    id="latitude"
+                                    value="{{ old('latitude', $event->latitude) }}"
+                                >
+
+                                <input
+                                    type="hidden"
+                                    name="longitude"
+                                    id="longitude"
+                                    value="{{ old('longitude', $event->longitude) }}"
+                                >
+
+                            </div>
+
+                            {{-- EVENT DATE --}}
+
+                            <div>
+
+                                <label class="event-label">
+                                    Event Date & Time
+                                </label>
+
+                                <input
+                                    type="datetime-local"
+                                    name="event_date"
+                                    required
+                                    value="{{ old('event_date', \Carbon\Carbon::parse($event->event_date)->format('Y-m-d\TH:i')) }}"
+                                    class="event-input"
+                                >
+
+                            </div>
+
+                            {{-- STATUS --}}
+
+                            <div>
+
+                                <label class="event-label">
+                                    Status
+                                </label>
+
+                                <select
+                                    name="status"
+                                    class="event-select"
+                                >
+
+                                    <option
+                                        value="upcoming"
+                                        {{ old('status', $event->status) === 'upcoming' ? 'selected' : '' }}
+                                    >
+                                        Upcoming
+                                    </option>
+
+                                    <option
+                                        value="live"
+                                        {{ old('status', $event->status) === 'live' ? 'selected' : '' }}
+                                    >
+                                        Live Now
+                                    </option>
+
+                                    <option
+                                        value="past"
+                                        {{ old('status', $event->status) === 'past' ? 'selected' : '' }}
+                                    >
+                                        Past
+                                    </option>
+
                                 </select>
+
                             </div>
+
+                            {{-- CAPACITY --}}
 
                             <div class="md:col-span-2">
-                                <label class="event-label">Overall Event Capacity</label>
-                                <input type="number" name="overall_capacity" min="1" value="{{ old('overall_capacity', $event->overall_capacity) }}" placeholder="e.g. 5000" class="event-input">
+
+                                <label class="event-label">
+                                    Overall Event Capacity
+                                </label>
+
+                                <input
+                                    type="number"
+                                    name="overall_capacity"
+                                    min="1"
+                                    value="{{ old('overall_capacity', $event->overall_capacity) }}"
+                                    placeholder="e.g. 5000"
+                                    class="event-input"
+                                >
+
                                 <div class="field-help">
                                     Optional. This limits the total number of participants across all ticket types. Leave empty for unlimited event capacity.
                                 </div>
+
                             </div>
+
                         </div>
+
                     </div>
 
                     <hr class="event-divider">
 
-                    {{-- SECTION 02 - FORM FIELD TOGGLES & BIB CONFIGURATION --}}
+                    {{-- =====================================================
+                         SECTION 02 - FORM FIELD TOGGLES & BIB CONFIGURATION
+                         ===================================================== --}}
+
                     <div class="form-section">
+
                         <div class="form-section-heading">
-                            <div class="section-number">02</div>
-                            <div>
-                                <h3>Form Customization & BIB Setup</h3>
-                                <p>Choose which fields appear on the registration form and configure BIB sequence generation.</p>
+
+                            <div class="section-number">
+                                02
                             </div>
+
+                            <div>
+
+                                <h3>
+                                    Form Customization & BIB Setup
+                                </h3>
+
+                                <p>
+                                    Choose which fields appear on the registration form and configure BIB sequence generation.
+                                </p>
+
+                            </div>
+
                         </div>
 
                         @php
-                            $enabledFields = $event->enabled_fields ?? ['viber', 'father_name', 'blood_type', 'tshirt_size', 'has_medical_condition', 'itra', 'experience', 'address'];
-                            $availableFields = [
-                                'viber'                 => 'Viber Number',
-                                'father_name'           => 'Father Name',
-                                'blood_type'            => 'Blood Type',
-                                'tshirt_size'           => 'T-Shirt Size',
-                                'has_medical_condition' => 'Medical Condition',
-                                'itra'                  => 'ITRA Details',
-                                'experience'            => 'Running Experience',
-                                'address'               => 'Address'
+
+                            $enabledFields = $event->enabled_fields ?? [
+                                'viber',
+                                'father_name',
+                                'blood_type',
+                                'tshirt_size',
+                                'has_medical_condition',
+                                'itra',
+                                'experience',
+                                'address'
                             ];
+
+                            $availableFields = [
+
+                                'viber' => 'Viber Number',
+
+                                'father_name' => 'Father Name',
+
+                                'blood_type' => 'Blood Type',
+
+                                'tshirt_size' => 'T-Shirt Size',
+
+                                'has_medical_condition' => 'Medical Condition',
+
+                                'itra' => 'ITRA Details',
+
+                                'experience' => 'Running Experience',
+
+                                'address' => 'Address'
+
+                            ];
+
                         @endphp
 
                         <div class="fields-toggle-box mb-4">
-                            <label class="event-label mb-2">Display Fields in Registration Form</label>
+
+                            <label class="event-label mb-2">
+                                Display Fields in Registration Form
+                            </label>
+
                             <div class="toggle-grid">
+
                                 @foreach($availableFields as $fieldKey => $fieldLabel)
+
                                     <label class="toggle-card">
-                                        <input type="checkbox" name="enabled_fields[]" value="{{ $fieldKey }}" {{ in_array($fieldKey, $enabledFields) ? 'checked' : '' }}>
-                                        <span>{{ $fieldLabel }}</span>
+
+                                        <input
+                                            type="checkbox"
+                                            name="enabled_fields[]"
+                                            value="{{ $fieldKey }}"
+                                            {{ in_array($fieldKey, $enabledFields) ? 'checked' : '' }}
+                                        >
+
+                                        <span>
+                                            {{ $fieldLabel }}
+                                        </span>
+
                                     </label>
+
                                 @endforeach
+
                             </div>
+
                         </div>
 
                         <div class="fields-toggle-box">
+
                             <div class="flex items-center gap-3 mb-3">
-                                <input type="checkbox" name="enable_bib_number" id="enable_bib_number" value="1" {{ $event->enable_bib_number ?? true ? 'checked' : '' }} class="w-4 h-4 accent-indigo-600">
-                                <label for="enable_bib_number" class="event-label mb-0 cursor-pointer">Enable Automatic BIB Generation</label>
+
+                                <input
+                                    type="checkbox"
+                                    name="enable_bib_number"
+                                    id="enable_bib_number"
+                                    value="1"
+                                    {{ $event->enable_bib_number ?? true ? 'checked' : '' }}
+                                    class="w-4 h-4 accent-indigo-600"
+                                >
+
+                                <label
+                                    for="enable_bib_number"
+                                    class="event-label mb-0 cursor-pointer"
+                                >
+                                    Enable Automatic BIB Generation
+                                </label>
+
                             </div>
 
-                            <div id="bib_config_wrapper" class="mt-3 border-t border-gray-200 pt-3" style="{{ ($event->enable_bib_number ?? true) ? 'display:block;' : 'display:none;' }}">
-                                <label class="event-label mb-2">BIB Prefix Mode</label>
+                            <div
+                                id="bib_config_wrapper"
+                                class="mt-3 border-t border-gray-200 pt-3"
+                                style="{{ ($event->enable_bib_number ?? true) ? 'display:block;' : 'display:none;' }}"
+                            >
+
+                                <label class="event-label mb-2">
+                                    BIB Prefix Mode
+                                </label>
+
                                 <div class="flex gap-4 mb-4">
+
                                     <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700">
-                                        <input type="radio" name="share_bib_prefix" value="1" {{ ($event->share_bib_prefix ?? true) ? 'checked' : '' }} class="accent-indigo-600">
+
+                                        <input
+                                            type="radio"
+                                            name="share_bib_prefix"
+                                            value="1"
+                                            {{ ($event->share_bib_prefix ?? true) ? 'checked' : '' }}
+                                            class="accent-indigo-600"
+                                        >
+
                                         Entire Event Shares Same Prefix (e.g. NA-0001)
+
                                     </label>
+
                                     <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-gray-700">
-                                        <input type="radio" name="share_bib_prefix" value="0" {{ !($event->share_bib_prefix ?? true) ? 'checked' : '' }} class="accent-indigo-600">
+
+                                        <input
+                                            type="radio"
+                                            name="share_bib_prefix"
+                                            value="0"
+                                            {{ !($event->share_bib_prefix ?? true) ? 'checked' : '' }}
+                                            class="accent-indigo-600"
+                                        >
+
                                         Separate Prefix Per Ticket Category
+
                                     </label>
+
                                 </div>
 
-                                <div id="shared_prefix_box" class="grid grid-cols-1 md:grid-cols-2 gap-3" style="{{ ($event->share_bib_prefix ?? true) ? 'display:grid;' : 'display:none;' }}">
+                                <div
+                                    id="shared_prefix_box"
+                                    class="grid grid-cols-1 md:grid-cols-2 gap-3"
+                                    style="{{ ($event->share_bib_prefix ?? true) ? 'display:grid;' : 'display:none;' }}"
+                                >
+
                                     <div>
-                                        <label class="event-label">Event BIB Prefix (Max 3 Chars)</label>
-                                        <input type="text" name="event_bib_prefix" maxlength="3" value="{{ old('event_bib_prefix', $event->event_bib_prefix) }}" placeholder="e.g. NA" class="event-input uppercase">
+
+                                        <label class="event-label">
+                                            Event BIB Prefix (Max 3 Chars)
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            name="event_bib_prefix"
+                                            maxlength="3"
+                                            value="{{ old('event_bib_prefix', $event->event_bib_prefix) }}"
+                                            placeholder="e.g. NA"
+                                            class="event-input uppercase"
+                                        >
+
                                     </div>
+
                                     <div>
-                                        <label class="event-label">Start Number</label>
-                                        <input type="number" name="event_bib_start_number" value="{{ old('event_bib_start_number', $event->event_bib_start_number ?? 1) }}" min="1" class="event-input">
+
+                                        <label class="event-label">
+                                            Start Number
+                                        </label>
+
+                                        <input
+                                            type="number"
+                                            name="event_bib_start_number"
+                                            value="{{ old('event_bib_start_number', $event->event_bib_start_number ?? 1) }}"
+                                            min="1"
+                                            class="event-input"
+                                        >
+
                                     </div>
+
                                 </div>
+
                             </div>
+
                         </div>
+
                     </div>
 
                     <hr class="event-divider">
 
-                    {{-- SECTION 03 - EVENT CREATOR --}}
+                    {{-- =====================================================
+                         SECTION 03 - EVENT CREATOR
+                         ===================================================== --}}
+
                     <div class="form-section">
+
                         <div class="form-section-heading">
-                            <div class="section-number">03</div>
-                            <div>
-                                <h3>Event Creator</h3>
-                                <p>Contact information for the person responsible for this event.</p>
+
+                            <div class="section-number">
+                                03
                             </div>
+
+                            <div>
+
+                                <h3>
+                                    Event Creator
+                                </h3>
+
+                                <p>
+                                    Contact information for the person responsible for this event.
+                                </p>
+
+                            </div>
+
                         </div>
 
                         <div class="creator-box">
+
                             <div class="creator-header">
+
                                 <div class="creator-icon">
                                     <i class="fa-solid fa-user-tie"></i>
                                 </div>
+
                                 <div>
-                                    <h3>Event Organizer / Creator</h3>
-                                    <p>Clients can use this information to contact the event creator.</p>
+
+                                    <h3>
+                                        Event Organizer / Creator
+                                    </h3>
+
+                                    <p>
+                                        Clients can use this information to contact the event creator.
+                                    </p>
+
                                 </div>
+
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
                                 <div>
-                                    <label class="event-label">Creator Name</label>
-                                    <input type="text" name="creator_name" value="{{ old('creator_name', $event->creator_name ?? '') }}" placeholder="e.g. John Doe" class="event-input" required>
+
+                                    <label class="event-label">
+                                        Creator Name
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        name="creator_name"
+                                        value="{{ old('creator_name', $event->creator_name ?? '') }}"
+                                        placeholder="e.g. John Doe"
+                                        class="event-input"
+                                        required
+                                    >
+
                                 </div>
 
                                 <div>
-                                    <label class="event-label">Creator Phone Number</label>
-                                    <input type="text" name="creator_phone" value="{{ old('creator_phone', $event->creator_phone ?? '') }}" placeholder="e.g. 09 123 456 789" class="event-input" required>
+
+                                    <label class="event-label">
+                                        Creator Phone Number
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        name="creator_phone"
+                                        value="{{ old('creator_phone', $event->creator_phone ?? '') }}"
+                                        placeholder="e.g. 09 123 456 789"
+                                        class="event-input"
+                                        required
+                                    >
+
                                 </div>
 
                                 <div>
-                                    <label class="event-label">Creator Email</label>
-                                    <input type="email" name="creator_email" value="{{ old('creator_email', $event->creator_email ?? '') }}" placeholder="e.g. organizer@example.com" class="event-input" required>
+
+                                    <label class="event-label">
+                                        Creator Email
+                                    </label>
+
+                                    <input
+                                        type="email"
+                                        name="creator_email"
+                                        value="{{ old('creator_email', $event->creator_email ?? '') }}"
+                                        placeholder="e.g. organizer@example.com"
+                                        class="event-input"
+                                        required
+                                    >
+
                                 </div>
+
                             </div>
+
                         </div>
+
                     </div>
 
                     <hr class="event-divider">
 
-                    {{-- SECTION 04 - DESCRIPTION --}}
+                    {{-- =====================================================
+                         SECTION 04 - DESCRIPTION
+                         ===================================================== --}}
+
                     <div class="form-section">
+
                         <div class="form-section-heading">
-                            <div class="section-number">04</div>
-                            <div>
-                                <h3>Event Description</h3>
-                                <p>Tell runners what they need to know about this event.</p>
+
+                            <div class="section-number">
+                                04
                             </div>
+
+                            <div>
+
+                                <h3>
+                                    Event Description
+                                </h3>
+
+                                <p>
+                                    Tell runners what they need to know about this event.
+                                </p>
+
+                            </div>
+
                         </div>
 
                         <div>
-                            <label class="event-label">Description</label>
-                            <textarea name="description" rows="4" required placeholder="Write a description about your marathon event..." class="event-textarea">{{ old('description', $event->description) }}</textarea>
+
+                            <label class="event-label">
+                                Description
+                            </label>
+
+                            <textarea
+                                name="description"
+                                rows="4"
+                                required
+                                placeholder="Write a description about your marathon event..."
+                                class="event-textarea"
+                            >{{ old('description', $event->description) }}</textarea>
+
                         </div>
+
                     </div>
 
                     <hr class="event-divider">
 
-                    {{-- SECTION 05 - EVENT BANNER --}}
+                    {{-- =====================================================
+                         SECTION 05 - EVENT BANNER
+                         ===================================================== --}}
+
                     <div class="form-section">
+
                         <div class="form-section-heading">
-                            <div class="section-number">05</div>
-                            <div>
-                                <h3>Event Banner</h3>
-                                <p>Upload an image to represent your event.</p>
+
+                            <div class="section-number">
+                                05
                             </div>
+
+                            <div>
+
+                                <h3>
+                                    Event Banner
+                                </h3>
+
+                                <p>
+                                    Upload an image to represent your event.
+                                </p>
+
+                            </div>
+
                         </div>
 
                         <div class="image-upload-box">
+
                             <div class="image-upload-content">
+
                                 <div class="image-upload-icon">
                                     <i class="fa-solid fa-image"></i>
                                 </div>
+
                                 <div class="image-upload-text">
-                                    <strong>Event Banner Image</strong>
-                                    <span>Choose a high-quality image for your marathon (Optional when updating).</span>
+
+                                    <strong>
+                                        Event Banner Image
+                                    </strong>
+
+                                    <span>
+                                        Choose a high-quality image for your marathon (Optional when updating).
+                                    </span>
+
                                 </div>
+
                             </div>
 
-                            <input type="file" name="image" accept="image/jpeg,image/png,image/jpg,image/gif" class="event-file-input">
+                            <input
+                                type="file"
+                                name="image"
+                                accept="image/jpeg,image/png,image/jpg,image/gif"
+                                class="event-file-input"
+                            >
 
                             @if($event->image)
+
                                 <div class="current-image">
+
                                     <div class="current-image-icon">
                                         <i class="fa-solid fa-image"></i>
                                     </div>
+
                                     <div class="current-image-text">
-                                        <p>Current event banner</p>
+
+                                        <p>
+                                            Current event banner
+                                        </p>
+
                                     </div>
-                                    <a href="{{ asset('storage/' . $event->image) }}" target="_blank" class="view-file-link">
-                                        <i class="fa-solid fa-eye"></i> View Banner
+
+                                    <a
+                                        href="{{ asset('storage/' . $event->image) }}"
+                                        target="_blank"
+                                        class="view-file-link"
+                                    >
+                                        <i class="fa-solid fa-eye"></i>
+                                        View Banner
                                     </a>
+
                                 </div>
+
                             @endif
+
                         </div>
+
                     </div>
 
                     <hr class="event-divider">
 
-                    {{-- SECTION 06 - TICKET CATEGORIES --}}
+                    {{-- =====================================================
+                         SECTION 06 - TICKET CATEGORIES
+                         ===================================================== --}}
+
                     <div class="form-section">
+
                         <div class="form-section-heading">
-                            <div class="section-number">06</div>
-                            <div>
-                                <h3>Ticket Categories</h3>
-                                <p>Create ticket types, prices and participant capacity.</p>
+
+                            <div class="section-number">
+                                06
                             </div>
+
+                            <div>
+
+                                <h3>
+                                    Ticket Categories
+                                </h3>
+
+                                <p>
+                                    Create ticket types, prices and participant capacity.
+                                </p>
+
+                            </div>
+
                         </div>
 
                         <div class="ticket-builder">
+
                             <div class="ticket-builder-header">
+
                                 <div class="ticket-builder-title">
+
                                     <div class="ticket-builder-title-icon">
                                         <i class="fa-solid fa-ticket"></i>
                                     </div>
+
                                     <div>
-                                        <h3>Ticket Types</h3>
-                                        <p>Add different distances or registration options.</p>
+
+                                        <h3>
+                                            Ticket Types
+                                        </h3>
+
+                                        <p>
+                                            Add different distances or registration options.
+                                        </p>
+
                                     </div>
+
                                 </div>
 
-                                <button type="button" id="add-category-btn" class="add-category-button">
-                                    <i class="fa-solid fa-plus"></i> Add Another Ticket Type
+                                <button
+                                    type="button"
+                                    id="add-category-btn"
+                                    class="add-category-button"
+                                >
+                                    <i class="fa-solid fa-plus"></i>
+                                    Add Another Ticket Type
                                 </button>
+
                             </div>
 
-                            <div id="categories-container" class="space-y-3">
-                                @php $isShared = $event->share_bib_prefix ?? true; @endphp
+                            <div
+                                id="categories-container"
+                                class="space-y-3"
+                            >
+
+                                @php
+                                    $isShared = $event->share_bib_prefix ?? true;
+                                @endphp
+
                                 @forelse($event->ticketCategories as $index => $category)
+
                                     <div class="category-row grid grid-cols-1 md:grid-cols-6 gap-3">
-                                        <input type="hidden" name="categories[{{ $index }}][id]" value="{{ $category->id }}">
 
-                                        <input type="text" name="categories[{{ $index }}][name]" value="{{ old("categories.$index.name", $category->name) }}" placeholder="Category (e.g., 10km)" required class="md:col-span-2">
+                                        <input
+                                            type="hidden"
+                                            name="categories[{{ $index }}][id]"
+                                            value="{{ $category->id }}"
+                                        >
 
-                                        <input type="number" step="0.01" name="categories[{{ $index }}][local_price]" value="{{ old("categories.$index.local_price", $category->local_price) }}" placeholder="Local Price (MMK)" required>
+                                        <input
+                                            type="text"
+                                            name="categories[{{ $index }}][name]"
+                                            value="{{ old("categories.$index.name", $category->name) }}"
+                                            placeholder="Category (e.g., 10km)"
+                                            required
+                                            class="md:col-span-2"
+                                        >
 
-                                        <input type="number" step="0.01" name="categories[{{ $index }}][foreign_price]" value="{{ old("categories.$index.foreign_price", $category->foreign_price) }}" placeholder="Foreign Price (Optional)">
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            name="categories[{{ $index }}][local_price]"
+                                            value="{{ old("categories.$index.local_price", $category->local_price) }}"
+                                            placeholder="Local Price (MMK)"
+                                            required
+                                        >
 
-                                        <input type="number" name="categories[{{ $index }}][capacity]" value="{{ old("categories.$index.capacity", $category->capacity) }}" min="1" placeholder="Capacity">
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            name="categories[{{ $index }}][foreign_price]"
+                                            value="{{ old("categories.$index.foreign_price", $category->foreign_price) }}"
+                                            placeholder="Foreign Price (Optional)"
+                                        >
 
-                                        <div class="flex items-center space-x-2 separate-bib-inputs" style="{{ !$isShared ? 'display:flex;' : 'display:none;' }}">
-                                            <input type="text" name="categories[{{ $index }}][bib_prefix]" value="{{ old("categories.$index.bib_prefix", $category->bib_prefix) }}" maxlength="3" placeholder="Prefix" class="uppercase">
-                                            <input type="number" name="categories[{{ $index }}][bib_start_number]" value="{{ old("categories.$index.bib_start_number", $category->bib_start_number ?? 1) }}" min="1" placeholder="Start #">
-                                            <button type="button" class="remove-category-btn">
+                                        <input
+                                            type="number"
+                                            name="categories[{{ $index }}][capacity]"
+                                            value="{{ old("categories.$index.capacity", $category->capacity) }}"
+                                            min="1"
+                                            placeholder="Capacity"
+                                        >
+
+                                        <div
+                                            class="flex items-center space-x-2 separate-bib-inputs"
+                                            style="{{ !$isShared ? 'display:flex;' : 'display:none;' }}"
+                                        >
+
+                                            <input
+                                                type="text"
+                                                name="categories[{{ $index }}][bib_prefix]"
+                                                value="{{ old("categories.$index.bib_prefix", $category->bib_prefix) }}"
+                                                maxlength="3"
+                                                placeholder="Prefix"
+                                                class="uppercase"
+                                            >
+
+                                            <input
+                                                type="number"
+                                                name="categories[{{ $index }}][bib_start_number]"
+                                                value="{{ old("categories.$index.bib_start_number", $category->bib_start_number ?? 1) }}"
+                                                min="1"
+                                                placeholder="Start #"
+                                            >
+
+                                            <button
+                                                type="button"
+                                                class="remove-category-btn"
+                                            >
                                                 <i class="fa-solid fa-trash"></i>
                                             </button>
+
                                         </div>
+
                                     </div>
+
                                 @empty
+
                                     <div class="category-row grid grid-cols-1 md:grid-cols-6 gap-3">
-                                        <input type="text" name="categories[0][name]" placeholder="Category (e.g., 10km)" required class="md:col-span-2">
-                                        <input type="number" step="0.01" name="categories[0][local_price]" placeholder="Local Price (MMK)" required>
-                                        <input type="number" step="0.01" name="categories[0][foreign_price]" placeholder="Foreign Price (Optional)">
-                                        <input type="number" name="categories[0][capacity]" min="1" placeholder="Capacity">
-                                        <div class="flex items-center space-x-2 separate-bib-inputs" style="{{ !$isShared ? 'display:flex;' : 'display:none;' }}">
-                                            <input type="text" name="categories[0][bib_prefix]" maxlength="3" placeholder="Prefix" class="uppercase">
-                                            <input type="number" name="categories[0][bib_start_number]" value="1" min="1" placeholder="Start #">
-                                            <button type="button" class="remove-category-btn">
+
+                                        <input
+                                            type="text"
+                                            name="categories[0][name]"
+                                            placeholder="Category (e.g., 10km)"
+                                            required
+                                            class="md:col-span-2"
+                                        >
+
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            name="categories[0][local_price]"
+                                            placeholder="Local Price (MMK)"
+                                            required
+                                        >
+
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            name="categories[0][foreign_price]"
+                                            placeholder="Foreign Price (Optional)"
+                                        >
+
+                                        <input
+                                            type="number"
+                                            name="categories[0][capacity]"
+                                            min="1"
+                                            placeholder="Capacity"
+                                        >
+
+                                        <div
+                                            class="flex items-center space-x-2 separate-bib-inputs"
+                                            style="{{ !$isShared ? 'display:flex;' : 'display:none;' }}"
+                                        >
+
+                                            <input
+                                                type="text"
+                                                name="categories[0][bib_prefix]"
+                                                maxlength="3"
+                                                placeholder="Prefix"
+                                                class="uppercase"
+                                            >
+
+                                            <input
+                                                type="number"
+                                                name="categories[0][bib_start_number]"
+                                                value="1"
+                                                min="1"
+                                                placeholder="Start #"
+                                            >
+
+                                            <button
+                                                type="button"
+                                                class="remove-category-btn"
+                                            >
                                                 <i class="fa-solid fa-trash"></i>
                                             </button>
+
                                         </div>
+
                                     </div>
+
                                 @endforelse
+
                             </div>
+
                         </div>
+
                     </div>
 
                     <hr class="event-divider">
 
-                    {{-- SECTION 07 - EVENT ITEMS --}}
+                    {{-- =====================================================
+                         SECTION 07 - EVENT ITEMS
+                         ===================================================== --}}
+
                     <div class="form-section">
+
                         <div class="form-section-heading">
-                            <div class="section-number">07</div>
-                            <div>
-                                <h3>Event Items</h3>
-                                <p>Add any items or benefits included with the event.</p>
+
+                            <div class="section-number">
+                                07
                             </div>
+
+                            <div>
+
+                                <h3>
+                                    Event Items
+                                </h3>
+
+                                <p>
+                                    Add any items or benefits included with the event.
+                                </p>
+
+                            </div>
+
                         </div>
 
                         <div class="items-builder">
+
                             <div class="promo-heading">
-                                <div class="promo-icon" style="background:#ecfdf5;color:#059669;">
+
+                                <div
+                                    class="promo-icon"
+                                    style="background:#ecfdf5;color:#059669;"
+                                >
                                     <i class="fa-solid fa-gift"></i>
                                 </div>
+
                                 <div>
-                                    <h3>What's Included?</h3>
-                                    <p>These items are independent from ticket categories.</p>
+
+                                    <h3>
+                                        What's Included?
+                                    </h3>
+
+                                    <p>
+                                        These items are independent from ticket categories.
+                                    </p>
+
                                 </div>
+
                             </div>
 
                             <div id="items-container">
+
                                 @forelse($event->items as $index => $item)
+
                                     <div class="item-row">
-                                        <input type="hidden" name="items[{{ $index }}][id]" value="{{ $item->id }}">
+
+                                        <input
+                                            type="hidden"
+                                            name="items[{{ $index }}][id]"
+                                            value="{{ $item->id }}"
+                                        >
 
                                         <div>
-                                            <label class="event-label">Item Title</label>
-                                            <input type="text" name="items[{{ $index }}][title]" value="{{ old("items.$index.title", $item->title) }}" placeholder="e.g. Running Shirt" class="event-input">
+
+                                            <label class="event-label">
+                                                Item Title
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                name="items[{{ $index }}][title]"
+                                                value="{{ old("items.$index.title", $item->title) }}"
+                                                placeholder="e.g. Running Shirt"
+                                                class="event-input"
+                                            >
+
                                         </div>
 
                                         <div>
-                                            <label class="event-label">Item Image</label>
-                                            <input type="file" name="items[{{ $index }}][image]" accept="image/jpeg,image/png,image/jpg,image/gif" class="event-file-input">
+
+                                            <label class="event-label">
+                                                Item Image
+                                            </label>
+
+                                            <input
+                                                type="file"
+                                                name="items[{{ $index }}][image]"
+                                                accept="image/jpeg,image/png,image/jpg,image/gif"
+                                                class="event-file-input"
+                                            >
 
                                             @if($item->image)
+
                                                 <div class="existing-item-image">
-                                                    <img src="{{ asset('storage/' . $item->image) }}" alt="{{ $item->title }}">
-                                                    <span>Current image</span>
+
+                                                    <img
+                                                        src="{{ asset('storage/' . $item->image) }}"
+                                                        alt="{{ $item->title }}"
+                                                    >
+
+                                                    <span>
+                                                        Current image
+                                                    </span>
+
                                                 </div>
+
                                             @endif
+
                                         </div>
 
-                                        <button type="button" class="remove-item-btn">
+                                        <button
+                                            type="button"
+                                            class="remove-item-btn"
+                                        >
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
+
                                     </div>
+
                                 @empty
+
                                     <div class="item-row">
+
                                         <div>
-                                            <label class="event-label">Item Title</label>
-                                            <input type="text" name="items[0][title]" placeholder="e.g. Running Shirt" class="event-input">
+
+                                            <label class="event-label">
+                                                Item Title
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                name="items[0][title]"
+                                                placeholder="e.g. Running Shirt"
+                                                class="event-input"
+                                            >
+
                                         </div>
 
                                         <div>
-                                            <label class="event-label">Item Image</label>
-                                            <input type="file" name="items[0][image]" accept="image/jpeg,image/png,image/jpg,image/gif" class="event-file-input">
+
+                                            <label class="event-label">
+                                                Item Image
+                                            </label>
+
+                                            <input
+                                                type="file"
+                                                name="items[0][image]"
+                                                accept="image/jpeg,image/png,image/jpg,image/gif"
+                                                class="event-file-input"
+                                            >
+
                                         </div>
 
-                                        <button type="button" class="remove-item-btn">
+                                        <button
+                                            type="button"
+                                            class="remove-item-btn"
+                                        >
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
+
                                     </div>
+
                                 @endforelse
+
                             </div>
 
-                            <button type="button" id="add-item-btn" class="add-item-button">
-                                <i class="fa-solid fa-plus"></i> Add Another Item
+                            <button
+                                type="button"
+                                id="add-item-btn"
+                                class="add-item-button"
+                            >
+                                <i class="fa-solid fa-plus"></i>
+                                Add Another Item
                             </button>
+
                         </div>
+
                     </div>
 
                     <hr class="event-divider">
 
-                    {{-- SECTION 08 - WAIVERS, CONSENTS & RACE GUIDES --}}
+                    {{-- =====================================================
+                         SECTION 08 - WAIVERS, CONSENTS & RACE GUIDES
+                         ===================================================== --}}
+
                     <div class="form-section">
+
                         <div class="form-section-heading">
-                            <div class="section-number">08</div>
-                            <div>
-                                <h3>Participant Waivers, Consents & Race Guides</h3>
-                                <p>Upload rules, terms, consent forms, and event guides for registered runners.</p>
+
+                            <div class="section-number">
+                                08
                             </div>
+
+                            <div>
+
+                                <h3>
+                                    Participant Waivers, Consents & Race Guides
+                                </h3>
+
+                                <p>
+                                    Upload rules, terms, consent forms, and event guides for registered runners.
+                                </p>
+
+                            </div>
+
                         </div>
 
                         <div class="waiver-box">
+
                             <div class="waiver-info">
+
                                 <i class="fa-solid fa-circle-info"></i>
+
                                 <div>
                                     Participants will see the waiver and optional consent forms before completing payment. Race guides provide additional event day details. English and Burmese PDF documents can be uploaded separately. If no consent form PDF is uploaded, it will be skipped automatically.
                                 </div>
+
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
                                 {{-- ENGLISH WAIVER --}}
+
                                 <div class="waiver-file">
-                                    <label class="event-label">English Waiver PDF</label>
-                                    <input type="file" name="english_waiver" accept="application/pdf" class="event-file-input">
-                                    <div class="field-help">Optional PDF document.</div>
+
+                                    <label class="event-label">
+                                        English Waiver PDF
+                                    </label>
+
+                                    <input
+                                        type="file"
+                                        name="english_waiver"
+                                        accept="application/pdf"
+                                        class="event-file-input"
+                                    >
+
+                                    <div class="field-help">
+                                        Optional PDF document.
+                                    </div>
 
                                     @if(!empty($event->english_waiver))
+
                                         <div class="current-image">
+
                                             <div class="current-image-icon">
                                                 <i class="fa-solid fa-file-pdf"></i>
                                             </div>
+
                                             <div class="current-image-text">
-                                                <p>Current English Waiver</p>
+
+                                                <p>
+                                                    Current English Waiver
+                                                </p>
+
                                             </div>
-                                            <a href="{{ asset('storage/' . $event->english_waiver) }}" target="_blank" class="view-file-link">
-                                                <i class="fa-solid fa-eye"></i> View PDF
+
+                                            <a
+                                                href="{{ asset('storage/' . $event->english_waiver) }}"
+                                                target="_blank"
+                                                class="view-file-link"
+                                            >
+                                                <i class="fa-solid fa-eye"></i>
+                                                View PDF
                                             </a>
+
                                         </div>
+
                                     @endif
+
                                 </div>
 
                                 {{-- BURMESE WAIVER --}}
+
                                 <div class="waiver-file">
-                                    <label class="event-label">Burmese Waiver PDF</label>
-                                    <input type="file" name="burmese_waiver" accept="application/pdf" class="event-file-input">
-                                    <div class="field-help">Optional PDF document.</div>
+
+                                    <label class="event-label">
+                                        Burmese Waiver PDF
+                                    </label>
+
+                                    <input
+                                        type="file"
+                                        name="burmese_waiver"
+                                        accept="application/pdf"
+                                        class="event-file-input"
+                                    >
+
+                                    <div class="field-help">
+                                        Optional PDF document.
+                                    </div>
 
                                     @if(!empty($event->burmese_waiver))
+
                                         <div class="current-image">
+
                                             <div class="current-image-icon">
                                                 <i class="fa-solid fa-file-pdf"></i>
                                             </div>
+
                                             <div class="current-image-text">
-                                                <p>Current Burmese Waiver</p>
+
+                                                <p>
+                                                    Current Burmese Waiver
+                                                </p>
+
                                             </div>
-                                            <a href="{{ asset('storage/' . $event->burmese_waiver) }}" target="_blank" class="view-file-link">
-                                                <i class="fa-solid fa-eye"></i> View PDF
+
+                                            <a
+                                                href="{{ asset('storage/' . $event->burmese_waiver) }}"
+                                                target="_blank"
+                                                class="view-file-link"
+                                            >
+                                                <i class="fa-solid fa-eye"></i>
+                                                View PDF
                                             </a>
+
                                         </div>
+
                                     @endif
+
                                 </div>
 
                                 {{-- ENGLISH CONSENT FORM --}}
+
                                 <div class="waiver-file">
-                                    <label class="event-label">English Consent Form PDF (Optional)</label>
-                                    <input type="file" name="english_consent" accept="application/pdf" class="event-file-input">
-                                    <div class="field-help">Optional downloadable consent form. Skipped if left empty.</div>
+
+                                    <label class="event-label">
+                                        English Consent Form PDF (Optional)
+                                    </label>
+
+                                    <input
+                                        type="file"
+                                        name="english_consent"
+                                        accept="application/pdf"
+                                        class="event-file-input"
+                                    >
+
+                                    <div class="field-help">
+                                        Optional downloadable consent form. Skipped if left empty.
+                                    </div>
 
                                     @if(!empty($event->english_consent))
+
                                         <div class="current-image">
+
                                             <div class="current-image-icon">
                                                 <i class="fa-solid fa-file-pdf"></i>
                                             </div>
+
                                             <div class="current-image-text">
-                                                <p>Current English Consent</p>
+
+                                                <p>
+                                                    Current English Consent
+                                                </p>
+
                                             </div>
-                                            <a href="{{ asset('storage/' . $event->english_consent) }}" target="_blank" class="view-file-link">
-                                                <i class="fa-solid fa-eye"></i> View PDF
+
+                                            <a
+                                                href="{{ asset('storage/' . $event->english_consent) }}"
+                                                target="_blank"
+                                                class="view-file-link"
+                                            >
+                                                <i class="fa-solid fa-eye"></i>
+                                                View PDF
                                             </a>
+
                                         </div>
+
                                     @endif
+
                                 </div>
 
                                 {{-- BURMESE CONSENT FORM --}}
+
                                 <div class="waiver-file">
-                                    <label class="event-label">Burmese Consent Form PDF (Optional)</label>
-                                    <input type="file" name="burmese_consent" accept="application/pdf" class="event-file-input">
-                                    <div class="field-help">Optional downloadable consent form. Skipped if left empty.</div>
+
+                                    <label class="event-label">
+                                        Burmese Consent Form PDF (Optional)
+                                    </label>
+
+                                    <input
+                                        type="file"
+                                        name="burmese_consent"
+                                        accept="application/pdf"
+                                        class="event-file-input"
+                                    >
+
+                                    <div class="field-help">
+                                        Optional downloadable consent form. Skipped if left empty.
+                                    </div>
 
                                     @if(!empty($event->burmese_consent))
+
                                         <div class="current-image">
+
                                             <div class="current-image-icon">
                                                 <i class="fa-solid fa-file-pdf"></i>
                                             </div>
+
                                             <div class="current-image-text">
-                                                <p>Current Burmese Consent</p>
+
+                                                <p>
+                                                    Current Burmese Consent
+                                                </p>
+
                                             </div>
-                                            <a href="{{ asset('storage/' . $event->burmese_consent) }}" target="_blank" class="view-file-link">
-                                                <i class="fa-solid fa-eye"></i> View PDF
+
+                                            <a
+                                                href="{{ asset('storage/' . $event->burmese_consent) }}"
+                                                target="_blank"
+                                                class="view-file-link"
+                                            >
+                                                <i class="fa-solid fa-eye"></i>
+                                                View PDF
                                             </a>
+
                                         </div>
+
                                     @endif
+
                                 </div>
 
                                 {{-- ENGLISH RACE GUIDE --}}
+
                                 <div class="waiver-file">
-                                    <label class="event-label">English Race Guide PDF (Optional)</label>
-                                    <input type="file" name="english_race_guide" accept="application/pdf" class="event-file-input">
-                                    <div class="field-help">Optional PDF document for race instructions.</div>
+
+                                    <label class="event-label">
+                                        English Race Guide PDF (Optional)
+                                    </label>
+
+                                    <input
+                                        type="file"
+                                        name="english_race_guide"
+                                        accept="application/pdf"
+                                        class="event-file-input"
+                                    >
+
+                                    <div class="field-help">
+                                        Optional PDF document for race instructions.
+                                    </div>
 
                                     @if(!empty($event->english_race_guide))
+
                                         <div class="current-image">
+
                                             <div class="current-image-icon">
                                                 <i class="fa-solid fa-file-pdf"></i>
                                             </div>
+
                                             <div class="current-image-text">
-                                                <p>Current English Race Guide</p>
+
+                                                <p>
+                                                    Current English Race Guide
+                                                </p>
+
                                             </div>
-                                            <a href="{{ asset('storage/' . $event->english_race_guide) }}" target="_blank" class="view-file-link">
-                                                <i class="fa-solid fa-eye"></i> View File
+
+                                            <a
+                                                href="{{ asset('storage/' . $event->english_race_guide) }}"
+                                                target="_blank"
+                                                class="view-file-link"
+                                            >
+                                                <i class="fa-solid fa-eye"></i>
+                                                View File
                                             </a>
+
                                         </div>
+
                                     @endif
+
                                 </div>
 
                                 {{-- BURMESE RACE GUIDE --}}
+
                                 <div class="waiver-file">
-                                    <label class="event-label">Burmese Race Guide PDF (Optional)</label>
-                                    <input type="file" name="burmese_race_guide" accept="application/pdf" class="event-file-input">
-                                    <div class="field-help">Optional PDF document for race instructions.</div>
+
+                                    <label class="event-label">
+                                        Burmese Race Guide PDF (Optional)
+                                    </label>
+
+                                    <input
+                                        type="file"
+                                        name="burmese_race_guide"
+                                        accept="application/pdf"
+                                        class="event-file-input"
+                                    >
+
+                                    <div class="field-help">
+                                        Optional PDF document for race instructions.
+                                    </div>
 
                                     @if(!empty($event->burmese_race_guide))
+
                                         <div class="current-image">
+
                                             <div class="current-image-icon">
                                                 <i class="fa-solid fa-file-pdf"></i>
                                             </div>
+
                                             <div class="current-image-text">
-                                                <p>Current Burmese Race Guide</p>
+
+                                                <p>
+                                                    Current Burmese Race Guide
+                                                </p>
+
                                             </div>
-                                            <a href="{{ asset('storage/' . $event->burmese_race_guide) }}" target="_blank" class="view-file-link">
-                                                <i class="fa-solid fa-eye"></i> View File
+
+                                            <a
+                                                href="{{ asset('storage/' . $event->burmese_race_guide) }}"
+                                                target="_blank"
+                                                class="view-file-link"
+                                            >
+                                                <i class="fa-solid fa-eye"></i>
+                                                View File
                                             </a>
+
                                         </div>
+
                                     @endif
+
                                 </div>
+
                             </div>
+
                         </div>
+
                     </div>
 
                     {{-- UPDATE BUTTON --}}
+
                     <div class="pt-2">
-                        <button type="submit" class="publish-button">
-                            <i class="fa-solid fa-check"></i> Update Event
+
+                        <button
+                            type="submit"
+                            class="publish-button"
+                        >
+                            <i class="fa-solid fa-check"></i>
+                            Update Event
                         </button>
+
                     </div>
 
                 </form>
@@ -1447,105 +2553,685 @@
 
 </div>
 
+{{-- =========================================================
+     LEAFLET JS
+     ========================================================= --}}
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
+
 document.addEventListener('DOMContentLoaded', function () {
 
-    let categoryIndex = {{ max($event->ticketCategories->count(), 1) }};
-    let itemIndex = {{ max($event->items->count(), 1) }};
+    /*
+    |--------------------------------------------------------------------------
+    | EXISTING EVENT LOCATION
+    |--------------------------------------------------------------------------
+    */
 
-    /* BIB CONFIG TOGGLE LOGIC */
-    const enableBibCheckbox = document.getElementById('enable_bib_number');
-    const bibConfigWrapper = document.getElementById('bib_config_wrapper');
-    const shareBibRadios = document.querySelectorAll('input[name="share_bib_prefix"]');
-    const sharedPrefixBox = document.getElementById('shared_prefix_box');
+    const savedLatitude = parseFloat(
+        @json(old('latitude', $event->latitude))
+    );
 
-    enableBibCheckbox.addEventListener('change', function() {
-        bibConfigWrapper.style.display = this.checked ? 'block' : 'none';
-    });
+    const savedLongitude = parseFloat(
+        @json(old('longitude', $event->longitude))
+    );
 
-    shareBibRadios.forEach(radio => {
-        radio.addEventListener('change', function() {
-            if (this.value === '1') {
-                sharedPrefixBox.style.display = 'grid';
-                document.querySelectorAll('.separate-bib-inputs').forEach(el => el.style.display = 'none');
-            } else {
-                sharedPrefixBox.style.display = 'none';
-                document.querySelectorAll('.separate-bib-inputs').forEach(el => el.style.display = 'flex');
+    /*
+    |--------------------------------------------------------------------------
+    | DEFAULT LOCATION
+    |--------------------------------------------------------------------------
+    | Yangon is only used when the event does not already have coordinates.
+    */
+
+    const defaultLatitude = Number.isFinite(savedLatitude)
+        ? savedLatitude
+        : 16.8409;
+
+    const defaultLongitude = Number.isFinite(savedLongitude)
+        ? savedLongitude
+        : 96.1735;
+
+    /*
+    |--------------------------------------------------------------------------
+    | MAP ELEMENTS
+    |--------------------------------------------------------------------------
+    */
+
+    const mapElement = document.getElementById('event-location-map');
+
+    const locationInput = document.getElementById('location');
+
+    const latitudeInput = document.getElementById('latitude');
+
+    const longitudeInput = document.getElementById('longitude');
+
+    const selectedLocationBox = document.getElementById(
+        'selected-location-box'
+    );
+
+    const selectedLocationText = document.getElementById(
+        'selected-location-text'
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | INITIALIZE MAP
+    |--------------------------------------------------------------------------
+    */
+
+    if (
+        !mapElement ||
+        typeof L === 'undefined'
+    ) {
+        return;
+    }
+
+    const hasSavedCoordinates =
+        Number.isFinite(savedLatitude) &&
+        Number.isFinite(savedLongitude);
+
+    const eventMap = L.map(
+        mapElement
+    ).setView(
+        [
+            defaultLatitude,
+            defaultLongitude
+        ],
+        hasSavedCoordinates ? 16 : 12
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | OPENSTREETMAP TILE LAYER
+    |--------------------------------------------------------------------------
+    */
+
+    L.tileLayer(
+        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+        {
+            maxZoom: 19,
+
+            attribution:
+                '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors'
+        }
+    ).addTo(eventMap);
+
+    /*
+    |--------------------------------------------------------------------------
+    | EVENT MARKER
+    |--------------------------------------------------------------------------
+    */
+
+    const eventMarker = L.marker(
+        [
+            defaultLatitude,
+            defaultLongitude
+        ],
+        {
+            draggable: true
+        }
+    ).addTo(eventMap);
+
+    /*
+    |--------------------------------------------------------------------------
+    | UPDATE SELECTED LOCATION
+    |--------------------------------------------------------------------------
+    */
+
+    function setMapLocation(
+        latitude,
+        longitude
+    ) {
+
+        latitude = Number(latitude);
+        longitude = Number(longitude);
+
+        /*
+        | Store coordinates in hidden form fields
+        */
+
+        latitudeInput.value =
+            latitude.toFixed(7);
+
+        longitudeInput.value =
+            longitude.toFixed(7);
+
+        /*
+        | Move marker
+        */
+
+        eventMarker.setLatLng([
+            latitude,
+            longitude
+        ]);
+
+        /*
+        | Move map to selected location
+        */
+
+        eventMap.panTo([
+            latitude,
+            longitude
+        ]);
+
+        /*
+        | Show selected location information
+        */
+
+        selectedLocationBox.style.display = 'flex';
+
+        const locationName =
+            locationInput.value.trim();
+
+        if (locationName) {
+
+            selectedLocationText.textContent =
+                locationName +
+                ' — ' +
+                latitude.toFixed(7) +
+                ', ' +
+                longitude.toFixed(7);
+
+        } else {
+
+            selectedLocationText.textContent =
+                'Coordinates selected: ' +
+                latitude.toFixed(7) +
+                ', ' +
+                longitude.toFixed(7);
+
+        }
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | MAP CLICK
+    |--------------------------------------------------------------------------
+    */
+
+    eventMap.on(
+        'click',
+        function (event) {
+
+            setMapLocation(
+                event.latlng.lat,
+                event.latlng.lng
+            );
+
+        }
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | MARKER DRAG
+    |--------------------------------------------------------------------------
+    */
+
+    eventMarker.on(
+        'dragend',
+        function (event) {
+
+            const position =
+                event.target.getLatLng();
+
+            setMapLocation(
+                position.lat,
+                position.lng
+            );
+
+        }
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | UPDATE DISPLAY WHEN LOCATION NAME CHANGES
+    |--------------------------------------------------------------------------
+    */
+
+    locationInput.addEventListener(
+        'input',
+        function () {
+
+            const latitude =
+                parseFloat(latitudeInput.value);
+
+            const longitude =
+                parseFloat(longitudeInput.value);
+
+            if (
+                Number.isFinite(latitude) &&
+                Number.isFinite(longitude)
+            ) {
+
+                selectedLocationBox.style.display =
+                    'flex';
+
+                selectedLocationText.textContent =
+                    this.value.trim()
+                        ? this.value.trim() +
+                          ' — ' +
+                          latitude.toFixed(7) +
+                          ', ' +
+                          longitude.toFixed(7)
+                        : 'Coordinates selected: ' +
+                          latitude.toFixed(7) +
+                          ', ' +
+                          longitude.toFixed(7);
+
             }
-        });
-    });
 
-    const categoryContainer = document.getElementById('categories-container');
-    const addCategoryBtn = document.getElementById('add-category-btn');
+        }
+    );
 
-    /* ADD TICKET CATEGORY */
-    addCategoryBtn.addEventListener('click', function () {
-        const row = document.createElement('div');
-        const separateMode = document.querySelector('input[name="share_bib_prefix"]:checked').value === '0';
+    /*
+    |--------------------------------------------------------------------------
+    | LOAD EXISTING EVENT COORDINATES
+    |--------------------------------------------------------------------------
+    */
 
-        row.className = 'category-row grid grid-cols-1 md:grid-cols-6 gap-3';
+    if (hasSavedCoordinates) {
 
-        row.innerHTML = `
-            <input type="text" name="categories[${categoryIndex}][name]" placeholder="Category (e.g., 21km)" required class="md:col-span-2">
-            <input type="number" step="0.01" name="categories[${categoryIndex}][local_price]" placeholder="Local Price (MMK)" required>
-            <input type="number" step="0.01" name="categories[${categoryIndex}][foreign_price]" placeholder="Foreign Price (Optional)">
-            <input type="number" name="categories[${categoryIndex}][capacity]" min="1" placeholder="Capacity">
-            <div class="flex items-center space-x-2 separate-bib-inputs" style="${separateMode ? 'display:flex;' : 'display:none;'}">
-                <input type="text" name="categories[${categoryIndex}][bib_prefix]" maxlength="3" placeholder="Prefix" class="uppercase">
-                <input type="number" name="categories[${categoryIndex}][bib_start_number]" value="1" min="1" placeholder="Start #">
-                <button type="button" class="remove-category-btn">
-                    <i class="fa-solid fa-trash"></i>
-                </button>
-            </div>
-        `;
+        setMapLocation(
+            savedLatitude,
+            savedLongitude
+        );
 
-        categoryContainer.appendChild(row);
-        categoryIndex++;
-    });
+    } else if (locationInput.value.trim()) {
 
-    /* REMOVE TICKET CATEGORY */
-    categoryContainer.addEventListener('click', function (e) {
-        const removeButton = e.target.closest('.remove-category-btn');
-        if (!removeButton) return;
+        selectedLocationBox.style.display =
+            'flex';
 
-        removeButton.closest('.category-row').remove();
-    });
+        selectedLocationText.textContent =
+            locationInput.value.trim();
 
-    /* EVENT ITEMS */
-    const itemsContainer = document.getElementById('items-container');
-    const addItemBtn = document.getElementById('add-item-btn');
+    }
 
-    addItemBtn.addEventListener('click', function () {
-        const row = document.createElement('div');
-        row.className = 'item-row';
+    /*
+    |--------------------------------------------------------------------------
+    | FIX MAP SIZE AFTER PAGE LOAD
+    |--------------------------------------------------------------------------
+    */
 
-        row.innerHTML = `
-            <div>
-                <label class="event-label">Item Title</label>
-                <input type="text" name="items[${itemIndex}][title]" placeholder="e.g. Finisher Medal" class="event-input">
-            </div>
-            <div>
-                <label class="event-label">Item Image</label>
-                <input type="file" name="items[${itemIndex}][image]" accept="image/jpeg,image/png,image/jpg,image/gif" class="event-file-input">
-            </div>
-            <button type="button" class="remove-item-btn">
-                <i class="fa-solid fa-trash"></i>
-            </button>
-        `;
+    setTimeout(
+        function () {
+            eventMap.invalidateSize();
+        },
+        300
+    );
 
-        itemsContainer.appendChild(row);
-        itemIndex++;
-    });
+    /*
+    |--------------------------------------------------------------------------
+    | FIX MAP SIZE WHEN WINDOW RESIZES
+    |--------------------------------------------------------------------------
+    */
 
-    /* REMOVE EVENT ITEM */
-    itemsContainer.addEventListener('click', function (e) {
-        const removeButton = e.target.closest('.remove-item-btn');
-        if (!removeButton) return;
-
-        removeButton.closest('.item-row').remove();
-    });
+    window.addEventListener(
+        'resize',
+        function () {
+            eventMap.invalidateSize();
+        }
+    );
 
 });
+
+
+/*
+|--------------------------------------------------------------------------
+| EXISTING EVENT FORM JAVASCRIPT
+|--------------------------------------------------------------------------
+*/
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    let categoryIndex =
+        {{ max($event->ticketCategories->count(), 1) }};
+
+    let itemIndex =
+        {{ max($event->items->count(), 1) }};
+
+    /*
+    |--------------------------------------------------------------------------
+    | BIB CONFIG TOGGLE LOGIC
+    |--------------------------------------------------------------------------
+    */
+
+    const enableBibCheckbox =
+        document.getElementById(
+            'enable_bib_number'
+        );
+
+    const bibConfigWrapper =
+        document.getElementById(
+            'bib_config_wrapper'
+        );
+
+    const shareBibRadios =
+        document.querySelectorAll(
+            'input[name="share_bib_prefix"]'
+        );
+
+    const sharedPrefixBox =
+        document.getElementById(
+            'shared_prefix_box'
+        );
+
+    enableBibCheckbox.addEventListener(
+        'change',
+        function () {
+
+            bibConfigWrapper.style.display =
+                this.checked
+                    ? 'block'
+                    : 'none';
+
+        }
+    );
+
+    shareBibRadios.forEach(
+        radio => {
+
+            radio.addEventListener(
+                'change',
+                function () {
+
+                    if (this.value === '1') {
+
+                        sharedPrefixBox.style.display =
+                            'grid';
+
+                        document
+                            .querySelectorAll(
+                                '.separate-bib-inputs'
+                            )
+                            .forEach(
+                                el => {
+                                    el.style.display =
+                                        'none';
+                                }
+                            );
+
+                    } else {
+
+                        sharedPrefixBox.style.display =
+                            'none';
+
+                        document
+                            .querySelectorAll(
+                                '.separate-bib-inputs'
+                            )
+                            .forEach(
+                                el => {
+                                    el.style.display =
+                                        'flex';
+                                }
+                            );
+
+                    }
+
+                }
+            );
+
+        }
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | TICKET CATEGORIES
+    |--------------------------------------------------------------------------
+    */
+
+    const categoryContainer =
+        document.getElementById(
+            'categories-container'
+        );
+
+    const addCategoryBtn =
+        document.getElementById(
+            'add-category-btn'
+        );
+
+    /*
+    |--------------------------------------------------------------------------
+    | ADD TICKET CATEGORY
+    |--------------------------------------------------------------------------
+    */
+
+    addCategoryBtn.addEventListener(
+        'click',
+        function () {
+
+            const row =
+                document.createElement('div');
+
+            const selectedShareBib =
+                document.querySelector(
+                    'input[name="share_bib_prefix"]:checked'
+                );
+
+            const separateMode =
+                selectedShareBib &&
+                selectedShareBib.value === '0';
+
+            row.className =
+                'category-row grid grid-cols-1 md:grid-cols-6 gap-3';
+
+            row.innerHTML = `
+
+                <input
+                    type="text"
+                    name="categories[${categoryIndex}][name]"
+                    placeholder="Category (e.g., 21km)"
+                    required
+                    class="md:col-span-2"
+                >
+
+                <input
+                    type="number"
+                    step="0.01"
+                    name="categories[${categoryIndex}][local_price]"
+                    placeholder="Local Price (MMK)"
+                    required
+                >
+
+                <input
+                    type="number"
+                    step="0.01"
+                    name="categories[${categoryIndex}][foreign_price]"
+                    placeholder="Foreign Price (Optional)"
+                >
+
+                <input
+                    type="number"
+                    name="categories[${categoryIndex}][capacity]"
+                    min="1"
+                    placeholder="Capacity"
+                >
+
+                <div
+                    class="flex items-center space-x-2 separate-bib-inputs"
+                    style="${separateMode ? 'display:flex;' : 'display:none;'}"
+                >
+
+                    <input
+                        type="text"
+                        name="categories[${categoryIndex}][bib_prefix]"
+                        maxlength="3"
+                        placeholder="Prefix"
+                        class="uppercase"
+                    >
+
+                    <input
+                        type="number"
+                        name="categories[${categoryIndex}][bib_start_number]"
+                        value="1"
+                        min="1"
+                        placeholder="Start #"
+                    >
+
+                    <button
+                        type="button"
+                        class="remove-category-btn"
+                    >
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+
+                </div>
+
+            `;
+
+            categoryContainer.appendChild(row);
+
+            categoryIndex++;
+
+        }
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | REMOVE TICKET CATEGORY
+    |--------------------------------------------------------------------------
+    */
+
+    categoryContainer.addEventListener(
+        'click',
+        function (e) {
+
+            const removeButton =
+                e.target.closest(
+                    '.remove-category-btn'
+                );
+
+            if (!removeButton) {
+                return;
+            }
+
+            const row =
+                removeButton.closest(
+                    '.category-row'
+                );
+
+            if (row) {
+                row.remove();
+            }
+
+        }
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | EVENT ITEMS
+    |--------------------------------------------------------------------------
+    */
+
+    const itemsContainer =
+        document.getElementById(
+            'items-container'
+        );
+
+    const addItemBtn =
+        document.getElementById(
+            'add-item-btn'
+        );
+
+    /*
+    |--------------------------------------------------------------------------
+    | ADD EVENT ITEM
+    |--------------------------------------------------------------------------
+    */
+
+    addItemBtn.addEventListener(
+        'click',
+        function () {
+
+            const row =
+                document.createElement('div');
+
+            row.className =
+                'item-row';
+
+            row.innerHTML = `
+
+                <div>
+
+                    <label class="event-label">
+                        Item Title
+                    </label>
+
+                    <input
+                        type="text"
+                        name="items[${itemIndex}][title]"
+                        placeholder="e.g. Finisher Medal"
+                        class="event-input"
+                    >
+
+                </div>
+
+                <div>
+
+                    <label class="event-label">
+                        Item Image
+                    </label>
+
+                    <input
+                        type="file"
+                        name="items[${itemIndex}][image]"
+                        accept="image/jpeg,image/png,image/jpg,image/gif"
+                        class="event-file-input"
+                    >
+
+                </div>
+
+                <button
+                    type="button"
+                    class="remove-item-btn"
+                >
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+
+            `;
+
+            itemsContainer.appendChild(row);
+
+            itemIndex++;
+
+        }
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | REMOVE EVENT ITEM
+    |--------------------------------------------------------------------------
+    */
+
+    itemsContainer.addEventListener(
+        'click',
+        function (e) {
+
+            const removeButton =
+                e.target.closest(
+                    '.remove-item-btn'
+                );
+
+            if (!removeButton) {
+                return;
+            }
+
+            const row =
+                removeButton.closest(
+                    '.item-row'
+                );
+
+            if (row) {
+                row.remove();
+            }
+
+        }
+    );
+
+});
+
 </script>
 
 @endsection

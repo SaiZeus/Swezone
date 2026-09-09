@@ -22,7 +22,7 @@
     .event-banner {
         position: relative;
         width: 100%;
-        aspect-ratio: 16 / 9; /* Locks container to true 16:9 widescreen ratio */
+        aspect-ratio: 16 / 9;
         max-height: 540px;
         overflow: hidden;
         border-radius: 18px !important;
@@ -34,7 +34,7 @@
     .event-banner img {
         width: 100%;
         height: 100%;
-        object-fit: cover; /* Fills container edge-to-edge in 16:9 without white letterbox margins */
+        object-fit: cover;
         background: transparent;
         transition: transform .5s ease;
     }
@@ -79,7 +79,8 @@
     .event-description,
     .ticket-panel,
     .attendee-panel,
-    .items-panel {
+    .items-panel,
+    .event-map-panel {
         background: rgba(255, 255, 255, .95);
         border: 1px solid #e9d5ff;
         border-radius: 16px;
@@ -138,6 +139,76 @@
         color: #a855f7 !important;
     }
 
+    /*
+    =========================================================
+    EVENT LOCATION MAP
+    Leaflet + OpenStreetMap
+    =========================================================
+    */
+
+    .event-map-panel {
+        margin-top: 18px;
+        padding: 18px 20px;
+    }
+
+    .event-map-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+
+    .event-map-icon {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: #f3e8ff;
+        color: #a855f7;
+    }
+
+    .event-map-header h4 {
+        margin: 0;
+        color: #581c87;
+        font-size: .98rem;
+        font-weight: 800;
+    }
+
+    .event-map-header p {
+        margin: 2px 0 0;
+        color: #929baa;
+        font-size: .68rem;
+    }
+
+    #event-details-map {
+        width: 100%;
+        height: 360px;
+        overflow: hidden;
+        border: 1px solid #e9d5ff;
+        border-radius: 13px;
+        background: #eef1f5;
+    }
+
+    .event-map-address {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 10px;
+        padding: 10px 12px;
+        border: 1px solid #e9d5ff;
+        border-radius: 10px;
+        background: #faf5ff;
+        color: #6b21a8;
+        font-size: .75rem;
+    }
+
+    .event-map-address i {
+        color: #a855f7;
+    }
+
     .event-item-card {
         height: 100%;
         border: 1px solid #e9d5ff;
@@ -154,16 +225,72 @@
         box-shadow: 0 8px 20px rgba(147, 51, 234, .08);
     }
 
-    .event-item-card img,
-    .event-item-placeholder {
+    /*
+    =========================================================
+    EVENT ITEM IMAGES
+    ALL SAME SIZE
+    =========================================================
+    */
+
+    .event-item-image-button {
+        position: relative;
         width: 100%;
-        height: 100px;
+        height: 150px;
+        padding: 0;
+        margin: 0 0 8px;
+        border: 0;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #f3e8ff;
+        cursor: pointer;
+        display: block;
+    }
+
+    .event-item-image-button img {
+        display: block;
+        width: 100%;
+        height: 100%;
         object-fit: cover;
-        border-radius: 999px;
-        margin-bottom: 8px;
+        object-position: center;
+        transition: transform .3s ease;
+    }
+
+    .event-item-image-button:hover img {
+        transform: scale(1.06);
+    }
+
+    .event-item-image-button::after {
+        content: "\f00e";
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        position: absolute;
+        right: 9px;
+        bottom: 9px;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: rgba(88, 28, 135, .85);
+        color: #fff;
+        font-size: .72rem;
+        opacity: 0;
+        transform: scale(.85);
+        transition: all .2s ease;
+    }
+
+    .event-item-image-button:hover::after {
+        opacity: 1;
+        transform: scale(1);
     }
 
     .event-item-placeholder {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 12px;
+        margin-bottom: 8px;
         background: #f3e8ff;
         display: flex;
         align-items: center;
@@ -176,6 +303,81 @@
         font-size: .82rem;
         line-height: 1.3;
         color: #581c87 !important;
+    }
+
+    /*
+    =========================================================
+    IMAGE POPUP
+    =========================================================
+    */
+
+    .event-image-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 25px;
+        background: rgba(24, 10, 35, .88);
+        backdrop-filter: blur(5px);
+    }
+
+    .event-image-modal.active {
+        display: flex;
+    }
+
+    .event-image-modal-content {
+        position: relative;
+        max-width: min(950px, 95vw);
+        max-height: 92vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .event-image-modal img {
+        display: block;
+        max-width: 100%;
+        max-height: 82vh;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        border-radius: 14px;
+        box-shadow: 0 20px 70px rgba(0, 0, 0, .45);
+        background: #fff;
+    }
+
+    .event-image-modal-title {
+        margin-top: 10px;
+        color: #fff;
+        font-size: .9rem;
+        font-weight: 700;
+        text-align: center;
+    }
+
+    .event-image-modal-close {
+        position: absolute;
+        top: -15px;
+        right: -15px;
+        width: 38px;
+        height: 38px;
+        border: 0;
+        border-radius: 50%;
+        background: #fff;
+        color: #581c87;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        cursor: pointer;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, .25);
+        z-index: 2;
+    }
+
+    .event-image-modal-close:hover {
+        background: #f3e8ff;
+        color: #9333ea;
     }
 
     .ticket-header-box {
@@ -407,9 +609,12 @@
 
     .attendee-card .form-select:not([multiple]),
     .checkout-summary .form-select:not([multiple]) {
-        background-image: linear-gradient(45deg, transparent 50%, #a855f7 50%),
-                          linear-gradient(135deg, #a855f7 50%, transparent 50%);
-        background-position: calc(100% - 14px) 50%, calc(100% - 9px) 50%;
+        background-image:
+            linear-gradient(45deg, transparent 50%, #a855f7 50%),
+            linear-gradient(135deg, #a855f7 50%, transparent 50%);
+        background-position:
+            calc(100% - 14px) 50%,
+            calc(100% - 9px) 50%;
         background-size: 5px 5px, 5px 5px;
         background-repeat: no-repeat;
         padding-right: 28px !important;
@@ -535,6 +740,28 @@
         box-shadow: 0 6px 18px rgba(147, 51, 234, .04);
     }
 
+    /*
+    =========================================================
+    LEAFLET OVERRIDES
+    =========================================================
+    */
+
+    .leaflet-container {
+        font-family: inherit;
+        z-index: 1;
+    }
+
+    .leaflet-popup-content-wrapper {
+        border-radius: 10px;
+    }
+
+    .leaflet-popup-content {
+        margin: 10px 12px;
+        color: #581c87;
+        font-size: .78rem;
+        font-weight: 700;
+    }
+
     @media (max-width: 767.98px) {
         .event-details-section {
             padding-top: 40px !important;
@@ -549,8 +776,18 @@
         .event-description,
         .ticket-panel,
         .attendee-panel,
-        .items-panel {
+        .items-panel,
+        .event-map-panel {
             padding: 14px;
+        }
+
+        #event-details-map {
+            height: 280px;
+        }
+
+        .event-item-image-button,
+        .event-item-placeholder {
+            height: 125px;
         }
 
         .attendee-card {
@@ -565,215 +802,693 @@
         .checkout-summary {
             padding: 14px !important;
         }
+
+        .event-image-modal {
+            padding: 15px;
+        }
+
+        .event-image-modal img {
+            max-height: 78vh;
+        }
+
+        .event-image-modal-close {
+            top: -8px;
+            right: -8px;
+        }
     }
 </style>
 
+{{-- Leaflet CSS --}}
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    crossorigin=""
+>
+
 <section class="event-details-section pt-60 pb-60">
+
     <div class="container">
+
         <div class="row">
+
             <div class="col-lg-12">
+
+                {{-- EVENT BANNER --}}
                 <div class="event-banner mb-3">
-                    <img src="{{ $event->image ? asset('storage/' . $event->image) : asset('assets/img/about/img06.jpg') }}" alt="{{ $event->title }}" class="img-fluid w-100 rounded">
+                    <img
+                        src="{{ $event->image ? asset('storage/' . $event->image) : asset('assets/img/about/img06.jpg') }}"
+                        alt="{{ $event->title }}"
+                        class="img-fluid w-100 rounded"
+                    >
                 </div>
+
                 <h2>{{ $event->title }}</h2>
+
                 <p class="text-muted">
-                    <i class="far fa-map-marker-alt"></i> {{ $event->location }} | 
-                    <i class="far fa-calendar-alt"></i> {{ \Carbon\Carbon::parse($event->event_date)->format('F d, Y - h:i A') }} |
-                    <span class="badge bg-{{ $event->status === 'live' ? 'danger' : ($event->status === 'upcoming' ? 'success' : 'secondary') }}">
+                    <i class="far fa-map-marker-alt"></i>
+                    {{ $event->location }}
+
+                    |
+
+                    <i class="far fa-calendar-alt"></i>
+                    {{ \Carbon\Carbon::parse($event->event_date)->format('F d, Y - h:i A') }}
+
+                    |
+
+                    <span class="badge bg-{{
+                        $event->status === 'live'
+                            ? 'danger'
+                            : ($event->status === 'upcoming' ? 'success' : 'secondary')
+                    }}">
                         {{ strtoupper($event->status) }}
                     </span>
                 </p>
 
                 <div class="d-flex flex-wrap gap-2 text-dark font-weight-bold my-2">
+
                     @if($event->creator_name)
-                        <span><i class="far fa-user-circle text-primary me-1"></i> Organized by: {{ $event->creator_name }}</span>
+                        <span>
+                            <i class="far fa-user-circle text-primary me-1"></i>
+                            Organized by: {{ $event->creator_name }}
+                        </span>
                     @endif
-                    
+
                     @if($event->creator_phone)
-                        <span><i class="fas fa-phone-alt text-success me-1"></i> Contact: {{ $event->creator_phone }}</span>
+                        <span>
+                            <i class="fas fa-phone-alt text-success me-1"></i>
+                            Contact: {{ $event->creator_phone }}
+                        </span>
                     @endif
 
                     @if($event->creator_email)
-                        <span><i class="far fa-envelope text-warning me-1"></i> Email: <a href="mailto:{{ $event->creator_email }}" class="text-decoration-none text-reset">{{ $event->creator_email }}</a></span>
+                        <span>
+                            <i class="far fa-envelope text-warning me-1"></i>
+                            Email:
+                            <a
+                                href="mailto:{{ $event->creator_email }}"
+                                class="text-decoration-none text-reset"
+                            >
+                                {{ $event->creator_email }}
+                            </a>
+                        </span>
                     @endif
 
                     @if($event->overall_capacity === null)
-                        <span><i class="fas fa-infinity text-warning me-1"></i> Capacity: Unlimited</span>
+
+                        <span>
+                            <i class="fas fa-infinity text-warning me-1"></i>
+                            Capacity: Unlimited
+                        </span>
+
                     @else
-                        <span><i class="fas fa-users text-warning me-1"></i> Remaining Capacity: {{ $overallTicketsRemaining }} / {{ $event->overall_capacity }}</span>
+
+                        <span>
+                            <i class="fas fa-users text-warning me-1"></i>
+                            Remaining Capacity:
+                            {{ $overallTicketsRemaining }}
+                            /
+                            {{ $event->overall_capacity }}
+                        </span>
+
                     @endif
+
                 </div>
 
+                {{-- DESCRIPTION --}}
                 <div class="event-description mt-3">
+
                     <h4>Description</h4>
-                    <p>{{ $event->description }}</p>
+
+                    <p>
+                        {{ $event->description }}
+                    </p>
+
                 </div>
+
+                {{-- =====================================================
+                     EVENT LOCATION MAP
+                     ===================================================== --}}
+
+                @if($event->latitude && $event->longitude)
+
+                    <div class="event-map-panel">
+
+                        <div class="event-map-header">
+
+                            <div class="event-map-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+
+                            <div>
+                                <h4>Event Location</h4>
+
+                                <p>
+                                    View the exact event location on the map.
+                                </p>
+                            </div>
+
+                        </div>
+
+                        <div id="event-details-map"></div>
+
+                        <div class="event-map-address">
+
+                            <i class="fas fa-location-dot"></i>
+
+                            <span>
+                                {{ $event->location }}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                @endif
+
             </div>
+
         </div>
+
+
+        {{-- =========================================================
+             WHAT'S INCLUDED
+             ========================================================= --}}
 
         @if($event->items && $event->items->count() > 0)
-        <div class="row mt-4">
-            <div class="col-lg-12">
-                <div class="items-panel">
-                    <h3><i class="fas fa-gift text-primary me-2"></i> What's Included with Your Event Entry</h3>
-                    <div class="row g-3 mt-1">
-                        @foreach($event->items as $item)
-                            <div class="col-6 col-md-4 col-lg-3">
-                                <div class="event-item-card">
-                                    @if($item->image)
-                                        <img src="{{ asset('storage/' . $item->image) }}" alt="{{ $item->title }}">
-                                    @else
-                                        <div class="event-item-placeholder"><i class="fas fa-box"></i></div>
-                                    @endif
-                                    <h6 class="mb-0 font-weight-bold text-dark">{{ $item->title ?? 'Event Perk' }}</h6>
+
+            <div class="row mt-4">
+
+                <div class="col-lg-12">
+
+                    <div class="items-panel">
+
+                        <h3>
+                            <i class="fas fa-gift text-primary me-2"></i>
+                            What's Included with Your Event Entry
+                        </h3>
+
+                        <div class="row g-3 mt-1">
+
+                            @foreach($event->items as $item)
+
+                                <div class="col-6 col-md-4 col-lg-3">
+
+                                    <div class="event-item-card">
+
+                                        @if($item->image)
+
+                                            {{-- CLICKABLE IMAGE --}}
+                                            <button
+                                                type="button"
+                                                class="event-item-image-button"
+                                                data-image="{{ asset('storage/' . $item->image) }}"
+                                                data-title="{{ $item->title ?? 'Event Perk' }}"
+                                                aria-label="View {{ $item->title ?? 'Event Perk' }}"
+                                            >
+
+                                                <img
+                                                    src="{{ asset('storage/' . $item->image) }}"
+                                                    alt="{{ $item->title ?? 'Event Perk' }}"
+                                                    loading="lazy"
+                                                >
+
+                                            </button>
+
+                                        @else
+
+                                            <div class="event-item-placeholder">
+                                                <i class="fas fa-box"></i>
+                                            </div>
+
+                                        @endif
+
+                                        <h6 class="mb-0 font-weight-bold text-dark">
+                                            {{ $item->title ?? 'Event Perk' }}
+                                        </h6>
+
+                                    </div>
+
                                 </div>
-                            </div>
-                        @endforeach
+
+                            @endforeach
+
+                        </div>
+
                     </div>
+
                 </div>
+
             </div>
-        </div>
+
         @endif
+
+
+        {{-- =========================================================
+             EVENT ITEM IMAGE POPUP
+             ========================================================= --}}
+
+        <div
+            id="event-image-modal"
+            class="event-image-modal"
+            aria-hidden="true"
+        >
+
+            <div class="event-image-modal-content">
+
+                <button
+                    type="button"
+                    class="event-image-modal-close"
+                    id="event-image-modal-close"
+                    aria-label="Close image"
+                >
+                    <i class="fas fa-times"></i>
+                </button>
+
+                <img
+                    id="event-modal-image"
+                    src=""
+                    alt=""
+                >
+
+                <div
+                    id="event-modal-title"
+                    class="event-image-modal-title"
+                ></div>
+
+            </div>
+
+        </div>
+
 
         @if($event->status === 'live')
 
             @if($isEventSoldOut)
+
                 <div class="row mt-4">
+
                     <div class="col-lg-12">
+
                         <div class="alert alert-danger p-3 text-center rounded-3 shadow-sm mb-0">
-                            <h4 class="alert-heading font-weight-bold mb-1"><i class="fas fa-exclamation-circle"></i> Event Sold Out</h4>
-                            <p class="mb-0 small">This event has reached its maximum overall capacity limit. Ticket registration is currently closed.</p>
+
+                            <h4 class="alert-heading font-weight-bold mb-1">
+                                <i class="fas fa-exclamation-circle"></i>
+                                Event Sold Out
+                            </h4>
+
+                            <p class="mb-0 small">
+                                This event has reached its maximum overall capacity limit.
+                                Ticket registration is currently closed.
+                            </p>
+
                         </div>
+
                     </div>
+
                 </div>
+
             @else
+
+                {{-- =====================================================
+                     TICKET SELECTION
+                     ===================================================== --}}
+
                 <div class="row mt-4">
+
                     <div class="col-lg-12">
+
                         <div class="ticket-panel">
+
                             <div class="ticket-header-box">
+
                                 <div class="ticket-header-title">
+
                                     <i class="fas fa-ticket-alt"></i>
-                                    <span>Select Your Tickets</span>
+
+                                    <span>
+                                        Select Your Tickets
+                                    </span>
+
                                 </div>
-                                <span class="ticket-header-tag">Instant Booking</span>
+
+                                <span class="ticket-header-tag">
+                                    Instant Booking
+                                </span>
+
                             </div>
 
                             <div class="table-responsive ticket-table-wrap">
+
                                 <table class="table table-bordered align-middle ticket-table">
+
                                     <thead>
+
                                         <tr>
+
                                             <th>Category</th>
                                             <th>Local Price</th>
                                             <th>Foreign Price</th>
                                             <th>Availability</th>
-                                            <th style="width: 140px;" class="text-center">Quantity</th>
+
+                                            <th
+                                                style="width: 140px;"
+                                                class="text-center"
+                                            >
+                                                Quantity
+                                            </th>
+
                                         </tr>
+
                                     </thead>
+
                                     <tbody>
+
                                         @foreach($event->ticketCategories as $category)
-                                        @php
-                                            $categoryAvailable = $category->capacity === null ? null : max(0, $category->capacity - $category->tickets_sold);
-                                            $isCategorySoldOut = $category->capacity !== null && $categoryAvailable <= 0;
-                                        @endphp
-                                        <tr>
-                                            <td><strong>{{ $category->name }}</strong></td>
-                                            <td>{{ number_format($category->local_price) }} MMK</td>
-                                            <td>{{ $category->foreign_price ? number_format($category->foreign_price) . ' MMK' : 'N/A' }}</td>
-                                            <td>
-                                                @if($category->capacity === null)
-                                                    <span class="text-success fw-bold">Unlimited</span>
-                                                @elseif($isCategorySoldOut)
-                                                    <span class="badge bg-danger">Sold Out</span>
-                                                @else
-                                                    <span class="text-warning fw-bold">{{ $categoryAvailable }} left</span>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                <div class="input-group">
-                                                    <button class="btn btn-minus" type="button" data-id="{{ $category->id }}" {{ $isCategorySoldOut ? 'disabled' : '' }}>-</button>
-                                                    <input type="number" class="form-control text-center ticket-qty" id="qty-{{ $category->id }}" 
-                                                           data-id="{{ $category->id }}" 
-                                                           data-name="{{ $category->name }}" 
-                                                           data-local-price="{{ $category->local_price }}" 
-                                                           data-foreign-price="{{ $category->foreign_price ?? '' }}" 
-                                                           data-max="{{ $categoryAvailable ?? 999 }}"
-                                                           value="0" min="0" readonly {{ $isCategorySoldOut ? 'disabled' : '' }}>
-                                                    <button class="btn btn-plus" type="button" data-id="{{ $category->id }}" {{ $isCategorySoldOut ? 'disabled' : '' }}>+</button>
-                                                </div>
-                                            </td>
-                                        </tr>
+
+                                            @php
+
+                                                $categoryAvailable =
+                                                    $category->capacity === null
+                                                        ? null
+                                                        : max(
+                                                            0,
+                                                            $category->capacity - $category->tickets_sold
+                                                        );
+
+                                                $isCategorySoldOut =
+                                                    $category->capacity !== null &&
+                                                    $categoryAvailable <= 0;
+
+                                            @endphp
+
+                                            <tr>
+
+                                                <td>
+                                                    <strong>
+                                                        {{ $category->name }}
+                                                    </strong>
+                                                </td>
+
+                                                <td>
+                                                    {{ number_format($category->local_price) }}
+                                                    MMK
+                                                </td>
+
+                                                <td>
+
+                                                    {{
+                                                        $category->foreign_price
+                                                            ? number_format($category->foreign_price) . ' MMK'
+                                                            : 'N/A'
+                                                    }}
+
+                                                </td>
+
+                                                <td>
+
+                                                    @if($category->capacity === null)
+
+                                                        @if($event->overall_capacity === null)
+
+                                                            <span class="text-success fw-bold">
+                                                                Unlimited
+                                                            </span>
+
+                                                        @else
+
+                                                            <span class="text-warning fw-bold">
+                                                                {{ $overallTicketsRemaining }} left
+                                                            </span>
+
+                                                        @endif
+
+                                                    @elseif($isCategorySoldOut)
+
+                                                        <span class="badge bg-danger">
+                                                            Sold Out
+                                                        </span>
+
+                                                    @else
+
+                                                        <span class="text-warning fw-bold">
+                                                            {{ $categoryAvailable }} left
+                                                        </span>
+
+                                                    @endif
+
+                                                </td>
+
+                                                <td>
+
+                                                    <div class="input-group">
+
+                                                        <button
+                                                            class="btn btn-minus"
+                                                            type="button"
+                                                            data-id="{{ $category->id }}"
+                                                            {{ $isCategorySoldOut ? 'disabled' : '' }}
+                                                        >
+                                                            -
+                                                        </button>
+
+                                                        <input
+                                                            type="number"
+                                                            class="form-control text-center ticket-qty"
+                                                            id="qty-{{ $category->id }}"
+                                                            data-id="{{ $category->id }}"
+                                                            data-name="{{ $category->name }}"
+                                                            data-local-price="{{ $category->local_price }}"
+                                                            data-foreign-price="{{ $category->foreign_price ?? '' }}"
+                                                            data-max="{{ $categoryAvailable ?? 999 }}"
+                                                            value="0"
+                                                            min="0"
+                                                            readonly
+                                                            {{ $isCategorySoldOut ? 'disabled' : '' }}
+                                                        >
+
+                                                        <button
+                                                            class="btn btn-plus"
+                                                            type="button"
+                                                            data-id="{{ $category->id }}"
+                                                            {{ $isCategorySoldOut ? 'disabled' : '' }}
+                                                        >
+                                                            +
+                                                        </button>
+
+                                                    </div>
+
+                                                </td>
+
+                                            </tr>
+
                                         @endforeach
+
                                     </tbody>
+
                                 </table>
+
                             </div>
+
                         </div>
+
                     </div>
+
                 </div>
 
-                <div class="row mt-3" id="checkout-section" style="display: none;">
-                    <div class="col-lg-12">
-                        <div class="attendee-panel">
-                            <form action="{{ route('events.waiver', $event) }}" method="POST" id="checkout-form">
-                                @csrf
-                                <input type="hidden" name="event_id" id="event_id" value="{{ $event->id }}">
 
-                                <h3 class="mb-3">Participate Details</h3>
+                {{-- =====================================================
+                     CHECKOUT / ATTENDEE SECTION
+                     ===================================================== --}}
+
+                <div
+                    class="row mt-3"
+                    id="checkout-section"
+                    style="display: none;"
+                >
+
+                    <div class="col-lg-12">
+
+                        <div class="attendee-panel">
+
+                            <form
+                                action="{{ route('events.waiver', $event) }}"
+                                method="POST"
+                                id="checkout-form"
+                            >
+
+                                @csrf
+
+                                <input
+                                    type="hidden"
+                                    name="event_id"
+                                    id="event_id"
+                                    value="{{ $event->id }}"
+                                >
+
+                                <h3 class="mb-3">
+                                    Participate Details
+                                </h3>
+
                                 <div id="attendee-forms-container"></div>
 
+
                                 <div class="card checkout-summary">
+
                                     <div class="row align-items-center g-3">
+
                                         <div class="col-md-6"></div>
+
                                         <div class="col-md-6 text-md-end">
+
                                             <div class="summary-line">
-                                                <span class="text-muted">Subtotal:</span>
-                                                <span class="fw-bold"><span id="subtotal-amount">0</span> MMK</span>
+
+                                                <span class="text-muted">
+                                                    Subtotal:
+                                                </span>
+
+                                                <span class="fw-bold">
+                                                    <span id="subtotal-amount">0</span>
+                                                    MMK
+                                                </span>
+
                                             </div>
-                                            <div class="summary-line text-success" id="discount-row" style="display: none;">
-                                                <span>Total Discount:</span>
-                                                <span class="fw-bold">-<span id="discount-amount">0</span> MMK</span>
+
+                                            <div
+                                                class="summary-line text-success"
+                                                id="discount-row"
+                                                style="display: none;"
+                                            >
+
+                                                <span>
+                                                    Total Discount:
+                                                </span>
+
+                                                <span class="fw-bold">
+                                                    -
+                                                    <span id="discount-amount">0</span>
+                                                    MMK
+                                                </span>
+
                                             </div>
+
                                             <div class="summary-line total-line">
-                                                <span class="h6 font-weight-bold mb-0">Total Amount:</span>
-                                                <span class="h4 font-weight-bold text-dark mb-0"><span id="grand-total">0</span> MMK</span>
+
+                                                <span class="h6 font-weight-bold mb-0">
+                                                    Total Amount:
+                                                </span>
+
+                                                <span class="h4 font-weight-bold text-dark mb-0">
+
+                                                    <span id="grand-total">
+                                                        0
+                                                    </span>
+
+                                                    MMK
+
+                                                </span>
+
                                             </div>
-                                            
-                                            <button type="submit" class="btn btn-primary payment-btn w-100 mt-2">
-                                                Proceed <i class="fas fa-arrow-right ms-1"></i>
+
+                                            <button
+                                                type="submit"
+                                                class="btn btn-primary payment-btn w-100 mt-2"
+                                            >
+                                                Proceed
+                                                <i class="fas fa-arrow-right ms-1"></i>
                                             </button>
+
                                         </div>
+
                                     </div>
+
                                 </div>
+
                             </form>
+
                         </div>
+
                     </div>
+
                 </div>
+
             @endif
 
+
         @elseif($event->status === 'upcoming')
+
             <div class="row mt-4">
+
                 <div class="col-lg-12">
+
                     <div class="alert alert-info p-3 text-center rounded-3 shadow-sm mb-0">
-                        <h4 class="alert-heading font-weight-bold mb-1"><i class="fas fa-clock me-1"></i> Registration Opening Soon</h4>
-                        <p class="mb-0 small">Ticket registration for this upcoming event is not open yet. Please check back once the event is live!</p>
+
+                        <h4 class="alert-heading font-weight-bold mb-1">
+
+                            <i class="fas fa-clock me-1"></i>
+
+                            Registration Opening Soon
+
+                        </h4>
+
+                        <p class="mb-0 small">
+                            Ticket registration for this upcoming event is not open yet.
+                            Please check back once the event is live!
+                        </p>
+
                     </div>
+
                 </div>
+
             </div>
+
+
         @else
+
             <div class="row mt-4">
+
                 <div class="col-lg-12">
+
                     <div class="alert alert-secondary p-3 text-center rounded-3 shadow-sm mb-0">
-                        <h4 class="alert-heading font-weight-bold mb-1"><i class="fas fa-flag-checkered me-1"></i> Event Concluded</h4>
-                        <p class="mb-0 small">This event has already ended. Ticket registration is closed.</p>
+
+                        <h4 class="alert-heading font-weight-bold mb-1">
+
+                            <i class="fas fa-flag-checkered me-1"></i>
+
+                            Event Concluded
+
+                        </h4>
+
+                        <p class="mb-0 small">
+                            This event has already ended.
+                            Ticket registration is closed.
+                        </p>
+
                     </div>
+
                 </div>
+
             </div>
+
         @endif
+
     </div>
+
 </section>
 
-<!-- Script with Overall Event Capacity Enforcement & Per-Attendee Promo Codes -->
+
+{{-- =========================================================
+     LEAFLET JS
+     ========================================================= --}}
+
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    crossorigin=""
+></script>
+
+
 @push('scripts')
+
 <script>
+
 const districtOptions = {
     "1": ["ကပတ", "ကမတ", "ခပန", "ခလဖ", "ဆဒန", "ဆပရ", "ဆဘန", "တဆလ", "တနန", "ဒဖယ", "နမန", "ပတအ", "ပနဒ", "ပဝန", "ဖကန", "ဗမန", "မကတ", "မကန", "မခဘ", "မစန", "မညန", "မမန", "မလန", "ရှကန", "ရှဗယ", "လဂျန", "ဟပန", "အဂျယ", "၀မန"],
     "2": ["ဒမဆ", "ဖဆန", "ဖရဆ", "ဘလခ", "မစန", "ရတန", "ရသန", "လကန"],
@@ -792,690 +1507,2362 @@ const districtOptions = {
 };
 
 const countriesList = [
-    "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cambodia", "Cameroon", "Canada", "Cape Verde", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "East Timor", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Ivory Coast", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Korea, North", "Korea, South", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Macedonia", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "Norway", "Oman", "Pakistan", "Palau", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russian Federation", "Rwanda", "St Kitts & Nevis", "St Lucia", "Saint Vincent & the Grenadines", "Samoa", "San Marino", "Sao Tome & Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Swaziland", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Togo", "Tonga", "Trinidad & Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
+    "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cambodia", "Cameroon", "Canada", "Cape Verde", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "East Timor", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Ivory Coast", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Korea, North", "Korea, South", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Macedonia", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "Norway", "Oman", "Pakistan", "Palau", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russian Federation", "Rwanda", "St Kitts & Nevis", "St Lucia", "Saint Vincent & the Grenadines", "Samoa", "San Marino", "Sao Tome & Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Swaziland", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Togo", "Tonga", "Trinidad & Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
 ];
 
-const enabledFields = {!! \Illuminate\Support\Js::from($event->enabled_fields ?? ['viber', 'father_name', 'blood_type', 'tshirt_size', 'has_medical_condition', 'itra', 'experience', 'address']) !!};
+const enabledFields = {!! \Illuminate\Support\Js::from($event->enabled_fields ?? [
+    'viber',
+    'father_name',
+    'blood_type',
+    'tshirt_size',
+    'has_medical_condition',
+    'itra',
+    'experience',
+    'address'
+]) !!};
+
 const enableBibNumber = {!! \Illuminate\Support\Js::from((bool) ($event->enable_bib_number ?? true)) !!};
+
 const overallTicketsRemaining = {!! \Illuminate\Support\Js::from($overallTicketsRemaining) !!};
 
-document.addEventListener('DOMContentLoaded', function () {
-    const qtyInputs = document.querySelectorAll('.ticket-qty');
-    const container = document.getElementById('attendee-forms-container');
-    const checkoutSection = document.getElementById('checkout-section');
-    const checkoutForm = document.getElementById('checkout-form');
-    const subtotalEl = document.getElementById('subtotal-amount');
-    const discountEl = document.getElementById('discount-amount');
-    const grandTotalEl = document.getElementById('grand-total');
-    const discountRow = document.getElementById('discount-row');
 
-    // Applied promo code cache per attendee index
+/*
+=========================================================
+EVENT LOCATION MAP
+=========================================================
+*/
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const mapElement = document.getElementById('event-details-map');
+
+    if (
+        mapElement &&
+        typeof L !== 'undefined' &&
+        @json($event->latitude) !== null &&
+        @json($event->longitude) !== null
+    ) {
+
+        const eventLatitude = parseFloat(@json($event->latitude));
+        const eventLongitude = parseFloat(@json($event->longitude));
+
+        if (
+            Number.isFinite(eventLatitude) &&
+            Number.isFinite(eventLongitude)
+        ) {
+
+            const eventMap = L.map(mapElement).setView(
+                [eventLatitude, eventLongitude],
+                16
+            );
+
+            L.tileLayer(
+                'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                {
+                    maxZoom: 19,
+
+                    attribution:
+                        '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'
+                }
+            ).addTo(eventMap);
+
+
+            const eventMarker = L.marker([
+                eventLatitude,
+                eventLongitude
+            ]).addTo(eventMap);
+
+
+            eventMarker.bindPopup(`
+                <strong>{{ addslashes($event->title) }}</strong><br>
+                {{ addslashes($event->location) }}
+            `);
+
+
+            setTimeout(function () {
+                eventMap.invalidateSize();
+            }, 300);
+
+        }
+
+    }
+
+});
+
+
+/*
+=========================================================
+EVENT ITEM IMAGE POPUP
+=========================================================
+*/
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const modal = document.getElementById('event-image-modal');
+    const modalImage = document.getElementById('event-modal-image');
+    const modalTitle = document.getElementById('event-modal-title');
+    const closeButton = document.getElementById('event-image-modal-close');
+
+    if (!modal || !modalImage) {
+        return;
+    }
+
+
+    document.querySelectorAll('.event-item-image-button').forEach(function (button) {
+
+        button.addEventListener('click', function () {
+
+            const image = this.getAttribute('data-image');
+            const title = this.getAttribute('data-title') || '';
+
+            modalImage.src = image;
+            modalImage.alt = title;
+            modalTitle.textContent = title;
+
+            modal.classList.add('active');
+            modal.setAttribute('aria-hidden', 'false');
+
+            document.body.style.overflow = 'hidden';
+
+        });
+
+    });
+
+
+    function closeImageModal() {
+
+        modal.classList.remove('active');
+        modal.setAttribute('aria-hidden', 'true');
+
+        modalImage.src = '';
+
+        document.body.style.overflow = '';
+
+    }
+
+
+    if (closeButton) {
+
+        closeButton.addEventListener('click', function () {
+            closeImageModal();
+        });
+
+    }
+
+
+    modal.addEventListener('click', function (e) {
+
+        if (e.target === modal) {
+            closeImageModal();
+        }
+
+    });
+
+
+    document.addEventListener('keydown', function (e) {
+
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeImageModal();
+        }
+
+    });
+
+});
+
+
+/*
+=========================================================
+ATTENDEE / TICKET SYSTEM
+=========================================================
+*/
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const qtyInputs = document.querySelectorAll('.ticket-qty');
+
+    const container =
+        document.getElementById('attendee-forms-container');
+
+    const checkoutSection =
+        document.getElementById('checkout-section');
+
+    const checkoutForm =
+        document.getElementById('checkout-form');
+
+    const subtotalEl =
+        document.getElementById('subtotal-amount');
+
+    const discountEl =
+        document.getElementById('discount-amount');
+
+    const grandTotalEl =
+        document.getElementById('grand-total');
+
+    const discountRow =
+        document.getElementById('discount-row');
+
+
+    /*
+    Applied promo code cache per attendee index
+    */
+
     let appliedPromos = {};
 
+
     function getTotalSelectedTickets() {
+
         let total = 0;
+
         qtyInputs.forEach(input => {
+
             total += parseInt(input.value || 0);
+
         });
+
         return total;
     }
 
+
     function updateButtonStates() {
-        const totalSelected = getTotalSelectedTickets();
+
+        const totalSelected =
+            getTotalSelectedTickets();
+
 
         document.querySelectorAll('.btn-plus').forEach(button => {
-            const id = button.getAttribute('data-id');
-            const input = document.getElementById('qty-' + id);
-            const categoryMax = parseInt(input.getAttribute('data-max') || 999);
-            const currentVal = parseInt(input.value);
 
-            let isCategoryFull = currentVal >= categoryMax;
-            let isOverallFull = (overallTicketsRemaining !== null) && (totalSelected >= overallTicketsRemaining);
+            const id =
+                button.getAttribute('data-id');
+
+            const input =
+                document.getElementById('qty-' + id);
+
+            const categoryMax =
+                parseInt(
+                    input.getAttribute('data-max') || 999
+                );
+
+            const currentVal =
+                parseInt(input.value);
+
+
+            let isCategoryFull =
+                currentVal >= categoryMax;
+
+            let isOverallFull =
+                (overallTicketsRemaining !== null) &&
+                (totalSelected >= overallTicketsRemaining);
+
 
             if (isCategoryFull || isOverallFull) {
+
                 button.disabled = true;
+
             } else {
+
                 button.disabled = false;
+
             }
+
         });
+
 
         document.querySelectorAll('.btn-minus').forEach(button => {
-            const id = button.getAttribute('data-id');
-            const input = document.getElementById('qty-' + id);
-            button.disabled = parseInt(input.value) <= 0;
+
+            const id =
+                button.getAttribute('data-id');
+
+            const input =
+                document.getElementById('qty-' + id);
+
+            button.disabled =
+                parseInt(input.value) <= 0;
+
         });
+
     }
+
+
+    /*
+    =========================================================
+    PLUS BUTTON
+    =========================================================
+    */
 
     document.querySelectorAll('.btn-plus').forEach(button => {
-        button.addEventListener('click', () => {
-            const id = button.getAttribute('data-id');
-            const input = document.getElementById('qty-' + id);
-            const categoryMax = parseInt(input.getAttribute('data-max') || 999);
-            const currentVal = parseInt(input.value);
-            const totalSelected = getTotalSelectedTickets();
 
-            const canAddCategory = currentVal < categoryMax;
-            const canAddOverall = (overallTicketsRemaining === null) || (totalSelected < overallTicketsRemaining);
+        button.addEventListener('click', () => {
+
+            const id =
+                button.getAttribute('data-id');
+
+            const input =
+                document.getElementById('qty-' + id);
+
+            const categoryMax =
+                parseInt(
+                    input.getAttribute('data-max') || 999
+                );
+
+            const currentVal =
+                parseInt(input.value);
+
+            const totalSelected =
+                getTotalSelectedTickets();
+
+
+            const canAddCategory =
+                currentVal < categoryMax;
+
+            const canAddOverall =
+                (overallTicketsRemaining === null) ||
+                (totalSelected < overallTicketsRemaining);
+
 
             if (canAddCategory && canAddOverall) {
-                input.value = currentVal + 1;
+
+                input.value =
+                    currentVal + 1;
+
                 renderForms();
+
                 updateButtonStates();
+
             }
+
         });
+
     });
+
+
+    /*
+    =========================================================
+    MINUS BUTTON
+    =========================================================
+    */
 
     document.querySelectorAll('.btn-minus').forEach(button => {
+
         button.addEventListener('click', () => {
-            const id = button.getAttribute('data-id');
-            const input = document.getElementById('qty-' + id);
+
+            const id =
+                button.getAttribute('data-id');
+
+            const input =
+                document.getElementById('qty-' + id);
+
+
             if (parseInt(input.value) > 0) {
-                input.value = parseInt(input.value) - 1;
+
+                input.value =
+                    parseInt(input.value) - 1;
+
                 renderForms();
+
                 updateButtonStates();
+
             }
+
         });
+
     });
 
+
+    /*
+    =========================================================
+    CONTAINER EVENTS
+    =========================================================
+    */
+
     if (container) {
+
         container.addEventListener('click', function(e) {
-            if (e.target && e.target.classList.contains('btn-apply-attendee-promo')) {
-                const index = e.target.getAttribute('data-index');
+
+            if (
+                e.target &&
+                e.target.classList.contains(
+                    'btn-apply-attendee-promo'
+                )
+            ) {
+
+                const index =
+                    e.target.getAttribute('data-index');
+
                 applyAttendeePromo(index);
+
             }
+
         });
+
 
         container.addEventListener('change', function(e) {
-            if (e.target && e.target.classList.contains('nationality-select')) {
-                const index = e.target.getAttribute('data-index');
-                toggleNationality(index, e.target.value);
+
+            if (
+                e.target &&
+                e.target.classList.contains(
+                    'nationality-select'
+                )
+            ) {
+
+                const index =
+                    e.target.getAttribute('data-index');
+
+                toggleNationality(
+                    index,
+                    e.target.value
+                );
+
                 calculateTotals();
+
             }
-            if (e.target && e.target.classList.contains('nrc-state-select')) {
-                const index = e.target.getAttribute('data-index');
-                updateDistricts(index, e.target.value);
+
+
+            if (
+                e.target &&
+                e.target.classList.contains(
+                    'nrc-state-select'
+                )
+            ) {
+
+                const index =
+                    e.target.getAttribute('data-index');
+
+                updateDistricts(
+                    index,
+                    e.target.value
+                );
+
             }
-            if (e.target && e.target.classList.contains('medical-select')) {
-                const index = e.target.getAttribute('data-index');
-                toggleMedical(index, e.target.value);
+
+
+            if (
+                e.target &&
+                e.target.classList.contains(
+                    'medical-select'
+                )
+            ) {
+
+                const index =
+                    e.target.getAttribute('data-index');
+
+                toggleMedical(
+                    index,
+                    e.target.value
+                );
+
             }
-            if (e.target && e.target.classList.contains('itra-select')) {
-                const index = e.target.getAttribute('data-index');
-                toggleITRA(index, e.target.value);
+
+
+            if (
+                e.target &&
+                e.target.classList.contains(
+                    'itra-select'
+                )
+            ) {
+
+                const index =
+                    e.target.getAttribute('data-index');
+
+                toggleITRA(
+                    index,
+                    e.target.value
+                );
+
             }
+
         });
+
     }
 
-    // Consolidated payload generation for backend validation (nrc_passport & promo_code_id)
+
+    /*
+    =========================================================
+    FORM SUBMIT
+    =========================================================
+    */
+
     if (checkoutForm) {
+
         checkoutForm.addEventListener('submit', function (e) {
-            console.log('=== STEP 1: FRONTEND FORM SUBMIT ===');
-            console.log('Applied Promos Cache:', appliedPromos);
-            const cards = container.querySelectorAll('.attendee-card');
-            
+
+            console.log(
+                '=== STEP 1: FRONTEND FORM SUBMIT ==='
+            );
+
+            console.log(
+                'Applied Promos Cache:',
+                appliedPromos
+            );
+
+
+            const cards =
+                container.querySelectorAll(
+                    '.attendee-card'
+                );
+
+
             cards.forEach((card, index) => {
-                // 1. Build NRC/Passport
-                const nationalitySelect = card.querySelector('.nationality-select');
+
+                /*
+                1. Build NRC / Passport
+                */
+
+                const nationalitySelect =
+                    card.querySelector(
+                        '.nationality-select'
+                    );
+
                 let combinedValue = '';
 
-                if (nationalitySelect && nationalitySelect.value === 'Foreigner') {
-                    const passportInput = card.querySelector(`input[name="attendees[${index}][passport_number]"]`);
-                    combinedValue = passportInput ? passportInput.value : '';
+
+                if (
+                    nationalitySelect &&
+                    nationalitySelect.value === 'Foreigner'
+                ) {
+
+                    const passportInput =
+                        card.querySelector(
+                            `input[name="attendees[${index}][passport_number]"]`
+                        );
+
+                    combinedValue =
+                        passportInput
+                            ? passportInput.value
+                            : '';
+
                 } else {
-                    const state = card.querySelector(`select[name="attendees[${index}][nrc_state]"]`)?.value || '';
-                    const district = card.querySelector(`select[name="attendees[${index}][nrc_district]"]`)?.value || '';
-                    const naing = card.querySelector(`select[name="attendees[${index}][nrc_naing]"]`)?.value || '';
-                    const number = card.querySelector(`input[name="attendees[${index}][nrc_number]"]`)?.value || '';
 
-                    if (state && district && naing && number) {
-                        combinedValue = `${state}/${district}(${naing})${number}`;
+                    const state =
+                        card.querySelector(
+                            `select[name="attendees[${index}][nrc_state]"]`
+                        )?.value || '';
+
+                    const district =
+                        card.querySelector(
+                            `select[name="attendees[${index}][nrc_district]"]`
+                        )?.value || '';
+
+                    const naing =
+                        card.querySelector(
+                            `select[name="attendees[${index}][nrc_naing]"]`
+                        )?.value || '';
+
+                    const number =
+                        card.querySelector(
+                            `input[name="attendees[${index}][nrc_number]"]`
+                        )?.value || '';
+
+
+                    if (
+                        state &&
+                        district &&
+                        naing &&
+                        number
+                    ) {
+
+                        combinedValue =
+                            `${state}/${district}(${naing})${number}`;
+
                     }
+
                 }
 
-                let hiddenNrcInput = card.querySelector(`input[name="attendees[${index}][nrc_passport]"]`);
+
+                let hiddenNrcInput =
+                    card.querySelector(
+                        `input[name="attendees[${index}][nrc_passport]"]`
+                    );
+
+
                 if (!hiddenNrcInput) {
-                    hiddenNrcInput = document.createElement('input');
-                    hiddenNrcInput.type = 'hidden';
-                    hiddenNrcInput.name = `attendees[${index}][nrc_passport]`;
-                    card.appendChild(hiddenNrcInput);
-                }
-                hiddenNrcInput.value = combinedValue;
 
-                // 2. Attach Promo Code ID if applied
-                let hiddenPromoId = card.querySelector(`input[name="attendees[${index}][promo_code_id]"]`);
-                if (appliedPromos[index] && appliedPromos[index].promo_code_id) {
-                    if (!hiddenPromoId) {
-                        hiddenPromoId = document.createElement('input');
-                        hiddenPromoId.type = 'hidden';
-                        hiddenPromoId.name = `attendees[${index}][promo_code_id]`;
-                        card.appendChild(hiddenPromoId);
-                    }
-                    hiddenPromoId.value = appliedPromos[index].promo_code_id;
-                } else if (hiddenPromoId) {
-                    hiddenPromoId.remove();
+                    hiddenNrcInput =
+                        document.createElement('input');
+
+                    hiddenNrcInput.type =
+                        'hidden';
+
+                    hiddenNrcInput.name =
+                        `attendees[${index}][nrc_passport]`;
+
+                    card.appendChild(
+                        hiddenNrcInput
+                    );
+
                 }
+
+
+                hiddenNrcInput.value =
+                    combinedValue;
+
+
+                /*
+                2. Attach Promo Code ID
+                */
+
+                let hiddenPromoId =
+                    card.querySelector(
+                        `input[name="attendees[${index}][promo_code_id]"]`
+                    );
+
+
+                if (
+                    appliedPromos[index] &&
+                    appliedPromos[index].promo_code_id
+                ) {
+
+                    if (!hiddenPromoId) {
+
+                        hiddenPromoId =
+                            document.createElement('input');
+
+                        hiddenPromoId.type =
+                            'hidden';
+
+                        hiddenPromoId.name =
+                            `attendees[${index}][promo_code_id]`;
+
+                        card.appendChild(
+                            hiddenPromoId
+                        );
+
+                    }
+
+                    hiddenPromoId.value =
+                        appliedPromos[index].promo_code_id;
+
+                } else if (hiddenPromoId) {
+
+                    hiddenPromoId.remove();
+
+                }
+
             });
+
         });
+
     }
 
+
+    /*
+    =========================================================
+    PROMO CODE
+    =========================================================
+    */
+
     function applyAttendeePromo(index) {
-        const promoInput = document.getElementById(`promo_code_${index}`);
-        const msgBox = document.getElementById(`promo_msg_${index}`);
-        const btn = document.querySelector(`.btn-apply-attendee-promo[data-index="${index}"]`);
-        const catIdInput = document.querySelector(`input[name="attendees[${index}][ticket_category_id]"]`);
-        
-        const code = promoInput.value.trim().toUpperCase();
-        const eventId = document.getElementById('event_id').value;
-        const categoryId = catIdInput ? catIdInput.value : '';
+
+        const promoInput =
+            document.getElementById(
+                `promo_code_${index}`
+            );
+
+        const msgBox =
+            document.getElementById(
+                `promo_msg_${index}`
+            );
+
+        const btn =
+            document.querySelector(
+                `.btn-apply-attendee-promo[data-index="${index}"]`
+            );
+
+        const catIdInput =
+            document.querySelector(
+                `input[name="attendees[${index}][ticket_category_id]"]`
+            );
+
+
+        const code =
+            promoInput.value
+                .trim()
+                .toUpperCase();
+
+        const eventId =
+            document.getElementById(
+                'event_id'
+            ).value;
+
+        const categoryId =
+            catIdInput
+                ? catIdInput.value
+                : '';
+
 
         if (!code) {
+
             delete appliedPromos[index];
-            msgBox.textContent = 'Promo code removed.';
-            msgBox.className = 'mt-1 text-muted small';
+
+            msgBox.textContent =
+                'Promo code removed.';
+
+            msgBox.className =
+                'mt-1 text-muted small';
+
             calculateTotals();
+
             return;
+
         }
 
-        // Prevent typing the exact same promo code on multiple cards in the same session
+
+        /*
+        Prevent duplicate promo codes
+        */
+
         for (const idx in appliedPromos) {
-            if (idx != index && appliedPromos[idx].code === code) {
-                msgBox.textContent = 'This promo code has already been applied to another ticket on this page.';
-                msgBox.className = 'mt-1 text-danger small';
+
+            if (
+                idx != index &&
+                appliedPromos[idx].code === code
+            ) {
+
+                msgBox.textContent =
+                    'This promo code has already been applied to another ticket on this page.';
+
+                msgBox.className =
+                    'mt-1 text-danger small';
+
                 delete appliedPromos[index];
+
                 calculateTotals();
+
                 return;
+
             }
+
         }
+
 
         btn.disabled = true;
         btn.textContent = '...';
 
-        fetch(`/api/check-promo?code=${encodeURIComponent(code)}&event_id=${eventId}&ticket_category_id=${categoryId}`)
-            .then(res => res.json())
-            .then(data => {
-                btn.disabled = false;
-                btn.textContent = 'Apply';
 
-                if (data.valid) {
-                    appliedPromos[index] = {
-                        code: code,
-                        ticket_category_id: categoryId,
-                        promo_code_id: data.promo_code_id,
-                        discount_type: data.discount_type,
-                        discount_value: parseFloat(data.discount_value)
-                    };
-                    msgBox.textContent = `Applied! (${data.discount_type === 'percentage' ? data.discount_value + '%' : new Intl.NumberFormat().format(data.discount_value) + ' MMK'} off)`;
-                    msgBox.className = 'mt-1 text-success small fw-bold';
-                } else {
-                    delete appliedPromos[index];
-                    msgBox.textContent = data.message || 'Invalid promo code.';
-                    msgBox.className = 'mt-1 text-danger small';
-                }
-                calculateTotals();
-            })
-            .catch(() => {
-                btn.disabled = false;
-                btn.textContent = 'Apply';
+        fetch(
+            `/api/check-promo?code=${encodeURIComponent(code)}&event_id=${eventId}&ticket_category_id=${categoryId}`
+        )
+
+        .then(res => res.json())
+
+        .then(data => {
+
+            btn.disabled = false;
+            btn.textContent = 'Apply';
+
+
+            if (data.valid) {
+
+                appliedPromos[index] = {
+
+                    code: code,
+
+                    ticket_category_id:
+                        categoryId,
+
+                    promo_code_id:
+                        data.promo_code_id,
+
+                    discount_type:
+                        data.discount_type,
+
+                    discount_value:
+                        parseFloat(
+                            data.discount_value
+                        )
+
+                };
+
+
+                msgBox.textContent =
+                    `Applied! (${
+                        data.discount_type === 'percentage'
+                            ? data.discount_value + '%'
+                            : new Intl.NumberFormat()
+                                .format(data.discount_value) + ' MMK'
+                    } off)`;
+
+
+                msgBox.className =
+                    'mt-1 text-success small fw-bold';
+
+            } else {
+
                 delete appliedPromos[index];
-                msgBox.textContent = 'Failed to check promo code.';
-                msgBox.className = 'mt-1 text-danger small';
-                calculateTotals();
-            });
+
+                msgBox.textContent =
+                    data.message ||
+                    'Invalid promo code.';
+
+                msgBox.className =
+                    'mt-1 text-danger small';
+
+            }
+
+
+            calculateTotals();
+
+        })
+
+        .catch(() => {
+
+            btn.disabled = false;
+
+            btn.textContent = 'Apply';
+
+            delete appliedPromos[index];
+
+            msgBox.textContent =
+                'Failed to check promo code.';
+
+            msgBox.className =
+                'mt-1 text-danger small';
+
+            calculateTotals();
+
+        });
+
     }
 
-    window.updateDistricts = function(index, stateVal) {
-        const districtSelect = document.getElementById('nrc_district_' + index);
-        if (!districtSelect) return;
-        districtSelect.innerHTML = '<option value="">District</option>';
-        if (districtOptions[stateVal]) {
-            districtOptions[stateVal].forEach(dist => {
-                let opt = document.createElement("option");
-                opt.value = dist;
-                opt.textContent = dist;
-                districtSelect.appendChild(opt);
-            });
-        }
-    };
 
-    window.toggleNationality = function(index, value) {
-        const nrcBox = document.getElementById('nrc-box-' + index);
-        const passportBox = document.getElementById('passport-box-' + index);
-        if (!nrcBox || !passportBox) return;
+    /*
+    =========================================================
+    NRC DISTRICTS
+    =========================================================
+    */
 
-        const nrcInputs = nrcBox.querySelectorAll('select, input');
-        const passportInputs = passportBox.querySelectorAll('select, input');
+    window.updateDistricts =
+        function(index, stateVal) {
 
-        if (value === 'Foreigner') {
-            nrcBox.style.display = 'none';
-            passportBox.style.display = 'flex';
-            
-            nrcInputs.forEach(i => {
-                i.removeAttribute('required');
-                i.disabled = true;
-            });
-            
-            passportInputs.forEach(i => {
-                i.disabled = false;
-                if (i.name.includes('[passport_number]')) {
-                    i.setAttribute('required', 'required');
-                }
-            });
-        } else {
-            nrcBox.style.display = 'flex';
-            passportBox.style.display = 'none';
-            
-            passportInputs.forEach(i => {
-                i.removeAttribute('required');
-                i.disabled = true;
-            });
-            
-            nrcInputs.forEach(i => {
-                i.disabled = false;
-                i.setAttribute('required', 'required');
-            });
-        }
-    };
+            const districtSelect =
+                document.getElementById(
+                    'nrc_district_' + index
+                );
 
-    window.toggleMedical = function(index, value) {
-        const detailsBox = document.getElementById('medical-details-box-' + index);
-        const textarea = detailsBox ? detailsBox.querySelector('textarea') : null;
-        if (!detailsBox || !textarea) return;
 
-        if (value === 'yes') {
-            detailsBox.style.display = 'block';
-            textarea.setAttribute('required', 'required');
-        } else {
-            detailsBox.style.display = 'none';
-            textarea.removeAttribute('required');
-            textarea.value = '';
-        }
-    };
+            if (!districtSelect) {
+                return;
+            }
 
-    window.toggleITRA = function(index, value) {
-        const detailsBox = document.getElementById('itra-details-box-' + index);
-        const input = detailsBox ? detailsBox.querySelector('input') : null;
-        if (!detailsBox || !input) return;
 
-        if (value === 'yes') {
-            detailsBox.style.display = 'block';
-            input.setAttribute('required', 'required');
-        } else {
-            detailsBox.style.display = 'none';
-            input.removeAttribute('required');
-            input.value = '';
-        }
-    };
+            districtSelect.innerHTML =
+                '<option value="">District</option>';
+
+
+            if (districtOptions[stateVal]) {
+
+                districtOptions[stateVal].forEach(dist => {
+
+                    let opt =
+                        document.createElement(
+                            "option"
+                        );
+
+                    opt.value =
+                        dist;
+
+                    opt.textContent =
+                        dist;
+
+                    districtSelect.appendChild(
+                        opt
+                    );
+
+                });
+
+            }
+
+        };
+
+
+    /*
+    =========================================================
+    NATIONALITY
+    =========================================================
+    */
+
+    window.toggleNationality =
+        function(index, value) {
+
+            const nrcBox =
+                document.getElementById(
+                    'nrc-box-' + index
+                );
+
+            const passportBox =
+                document.getElementById(
+                    'passport-box-' + index
+                );
+
+
+            if (!nrcBox || !passportBox) {
+                return;
+            }
+
+
+            const nrcInputs =
+                nrcBox.querySelectorAll(
+                    'select, input'
+                );
+
+            const passportInputs =
+                passportBox.querySelectorAll(
+                    'select, input'
+                );
+
+
+            if (value === 'Foreigner') {
+
+                nrcBox.style.display =
+                    'none';
+
+                passportBox.style.display =
+                    'flex';
+
+
+                nrcInputs.forEach(i => {
+
+                    i.removeAttribute(
+                        'required'
+                    );
+
+                    i.disabled = true;
+
+                });
+
+
+                passportInputs.forEach(i => {
+
+                    i.disabled = false;
+
+
+                    if (
+                        i.name.includes(
+                            '[passport_number]'
+                        )
+                    ) {
+
+                        i.setAttribute(
+                            'required',
+                            'required'
+                        );
+
+                    }
+
+                });
+
+            } else {
+
+                nrcBox.style.display =
+                    'flex';
+
+                passportBox.style.display =
+                    'none';
+
+
+                passportInputs.forEach(i => {
+
+                    i.removeAttribute(
+                        'required'
+                    );
+
+                    i.disabled = true;
+
+                });
+
+
+                nrcInputs.forEach(i => {
+
+                    i.disabled = false;
+
+                    i.setAttribute(
+                        'required',
+                        'required'
+                    );
+
+                });
+
+            }
+
+        };
+
+
+    /*
+    =========================================================
+    MEDICAL
+    =========================================================
+    */
+
+    window.toggleMedical =
+        function(index, value) {
+
+            const detailsBox =
+                document.getElementById(
+                    'medical-details-box-' + index
+                );
+
+            const textarea =
+                detailsBox
+                    ? detailsBox.querySelector('textarea')
+                    : null;
+
+
+            if (!detailsBox || !textarea) {
+                return;
+            }
+
+
+            if (value === 'yes') {
+
+                detailsBox.style.display =
+                    'block';
+
+                textarea.setAttribute(
+                    'required',
+                    'required'
+                );
+
+            } else {
+
+                detailsBox.style.display =
+                    'none';
+
+                textarea.removeAttribute(
+                    'required'
+                );
+
+                textarea.value = '';
+
+            }
+
+        };
+
+
+    /*
+    =========================================================
+    ITRA
+    =========================================================
+    */
+
+    window.toggleITRA =
+        function(index, value) {
+
+            const detailsBox =
+                document.getElementById(
+                    'itra-details-box-' + index
+                );
+
+            const input =
+                detailsBox
+                    ? detailsBox.querySelector('input')
+                    : null;
+
+
+            if (!detailsBox || !input) {
+                return;
+            }
+
+
+            if (value === 'yes') {
+
+                detailsBox.style.display =
+                    'block';
+
+                input.setAttribute(
+                    'required',
+                    'required'
+                );
+
+            } else {
+
+                detailsBox.style.display =
+                    'none';
+
+                input.removeAttribute(
+                    'required'
+                );
+
+                input.value = '';
+
+            }
+
+        };
+
+
+    /*
+    =========================================================
+    CALCULATE TOTALS
+    =========================================================
+    */
 
     function calculateTotals() {
-        if (!container) return;
-        
+
+        if (!container) {
+            return;
+        }
+
+
         let subtotal = 0;
+
         let totalDiscount = 0;
-        const cards = container.querySelectorAll('.attendee-card');
+
+        const cards =
+            container.querySelectorAll(
+                '.attendee-card'
+            );
+
 
         cards.forEach((card, index) => {
-            const select = card.querySelector('.nationality-select');
-            const localPrice = parseFloat(select.getAttribute('data-local'));
-            const foreignPriceAttr = select.getAttribute('data-foreign');
-            const foreignPrice = foreignPriceAttr !== '' ? parseFloat(foreignPriceAttr) : localPrice;
-            
-            let itemPrice = (select.value === 'Foreigner') ? foreignPrice : localPrice;
+
+            const select =
+                card.querySelector(
+                    '.nationality-select'
+                );
+
+
+            const localPrice =
+                parseFloat(
+                    select.getAttribute(
+                        'data-local'
+                    )
+                );
+
+
+            const foreignPriceAttr =
+                select.getAttribute(
+                    'data-foreign'
+                );
+
+
+            const foreignPrice =
+                foreignPriceAttr !== ''
+                    ? parseFloat(
+                        foreignPriceAttr
+                    )
+                    : localPrice;
+
+
+            let itemPrice =
+                select.value === 'Foreigner'
+                    ? foreignPrice
+                    : localPrice;
+
+
             subtotal += itemPrice;
 
+
             if (appliedPromos[index]) {
-                const promo = appliedPromos[index];
+
+                const promo =
+                    appliedPromos[index];
+
                 let itemDiscount = 0;
 
-                if (promo.discount_type === 'percentage') {
-                    itemDiscount = (itemPrice * promo.discount_value) / 100;
+
+                if (
+                    promo.discount_type ===
+                    'percentage'
+                ) {
+
+                    itemDiscount =
+                        (
+                            itemPrice *
+                            promo.discount_value
+                        ) / 100;
+
                 } else {
-                    itemDiscount = promo.discount_value;
+
+                    itemDiscount =
+                        promo.discount_value;
+
                 }
 
-                if (itemDiscount > itemPrice) {
-                    itemDiscount = itemPrice;
+
+                if (
+                    itemDiscount >
+                    itemPrice
+                ) {
+
+                    itemDiscount =
+                        itemPrice;
+
                 }
 
-                totalDiscount += itemDiscount;
 
-                let hiddenPromoId = card.querySelector(`input[name="attendees[${index}][promo_code_id]"]`);
+                totalDiscount +=
+                    itemDiscount;
+
+
+                let hiddenPromoId =
+                    card.querySelector(
+                        `input[name="attendees[${index}][promo_code_id]"]`
+                    );
+
+
                 if (!hiddenPromoId) {
-                    hiddenPromoId = document.createElement('input');
-                    hiddenPromoId.type = 'hidden';
-                    hiddenPromoId.name = `attendees[${index}][promo_code_id]`;
-                    card.appendChild(hiddenPromoId);
+
+                    hiddenPromoId =
+                        document.createElement(
+                            'input'
+                        );
+
+                    hiddenPromoId.type =
+                        'hidden';
+
+                    hiddenPromoId.name =
+                        `attendees[${index}][promo_code_id]`;
+
+                    card.appendChild(
+                        hiddenPromoId
+                    );
+
                 }
-                hiddenPromoId.value = promo.promo_code_id;
+
+
+                hiddenPromoId.value =
+                    promo.promo_code_id;
+
             } else {
-                let hiddenPromoId = card.querySelector(`input[name="attendees[${index}][promo_code_id]"]`);
+
+                let hiddenPromoId =
+                    card.querySelector(
+                        `input[name="attendees[${index}][promo_code_id]"]`
+                    );
+
+
                 if (hiddenPromoId) {
                     hiddenPromoId.remove();
                 }
+
             }
+
         });
 
-        const grandTotal = Math.max(0, subtotal - totalDiscount);
 
-        if (subtotalEl) subtotalEl.textContent = new Intl.NumberFormat().format(subtotal);
-        if (grandTotalEl) grandTotalEl.textContent = new Intl.NumberFormat().format(grandTotal);
+        const grandTotal =
+            Math.max(
+                0,
+                subtotal - totalDiscount
+            );
+
+
+        if (subtotalEl) {
+
+            subtotalEl.textContent =
+                new Intl.NumberFormat()
+                    .format(subtotal);
+
+        }
+
+
+        if (grandTotalEl) {
+
+            grandTotalEl.textContent =
+                new Intl.NumberFormat()
+                    .format(grandTotal);
+
+        }
+
 
         if (discountEl && discountRow) {
+
             if (totalDiscount > 0) {
-                discountEl.textContent = new Intl.NumberFormat().format(totalDiscount);
-                discountRow.style.display = 'flex';
+
+                discountEl.textContent =
+                    new Intl.NumberFormat()
+                        .format(totalDiscount);
+
+                discountRow.style.display =
+                    'flex';
+
             } else {
-                discountRow.style.display = 'none';
+
+                discountRow.style.display =
+                    'none';
+
             }
+
         }
+
     }
+
+
+    /*
+    =========================================================
+    ENABLED FIELDS
+    =========================================================
+    */
 
     function isFieldEnabled(fieldKey) {
-        return Array.isArray(enabledFields) && enabledFields.includes(fieldKey);
+
+        return (
+            Array.isArray(enabledFields) &&
+            enabledFields.includes(fieldKey)
+        );
+
     }
+
+
+    /*
+    =========================================================
+    RENDER ATTENDEE FORMS
+    =========================================================
+    */
 
     function renderForms() {
-        if (!container) return;
-        
-        // Preserve user field entries and active promo states before re-rendering
-        const currentCards = container.querySelectorAll('.attendee-card');
+
+        if (!container) {
+            return;
+        }
+
+
+        /*
+        Preserve current fields / promo states
+        */
+
+        const currentCards =
+            container.querySelectorAll(
+                '.attendee-card'
+            );
+
         const activeTicketsList = [];
 
+
         currentCards.forEach((card, index) => {
-            const catIdInput = card.querySelector(`input[name="attendees[${index}][ticket_category_id]"]`);
+
+            const catIdInput =
+                card.querySelector(
+                    `input[name="attendees[${index}][ticket_category_id]"]`
+                );
+
+
             if (catIdInput) {
+
                 activeTicketsList.push({
-                    catId: catIdInput.value,
-                    promo: appliedPromos[index] || null
+
+                    catId:
+                        catIdInput.value,
+
+                    promo:
+                        appliedPromos[index] ||
+                        null
+
                 });
+
             }
+
         });
 
-        // Reset forms and promo tracking cache
+
+        /*
+        Reset forms
+        */
+
         container.innerHTML = '';
+
         appliedPromos = {};
-        
+
+
         let formIndex = 0;
 
-        qtyInputs.forEach(input => {
-            const qty = parseInt(input.value);
-            const catId = input.getAttribute('data-id');
-            const catName = input.getAttribute('data-name');
-            const localPrice = parseFloat(input.getAttribute('data-local-price'));
-            const rawForeignPrice = input.getAttribute('data-foreign-price');
-            const isForeignAvailable = rawForeignPrice !== '' && rawForeignPrice !== null && rawForeignPrice !== 'N/A';
 
-            for (let i = 0; i < qty; i++) {
-                // Restore promo code if it matches the newly generated card category
+        qtyInputs.forEach(input => {
+
+            const qty =
+                parseInt(input.value);
+
+            const catId =
+                input.getAttribute(
+                    'data-id'
+                );
+
+            const catName =
+                input.getAttribute(
+                    'data-name'
+                );
+
+            const localPrice =
+                parseFloat(
+                    input.getAttribute(
+                        'data-local-price'
+                    )
+                );
+
+            const rawForeignPrice =
+                input.getAttribute(
+                    'data-foreign-price'
+                );
+
+
+            const isForeignAvailable =
+                rawForeignPrice !== '' &&
+                rawForeignPrice !== null &&
+                rawForeignPrice !== 'N/A';
+
+
+            for (
+                let i = 0;
+                i < qty;
+                i++
+            ) {
+
+
+                /*
+                Restore promo code
+                */
+
                 let savedPromo = null;
-                const matchIndex = activeTicketsList.findIndex(t => t.catId === catId && t.promo !== null);
+
+
+                const matchIndex =
+                    activeTicketsList.findIndex(
+                        t =>
+                            t.catId === catId &&
+                            t.promo !== null
+                    );
+
+
                 if (matchIndex !== -1) {
-                    savedPromo = activeTicketsList[matchIndex].promo;
-                    activeTicketsList.splice(matchIndex, 1);
+
+                    savedPromo =
+                        activeTicketsList[
+                            matchIndex
+                        ].promo;
+
+                    activeTicketsList.splice(
+                        matchIndex,
+                        1
+                    );
+
                 }
+
 
                 if (savedPromo) {
-                    appliedPromos[formIndex] = savedPromo;
+
+                    appliedPromos[
+                        formIndex
+                    ] = savedPromo;
+
                 }
 
-                const card = document.createElement('div');
-                card.className = 'card attendee-card';
+
+                const card =
+                    document.createElement(
+                        'div'
+                    );
+
+                card.className =
+                    'card attendee-card';
+
 
                 let fieldsHTML = `
-                    <h5 class="fw-bold">Participate #${formIndex + 1} - Category: ${catName}</h5>
-                    <input type="hidden" name="attendees[${formIndex}][ticket_category_id]" value="${catId}">
-                    
+
+                    <h5 class="fw-bold">
+                        Participate #${formIndex + 1}
+                        - Category: ${catName}
+                    </h5>
+
+                    <input
+                        type="hidden"
+                        name="attendees[${formIndex}][ticket_category_id]"
+                        value="${catId}"
+                    >
+
                     <div class="row g-2">
+
                         <!-- 1. Contact Information -->
+
                         <div class="attendee-section">
+
                             <div class="attendee-section-title">
+
                                 <i class="fas fa-address-book"></i>
-                                <span>1. Contact Information</span>
+
+                                <span>
+                                    1. Contact Information
+                                </span>
+
                             </div>
+
                             <div class="row g-2">
+
                                 <div class="col-md-6">
-                                    <label class="form-label">Email Address <span class="required-star">*</span></label>
-                                    <input type="email" name="attendees[${formIndex}][email]" class="form-control" placeholder="you@example.com" required>
+
+                                    <label class="form-label">
+                                        Email Address
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <input
+                                        type="email"
+                                        name="attendees[${formIndex}][email]"
+                                        class="form-control"
+                                        placeholder="you@example.com"
+                                        required
+                                    >
+
                                 </div>
+
+
                                 <div class="col-md-6">
-                                    <label class="form-label">Phone Number <span class="required-star">*</span></label>
-                                    <input type="tel" inputmode="numeric" name="attendees[${formIndex}][phone]" class="form-control" placeholder="09xxxxxxxxx" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+
+                                    <label class="form-label">
+                                        Phone Number
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <input
+                                        type="tel"
+                                        inputmode="numeric"
+                                        name="attendees[${formIndex}][phone]"
+                                        class="form-control"
+                                        placeholder="09xxxxxxxxx"
+                                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                        required
+                                    >
+
                                 </div>
-                                ${isFieldEnabled('viber') ? `
+
+
+                                ${
+                                    isFieldEnabled('viber')
+                                    ? `
+
+                                    <div class="col-md-6">
+
+                                        <label class="form-label">
+                                            Viber Number
+                                        </label>
+
+                                        <input
+                                            type="tel"
+                                            inputmode="numeric"
+                                            name="attendees[${formIndex}][viber]"
+                                            class="form-control"
+                                            placeholder="09xxxxxxxxx"
+                                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                        >
+
+                                    </div>
+
+                                    `
+                                    : ''
+                                }
+
+
                                 <div class="col-md-6">
-                                    <label class="form-label">Viber Number</label>
-                                    <input type="tel" inputmode="numeric" name="attendees[${formIndex}][viber]" class="form-control" placeholder="09xxxxxxxxx" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+
+                                    <label class="form-label">
+                                        Emergency Contact Number
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <input
+                                        type="tel"
+                                        inputmode="numeric"
+                                        name="attendees[${formIndex}][emergency_contact]"
+                                        class="form-control"
+                                        placeholder="09xxxxxxxxx"
+                                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                        required
+                                    >
+
                                 </div>
-                                ` : ''}
-                                <div class="col-md-6">
-                                    <label class="form-label">Emergency Contact Number <span class="required-star">*</span></label>
-                                    <input type="tel" inputmode="numeric" name="attendees[${formIndex}][emergency_contact]" class="form-control" placeholder="09xxxxxxxxx" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
-                                </div>
+
                             </div>
+
                         </div>
+
 
                         <!-- 2. Required Information -->
+
                         <div class="attendee-section">
+
                             <div class="attendee-section-title">
+
                                 <i class="fas fa-user"></i>
-                                <span>2. Required Information</span>
+
+                                <span>
+                                    2. Required Information
+                                </span>
+
                             </div>
+
+
                             <div class="row g-2">
-                                <div class="col-md-4">
-                                    <label class="form-label">Full Name <span class="required-star">*</span></label>
-                                    <input type="text" name="attendees[${formIndex}][full_name]" class="form-control" required>
-                                </div>
 
                                 <div class="col-md-4">
-                                    <label class="form-label">Nationality <span class="required-star">*</span></label>
-                                    <select name="attendees[${formIndex}][nationality]" class="form-select nationality-select" data-index="${formIndex}" data-local="${localPrice}" data-foreign="${isForeignAvailable ? rawForeignPrice : ''}" required>
-                                        <option value="Myanmar">Local (Myanmar)</option>
-                                        <option value="Foreigner" ${!isForeignAvailable ? 'disabled' : ''}>
-                                            ${isForeignAvailable ? 'Foreigner' : 'Foreigner (N/A)'}
+
+                                    <label class="form-label">
+                                        Full Name
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        name="attendees[${formIndex}][full_name]"
+                                        class="form-control"
+                                        required
+                                    >
+
+                                </div>
+
+
+                                <div class="col-md-4">
+
+                                    <label class="form-label">
+                                        Nationality
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <select
+                                        name="attendees[${formIndex}][nationality]"
+                                        class="form-select nationality-select"
+                                        data-index="${formIndex}"
+                                        data-local="${localPrice}"
+                                        data-foreign="${isForeignAvailable ? rawForeignPrice : ''}"
+                                        required
+                                    >
+
+                                        <option value="">
+                                            Select Nationality
                                         </option>
+
+                                        <option value="Myanmar">
+                                            Local (Myanmar)
+                                        </option>
+
+                                        <option
+                                            value="Foreigner"
+                                            ${!isForeignAvailable ? 'disabled' : ''}
+                                        >
+                                            ${
+                                                isForeignAvailable
+                                                    ? 'Foreigner'
+                                                    : 'Foreigner (N/A)'
+                                            }
+                                        </option>
+
                                     </select>
+
                                 </div>
 
-                                <!-- Promo Code Input (Per Attendee) - Hidden for now -->
-                                <div class="col-md-4" style="display: none;">
-                                    <label class="form-label">Promo Code (Optional)</label>
+
+                                <!-- Promo Code -->
+
+                                <div
+                                    class="col-md-4"
+                                    style="display: none;"
+                                >
+
+                                    <label class="form-label">
+                                        Promo Code (Optional)
+                                    </label>
+
                                     <div class="promo-input-wrap">
-                                        <input type="text" id="promo_code_${formIndex}" class="form-control promo-input" placeholder="ENTER CODE" value="${savedPromo ? savedPromo.code : ''}">
-                                        <button class="btn btn-apply-promo btn-apply-attendee-promo" type="button" data-index="${formIndex}">Apply</button>
+
+                                        <input
+                                            type="text"
+                                            id="promo_code_${formIndex}"
+                                            class="form-control promo-input"
+                                            placeholder="ENTER CODE"
+                                            value="${savedPromo ? savedPromo.code : ''}"
+                                        >
+
+                                        <button
+                                            class="btn btn-apply-promo btn-apply-attendee-promo"
+                                            type="button"
+                                            data-index="${formIndex}"
+                                        >
+                                            Apply
+                                        </button>
+
                                     </div>
-                                    <div id="promo_msg_${formIndex}" class="${savedPromo ? 'mt-1 text-success small fw-bold' : ''}">
-                                        ${savedPromo ? `Applied! (${savedPromo.discount_type === 'percentage' ? savedPromo.discount_value + '%' : new Intl.NumberFormat().format(savedPromo.discount_value) + ' MMK'} off)` : ''}
+
+                                    <div
+                                        id="promo_msg_${formIndex}"
+                                        class="${
+                                            savedPromo
+                                                ? 'mt-1 text-success small fw-bold'
+                                                : ''
+                                        }"
+                                    >
+                                        ${
+                                            savedPromo
+                                                ? `Applied! (${
+                                                    savedPromo.discount_type === 'percentage'
+                                                        ? savedPromo.discount_value + '%'
+                                                        : new Intl.NumberFormat().format(
+                                                            savedPromo.discount_value
+                                                        ) + ' MMK'
+                                                } off)`
+                                                : ''
+                                        }
                                     </div>
+
                                 </div>
 
-                                <!-- NRC Inputs (Local) -->
-                                <div class="col-md-8" id="nrc-box-${formIndex}">
-                                    <label class="form-label">NRC Number</label>
+
+                                <!-- NRC -->
+
+                                <div
+                                    class="col-md-8"
+                                    id="nrc-box-${formIndex}"
+                                >
+
+                                    <label class="form-label">
+                                        NRC Number
+                                    </label>
+
                                     <div class="row g-1">
+
                                         <div class="col-3">
-                                            <select name="attendees[${formIndex}][nrc_state]" class="form-select nrc-state-select" data-index="${formIndex}">
-                                                <option value="">State</option>
-                                                <option value="1">၁/</option><option value="2">၂/</option><option value="3">၃/</option>
-                                                <option value="4">၄/</option><option value="5">၅/</option><option value="6">၆/</option>
-                                                <option value="7">၇/</option><option value="8">၈/</option><option value="9">၉/</option>
-                                                <option value="10">၁၀/</option><option value="11">၁၁/</option><option value="12">၁၂/</option>
-                                                <option value="13">၁၃/</option><option value="14">၁၄/</option>
+
+                                            <select
+                                                name="attendees[${formIndex}][nrc_state]"
+                                                class="form-select nrc-state-select"
+                                                data-index="${formIndex}"
+                                            >
+
+                                                <option value="">
+                                                    State
+                                                </option>
+
+                                                <option value="1">၁/</option>
+                                                <option value="2">၂/</option>
+                                                <option value="3">၃/</option>
+                                                <option value="4">၄/</option>
+                                                <option value="5">၅/</option>
+                                                <option value="6">၆/</option>
+                                                <option value="7">၇/</option>
+                                                <option value="8">၈/</option>
+                                                <option value="9">၉/</option>
+                                                <option value="10">၁၀/</option>
+                                                <option value="11">၁၁/</option>
+                                                <option value="12">၁၂/</option>
+                                                <option value="13">၁၃/</option>
+                                                <option value="14">၁၄/</option>
+
                                             </select>
+
                                         </div>
+
+
                                         <div class="col-3">
-                                            <select name="attendees[${formIndex}][nrc_district]" id="nrc_district_${formIndex}" class="form-select">
-                                                <option value="">District</option>
+
+                                            <select
+                                                name="attendees[${formIndex}][nrc_district]"
+                                                id="nrc_district_${formIndex}"
+                                                class="form-select"
+                                            >
+
+                                                <option value="">
+                                                    District
+                                                </option>
+
                                             </select>
+
                                         </div>
+
+
                                         <div class="col-3">
-                                            <select name="attendees[${formIndex}][nrc_naing]" class="form-select">
-                                                <option value="နိုင်">နိုင်</option>
-                                                <option value="ဧည့်">ဧည့်</option>
-                                                <option value="စ">စ</option>
-                                                <option value="ပြု">ပြု</option>
-                                                <option value="သ">သ</option>
-                                                <option value="သီ">သီ</option>
+
+                                            <select
+                                                name="attendees[${formIndex}][nrc_naing]"
+                                                class="form-select"
+                                            >
+
+                                                <option value="">
+                                                    Type
+                                                </option>
+
+                                                <option value="နိုင်">
+                                                    နိုင်
+                                                </option>
+
+                                                <option value="ဧည့်">
+                                                    ဧည့်
+                                                </option>
+
+                                                <option value="စ">
+                                                    စ
+                                                </option>
+
+                                                <option value="ပြု">
+                                                    ပြု
+                                                </option>
+
+                                                <option value="သ">
+                                                    သ
+                                                </option>
+
+                                                <option value="သီ">
+                                                    သီ
+                                                </option>
+
                                             </select>
+
                                         </div>
+
+
                                         <div class="col-3">
-                                            <input name="attendees[${formIndex}][nrc_number]" type="text" inputmode="numeric" placeholder="123456" maxlength="6" pattern="\\d{6}" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6)" class="form-control">
+
+                                            <input
+                                                name="attendees[${formIndex}][nrc_number]"
+                                                type="text"
+                                                inputmode="numeric"
+                                                placeholder="123456"
+                                                maxlength="6"
+                                                pattern="\\d{6}"
+                                                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6)"
+                                                class="form-control"
+                                            >
+
                                         </div>
+
                                     </div>
+
                                 </div>
 
-                                <!-- Passport & Country Inputs (Foreigner) -->
-                                <div class="col-md-8 row g-1" id="passport-box-${formIndex}" style="display: none;">
+
+                                <!-- Passport -->
+
+                                <div
+                                    class="col-md-8 row g-1"
+                                    id="passport-box-${formIndex}"
+                                    style="display: none;"
+                                >
+
                                     <div class="col-md-6">
-                                        <label class="form-label">Passport Number</label>
-                                        <input type="text" name="attendees[${formIndex}][passport_number]" class="form-control" placeholder="Passport No.">
+
+                                        <label class="form-label">
+                                            Passport Number
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            name="attendees[${formIndex}][passport_number]"
+                                            class="form-control"
+                                            placeholder="Passport No."
+                                        >
+
                                     </div>
+
+
                                     <div class="col-md-6">
-                                        <label class="form-label">Country</label>
-                                        <select name="attendees[${formIndex}][country]" class="form-select">
-                                            <option value="">Select Country</option>
-                                            ${countriesList.map(c => `<option value="${c}">${c}</option>`).join('')}
+
+                                        <label class="form-label">
+                                            Country
+                                        </label>
+
+                                        <select
+                                            name="attendees[${formIndex}][country]"
+                                            class="form-select"
+                                        >
+
+                                            <option value="">
+                                                Select Country
+                                            </option>
+
+                                            ${countriesList.map(
+                                                c =>
+                                                    `<option value="${c}">${c}</option>`
+                                            ).join('')}
+
                                         </select>
+
                                     </div>
+
                                 </div>
 
-                                <div class="col-md-3">
-                                    <label class="form-label">Gender</label>
-                                    <select name="attendees[${formIndex}][gender]" class="form-select" required>
-                                        <option value="male">Male</option>
-                                        <option value="female">Female</option>
-                                        <option value="prefer_not_to_say">Prefer not to say</option>
-                                    </select>
-                                </div>
 
-                                <div class="col-md-3">
-                                    <label class="form-label">Date of Birth</label>
-                                    <input type="date" name="attendees[${formIndex}][date_of_birth]" class="form-control" required>
-                                </div>
-
-                                ${isFieldEnabled('father_name') ? `
-                                <div class="col-md-3">
-                                    <label class="form-label">Father Name (Optional)</label>
-                                    <input type="text" name="attendees[${formIndex}][father_name]" class="form-control" placeholder="Father's full name">
-                                </div>
-                                ` : ''}
-
-                                ${isFieldEnabled('address') ? `
                                 <div class="col-md-6">
-                                    <label class="form-label">Address</label>
-                                    <input type="text" name="attendees[${formIndex}][address]" class="form-control" placeholder="Full address...">
+
+                                    <label class="form-label">
+                                        Gender
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <select
+                                        name="attendees[${formIndex}][gender]"
+                                        class="form-select"
+                                        required
+                                    >
+
+                                        <option value="">
+                                            Select Gender
+                                        </option>
+
+                                        <option value="male">
+                                            Male
+                                        </option>
+
+                                        <option value="female">
+                                            Female
+                                        </option>
+
+                                        <option value="other">
+                                            Other
+                                        </option>
+
+                                    </select>
+
                                 </div>
-                                ` : ''}
+
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label">
+                                        Date of Birth
+                                        <span class="required-star">*</span>
+                                    </label>
+
+                                    <input
+                                        type="date"
+                                        name="attendees[${formIndex}][date_of_birth]"
+                                        class="form-control"
+                                        required
+                                    >
+
+                                </div>
+
+
+                                ${
+                                    isFieldEnabled('father_name')
+                                    ? `
+
+                                    <div class="col-md-6">
+
+                                        <label class="form-label">
+                                            Father Name (Optional)
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            name="attendees[${formIndex}][father_name]"
+                                            class="form-control"
+                                            placeholder="Father's full name"
+                                        >
+
+                                    </div>
+
+                                    `
+                                    : ''
+                                }
+
+
+                                ${
+                                    isFieldEnabled('address')
+                                    ? `
+
+                                    <div class="col-md-6">
+
+                                        <label class="form-label">
+                                            Address
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            name="attendees[${formIndex}][address]"
+                                            class="form-control"
+                                            placeholder="Full address..."
+                                        >
+
+                                    </div>
+
+                                    `
+                                    : ''
+                                }
+
                             </div>
+
                         </div>
+
+
+                        <!-- 3. Participate Information -->
 
                         <div class="col-12">
+
                             <div class="attendee-section">
+
                                 <div class="attendee-section-title">
+
                                     <i class="fas fa-running"></i>
-                                    <span>3. Participate Information</span>
+
+                                    <span>
+                                        3. Participate Information
+                                    </span>
+
                                 </div>
+
+
                                 <div class="row g-2">
-                                    ${enableBibNumber ? `
-                                    <div class="col-md-4">
-                                        <label class="form-label">BIB Name (Max 10 chars) <span class="required-star">*</span></label>
-                                        <input type="text" name="attendees[${formIndex}][bib_name]" maxlength="10" class="form-control" placeholder="Runner Name" required>
-                                    </div>
-                                    ` : ''}
 
-                                    ${isFieldEnabled('blood_type') ? `
-                                    <div class="col-md-4">
-                                        <label class="form-label">Blood Type <span class="required-star">*</span></label>
-                                        <select name="attendees[${formIndex}][blood_type]" class="form-select" required>
-                                            <option value="">Select Blood Type</option>
-                                            <option value="A+">A+</option><option value="A-">A-</option>
-                                            <option value="B+">B+</option><option value="B-">B-</option>
-                                            <option value="O+">O+</option><option value="O-">O-</option>
-                                            <option value="AB+">AB+</option><option value="AB-">AB-</option>
-                                        </select>
-                                    </div>
-                                    ` : ''}
+                                    ${
+                                        enableBibNumber
+                                        ? `
 
-                                    ${isFieldEnabled('tshirt_size') ? `
-                                    <div class="col-md-4">
-                                        <label class="form-label">T-Shirt Size <span class="required-star">*</span></label>
-                                        <select name="attendees[${formIndex}][tshirt_size]" class="form-select" required>
-                                            <option value="">Select Size</option>
-                                            <option value="S">S</option>
-                                            <option value="M">M</option>
-                                            <option value="L">L</option>
-                                            <option value="XL">XL</option>
-                                            <option value="2XL">2XL</option>
-                                        </select>
-                                    </div>
-                                    ` : ''}
+                                        <div class="col-md-4">
 
-                                    ${isFieldEnabled('experience') ? `
-                                    <div class="col-md-6">
-                                        <label class="form-label">Running / Event Experience</label>
-                                        <textarea name="attendees[${formIndex}][experience]" class="form-control" placeholder="Previous marathons or race experience..."></textarea>
-                                    </div>
-                                    ` : ''}
+                                            <label class="form-label">
+                                                BIB Name (Max 10 chars)
+                                                <span class="required-star">*</span>
+                                            </label>
 
-                                    ${isFieldEnabled('has_medical_condition') ? `
-                                    <div class="col-md-3">
-                                        <label class="form-label">Existing Medical Conditions? <span class="required-star">*</span></label>
-                                        <select name="attendees[${formIndex}][has_medical_condition]" class="form-select medical-select" data-index="${formIndex}" required>
-                                            <option value="no">No</option>
-                                            <option value="yes">Yes</option>
-                                        </select>
-                                    </div>
-                                    ` : ''}
+                                            <input
+                                                type="text"
+                                                name="attendees[${formIndex}][bib_name]"
+                                                maxlength="10"
+                                                class="form-control"
+                                                placeholder="Runner Name"
+                                                required
+                                            >
 
-                                    ${isFieldEnabled('itra') ? `
-                                    <div class="col-md-3">
-                                        <label class="form-label">ITRA? <span class="required-star">*</span></label>
-                                        <select name="attendees[${formIndex}][itra]" class="form-select itra-select" data-index="${formIndex}" required>
-                                            <option value="no">No</option>
-                                            <option value="yes">Yes</option>
-                                        </select>
-                                    </div>
-                                    ` : ''}
+                                        </div>
 
-                                    ${isFieldEnabled('has_medical_condition') ? `
-                                    <div class="col-md-6" id="medical-details-box-${formIndex}" style="display: none;">
-                                        <label class="form-label">Medical Condition Details <span class="required-star">*</span></label>
-                                        <textarea name="attendees[${formIndex}][medical_details]" class="form-control" placeholder="Specify medical conditions or allergies..."></textarea>
-                                    </div>
-                                    ` : ''}
+                                        `
+                                        : ''
+                                    }
 
-                                    ${isFieldEnabled('itra') ? `
-                                    <div class="col-md-6" id="itra-details-box-${formIndex}" style="display: none;">
-                                        <label class="form-label">ITRA Details <span class="required-star">*</span></label>
-                                        <input type="text" name="attendees[${formIndex}][itra_details]" class="form-control" placeholder="Enter ITRA details">
-                                    </div>
-                                    ` : ''}
+
+                                    ${
+                                        isFieldEnabled('blood_type')
+                                        ? `
+
+                                        <div class="col-md-4">
+
+                                            <label class="form-label">
+                                                Blood Type
+                                                <span class="required-star">*</span>
+                                            </label>
+
+                                            <select
+                                                name="attendees[${formIndex}][blood_type]"
+                                                class="form-select"
+                                                required
+                                            >
+
+                                                <option value="">
+                                                    Select Blood Type
+                                                </option>
+
+                                                <option value="A+">A+</option>
+                                                <option value="A-">A-</option>
+                                                <option value="B+">B+</option>
+                                                <option value="B-">B-</option>
+                                                <option value="O+">O+</option>
+                                                <option value="O-">O-</option>
+                                                <option value="AB+">AB+</option>
+                                                <option value="AB-">AB-</option>
+
+                                            </select>
+
+                                        </div>
+
+                                        `
+                                        : ''
+                                    }
+
+
+                                    ${
+                                        isFieldEnabled('tshirt_size')
+                                        ? `
+
+                                        <div class="col-md-4">
+
+                                            <label class="form-label">
+                                                T-Shirt Size
+                                                <span class="required-star">*</span>
+                                            </label>
+
+                                            <select
+                                                name="attendees[${formIndex}][tshirt_size]"
+                                                class="form-select"
+                                                required
+                                            >
+
+                                                <option value="">
+                                                    Select Size
+                                                </option>
+
+                                                <option value="S">
+                                                    S
+                                                </option>
+
+                                                <option value="M">
+                                                    M
+                                                </option>
+
+                                                <option value="L">
+                                                    L
+                                                </option>
+
+                                                <option value="XL">
+                                                    XL
+                                                </option>
+
+                                                <option value="2XL">
+                                                    2XL
+                                                </option>
+
+                                                <option value="3XL">
+                                                    3XL
+                                                </option>
+
+                                                <option value="4XL">
+                                                    4XL
+                                                </option>
+
+                                                <option value="5XL">
+                                                    5XL
+                                                </option>
+
+                                            </select>
+
+                                        </div>
+
+                                        `
+                                        : ''
+                                    }
+
+
+                                    ${
+                                        isFieldEnabled('experience')
+                                        ? `
+
+                                        <div class="col-md-6">
+
+                                            <label class="form-label">
+                                                Running / Event Experience
+                                            </label>
+
+                                            <textarea
+                                                name="attendees[${formIndex}][experience]"
+                                                class="form-control"
+                                                placeholder="Previous marathons or race experience..."
+                                            ></textarea>
+
+                                        </div>
+
+                                        `
+                                        : ''
+                                    }
+
+
+                                    ${
+                                        isFieldEnabled('has_medical_condition')
+                                        ? `
+
+                                        <div class="col-md-3">
+
+                                            <label class="form-label">
+                                                Existing Medical Conditions?
+                                                <span class="required-star">*</span>
+                                            </label>
+
+                                            <select
+                                                name="attendees[${formIndex}][has_medical_condition]"
+                                                class="form-select medical-select"
+                                                data-index="${formIndex}"
+                                                required
+                                            >
+
+                                                <option value="no">
+                                                    No
+                                                </option>
+
+                                                <option value="yes">
+                                                    Yes
+                                                </option>
+
+                                            </select>
+
+                                        </div>
+
+                                        `
+                                        : ''
+                                    }
+
+
+                                    ${
+                                        isFieldEnabled('itra')
+                                        ? `
+
+                                        <div class="col-md-3">
+
+                                            <label class="form-label">
+                                                ITRA?
+                                                <span class="required-star">*</span>
+                                            </label>
+
+                                            <select
+                                                name="attendees[${formIndex}][itra]"
+                                                class="form-select itra-select"
+                                                data-index="${formIndex}"
+                                                required
+                                            >
+
+                                                <option value="no">
+                                                    No
+                                                </option>
+
+                                                <option value="yes">
+                                                    Yes
+                                                </option>
+
+                                            </select>
+
+                                        </div>
+
+                                        `
+                                        : ''
+                                    }
+
+
+                                    ${
+                                        isFieldEnabled('has_medical_condition')
+                                        ? `
+
+                                        <div
+                                            class="col-md-6"
+                                            id="medical-details-box-${formIndex}"
+                                            style="display: none;"
+                                        >
+
+                                            <label class="form-label">
+                                                Medical Condition Details
+                                                <span class="required-star">*</span>
+                                            </label>
+
+                                            <textarea
+                                                name="attendees[${formIndex}][medical_details]"
+                                                class="form-control"
+                                                placeholder="Specify medical conditions or allergies..."
+                                            ></textarea>
+
+                                        </div>
+
+                                        `
+                                        : ''
+                                    }
+
+
+                                    ${
+                                        isFieldEnabled('itra')
+                                        ? `
+
+                                        <div
+                                            class="col-md-6"
+                                            id="itra-details-box-${formIndex}"
+                                            style="display: none;"
+                                        >
+
+                                            <label class="form-label">
+                                                ITRA Details
+                                                <span class="required-star">*</span>
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                name="attendees[${formIndex}][itra_details]"
+                                                class="form-control"
+                                                placeholder="Enter ITRA details"
+                                            >
+
+                                        </div>
+
+                                        `
+                                        : ''
+                                    }
+
                                 </div>
+
                             </div>
+
                         </div>
+
                     </div>
+
                 `;
 
-                card.innerHTML = fieldsHTML;
-                container.appendChild(card);
-                
-                // Initialize default attribute state for the newly created form card
-                toggleNationality(formIndex, 'Myanmar');
-                
+
+                card.innerHTML =
+                    fieldsHTML;
+
+                container.appendChild(
+                    card
+                );
+
+
+                /*
+                Default unselected nationality
+                */
+
+                const nationalitySelectElem =
+                    card.querySelector(
+                        '.nationality-select'
+                    );
+
+
+                const naingSelectElem =
+                    card.querySelector(
+                        `select[name="attendees[${formIndex}][nrc_naing]"]`
+                    );
+
+
+                if (nationalitySelectElem) {
+
+                    nationalitySelectElem.value =
+                        "";
+
+                }
+
+
+                if (naingSelectElem) {
+
+                    naingSelectElem.value =
+                        "";
+
+                }
+
+
                 formIndex++;
+
             }
+
         });
 
+
+        /*
+        Show / hide checkout
+        */
+
         if (checkoutSection) {
+
             if (formIndex > 0) {
-                checkoutSection.style.display = 'block';
+
+                checkoutSection.style.display =
+                    'block';
+
                 calculateTotals();
+
             } else {
-                checkoutSection.style.display = 'none';
+
+                checkoutSection.style.display =
+                    'none';
+
             }
+
         }
+
     }
 
+
     updateButtonStates();
+
 });
+
 </script>
+
 @endpush
+
 @endsection

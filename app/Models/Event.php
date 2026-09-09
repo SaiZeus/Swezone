@@ -14,6 +14,8 @@ class Event extends Model
         'slug',
         'description',
         'location',
+        'latitude',
+        'longitude',
         'event_date',
         'image',
         'status',
@@ -36,6 +38,8 @@ class Event extends Model
         'enabled_fields' => 'array',
         'enable_bib_number' => 'boolean',
         'share_bib_prefix' => 'boolean',
+        'latitude' => 'decimal:7',
+        'longitude' => 'decimal:7',
     ];
 
     public function getRouteKeyName()
@@ -63,3 +67,4 @@ class Event extends Model
         return $this->hasMany(Order::class);
     }
 }
+
