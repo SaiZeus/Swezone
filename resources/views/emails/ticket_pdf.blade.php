@@ -26,15 +26,14 @@
             overflow: hidden; 
         }
         .banner-container { 
-            width: 100%; 
-            aspect-ratio: 16 / 9; /* Enforces strict 16:9 proportions */
-            max-height: 304px; /* 540px width * 9 / 16 */
+            width: 540px; 
+            height: 304px; 
             overflow: hidden; 
             background: #0f172a; 
         }
         .banner-container img { 
-            width: 100%; 
-            height: 100%; 
+            width: 540px; 
+            height: 304px; 
             object-fit: cover; 
             display: block; 
         }
@@ -98,9 +97,13 @@
 <body>
     <div class="ticket-wrapper">
         @isset($bannerBase64)
-        <div class="banner-container">
-            <img src="{{ $bannerBase64 }}" alt="{{ $event->title }}">
-        </div>
+        <table width="540" cellpadding="0" cellspacing="0" border="0" style="width: 100%; border-collapse: collapse;">
+            <tr>
+                <td class="banner-container" style="padding: 0; line-height: 0; font-size: 0;">
+                    <img src="{{ $bannerBase64 }}" width="540" height="304" alt="{{ $event->title }}" style="width: 100%; height: auto; display: block;">
+                </td>
+            </tr>
+        </table>
         @endisset
 
         <div class="ticket-body">
