@@ -44,7 +44,7 @@
                     <td class="py-3.5 px-4">{{ $admin->email }}</td>
                     <td class="py-3.5 px-4">
                         @if($admin->role === 'event_admin')
-                            <span class="bg-indigo-100 text-indigo-700 text-[9px] font-extrabold px-2 py-0.5 rounded-md inline-block mb-1">Event Admin</span>
+                            <span class="bg-indigo-100 text-indigo-700 text-[9px] font-extrabold px-2 py-0.5 rounded-md inline-block mb-1">Event Organizer</span>
                             @if($admin->event)
                                 <div class="text-[11px] text-slate-500 font-semibold">{{ $admin->event->title }}</div>
                             @else
