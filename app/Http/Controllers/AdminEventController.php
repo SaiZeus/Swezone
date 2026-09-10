@@ -71,6 +71,10 @@ class AdminEventController extends Controller
                 'english_race_guide' => 'nullable|file|mimes:pdf|max:10240',
                 'burmese_race_guide' => 'nullable|file|mimes:pdf|max:10240',
 
+                // T-Shirt Sizes
+                'tshirt_sizes' => 'nullable|array',
+                'tshirt_sizes.*' => 'string|in:XS,S,M,L,XL,2XL,3XL,4XL,5XL',
+
                 'categories' => 'required|array|min:1',
                 'categories.*.name' => 'required|string|max:255',
                 'categories.*.local_price' => 'required|numeric|min:0',
@@ -121,6 +125,8 @@ class AdminEventController extends Controller
 
                 'burmese_race_guide.mimes' => 'The Burmese race guide must be a valid PDF file.',
                 'burmese_race_guide.max' => 'The Burmese race guide must not be larger than 10MB.',
+
+                'tshirt_sizes.*.in' => 'Invalid T-shirt size selected.',
 
                 'items.*.image.max' => 'An event item image must not be larger than 2MB.',
             ]
@@ -194,6 +200,7 @@ class AdminEventController extends Controller
                     'overall_capacity' => $request->overall_capacity,
 
                     'enabled_fields' => $request->input('enabled_fields', []),
+                    'tshirt_sizes' => $request->input('tshirt_sizes', []),
 
                     'enable_bib_number' => $request->has('enable_bib_number'),
 
@@ -393,6 +400,10 @@ class AdminEventController extends Controller
             'english_race_guide' => 'nullable|file|mimes:pdf|max:10240',
             'burmese_race_guide' => 'nullable|file|mimes:pdf|max:10240',
 
+            // T-Shirt Sizes
+            'tshirt_sizes' => 'nullable|array',
+            'tshirt_sizes.*' => 'string|in:XS,S,M,L,XL,2XL,3XL,4XL,5XL',
+
             /*
              * PDF deletion flags
              */
@@ -472,16 +483,6 @@ class AdminEventController extends Controller
             /*
              * =========================================================
              * PDF DELETE / REPLACE
-             *
-             * If delete flag is sent:
-             * - Delete existing file
-             * - Set database field to null
-             *
-             * If a new file is uploaded:
-             * - Delete old file
-             * - Store new file
-             *
-             * Therefore both operations work independently.
              * =========================================================
              */
 
@@ -666,6 +667,7 @@ class AdminEventController extends Controller
                 'overall_capacity' => $request->overall_capacity,
 
                 'enabled_fields' => $request->input('enabled_fields', []),
+                'tshirt_sizes' => $request->input('tshirt_sizes', []),
 
                 'enable_bib_number' => $request->has('enable_bib_number'),
 
@@ -800,9 +802,6 @@ class AdminEventController extends Controller
             /*
              * =========================================================
              * EVENT ITEM DELETION
-             *
-             * Only delete EventItems belonging to this event.
-             * This prevents an item ID from another event being deleted.
              * =========================================================
              */
 
@@ -835,10 +834,6 @@ class AdminEventController extends Controller
             /*
              * =========================================================
              * EVENT ITEMS
-             *
-             * Existing items are updated.
-             * New items are created.
-             * Items sent in deleted_items are already removed above.
              * =========================================================
              */
 

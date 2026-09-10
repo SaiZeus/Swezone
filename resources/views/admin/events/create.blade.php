@@ -317,10 +317,6 @@
         font-size: 0.68rem;
     }
 
-    /* =========================================================
-       OPENSTREETMAP / LEAFLET LOCATION SEARCH
-       ========================================================= */
-
     .location-picker {
         margin-top: 10px;
         padding: 15px;
@@ -709,7 +705,7 @@
         width: 100%;
         padding: 0 11px;
         border: 1px solid #dfe3e9;
-        border-radius: 9px;
+        border-radius: 99px;
         outline: none;
         background: #fff;
         color: #293445;
@@ -906,6 +902,50 @@
         height: 16px;
     }
 
+    /* T-SHIRT SIZE SELECTION STYLING */
+
+    .tshirt-sizes-wrapper {
+        margin-top: 16px;
+        padding: 16px;
+        border: 1px dashed #cbd5e1;
+        border-radius: 12px;
+        background: #ffffff;
+    }
+
+    .size-toggle-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .size-card {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background: #f8fafc;
+        cursor: pointer;
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: #334155;
+        transition: all 0.15s ease;
+    }
+
+    .size-card:hover {
+        border-color: #818cf8;
+        background: #eef2ff;
+    }
+
+    .size-card input[type="checkbox"] {
+        accent-color: #4f46e5;
+        width: 15px;
+        height: 15px;
+    }
+
     @media (max-width: 767px) {
         .event-form-body {
             padding: 20px;
@@ -951,10 +991,6 @@
     }
 </style>
 
-{{-- =============================================================
-LEAFLET CSS
-============================================================= --}}
-
 <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -963,7 +999,6 @@ LEAFLET CSS
 <div class="create-event-page">
     <div class="event-form-wrapper">
 
-```
     <div class="event-page-header">
         <h1>Create Marathon Event</h1>
         <p>
@@ -1074,10 +1109,6 @@ LEAFLET CSS
                 enctype="multipart/form-data">
 
                 @csrf
-
-                {{-- =====================================================
-                     SECTION 01 - EVENT INFORMATION
-                ====================================================== --}}
 
                 <div class="form-section">
 
@@ -1292,10 +1323,6 @@ LEAFLET CSS
 
                 <hr class="event-divider">
 
-                {{-- =====================================================
-                     SECTION 02 - FORM FIELDS & BIB
-                ====================================================== --}}
-
                 <div class="form-section">
 
                     <div class="form-section-heading">
@@ -1340,6 +1367,7 @@ LEAFLET CSS
                                         type="checkbox"
                                         name="enabled_fields[]"
                                         value="{{ $fieldKey }}"
+                                        id="{{ $fieldKey === 'tshirt_size' ? 'toggle_tshirt_size' : '' }}"
                                         checked>
 
                                     <span>{{ $fieldLabel }}</span>
@@ -1348,6 +1376,34 @@ LEAFLET CSS
 
                             @endforeach
 
+                        </div>
+
+                        {{-- T-SHIRT SIZE SELECTION BOX --}}
+                        <div id="tshirt_sizes_box" class="tshirt-sizes-wrapper">
+                            <label class="event-label mb-1">
+                                Available T-Shirt Sizes
+                            </label>
+                            <p class="field-help mt-0 mb-2">
+                                Tick the sizes that participants can select during registration.
+                            </p>
+
+                            @php
+                                $allSizes = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL'];
+                                $selectedSizes = old('available_tshirt_sizes', $allSizes);
+                            @endphp
+
+                            <div class="size-toggle-grid">
+                                @foreach($allSizes as $size)
+                                    <label class="size-card">
+                                        <input
+                                            type="checkbox"
+                                            name="available_tshirt_sizes[]"
+                                            value="{{ $size }}"
+                                            {{ in_array($size, $selectedSizes) ? 'checked' : '' }}>
+                                        <span>{{ $size }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
                         </div>
 
                     </div>
@@ -1455,10 +1511,6 @@ LEAFLET CSS
 
                 <hr class="event-divider">
 
-                {{-- =====================================================
-                     SECTION 03 - EVENT CREATOR
-                ====================================================== --}}
-
                 <div class="form-section">
 
                     <div class="form-section-heading">
@@ -1549,10 +1601,6 @@ LEAFLET CSS
 
                 <hr class="event-divider">
 
-                {{-- =====================================================
-                     SECTION 04 - DESCRIPTION
-                ====================================================== --}}
-
                 <div class="form-section">
 
                     <div class="form-section-heading">
@@ -1586,10 +1634,6 @@ LEAFLET CSS
                 </div>
 
                 <hr class="event-divider">
-
-                {{-- =====================================================
-                     SECTION 05 - EVENT BANNER
-                ====================================================== --}}
 
                 <div class="form-section">
 
@@ -1637,10 +1681,6 @@ LEAFLET CSS
                 </div>
 
                 <hr class="event-divider">
-
-                {{-- =====================================================
-                     SECTION 06 - TICKET CATEGORIES
-                ====================================================== --}}
 
                 <div class="form-section">
 
@@ -1759,10 +1799,6 @@ LEAFLET CSS
 
                 <hr class="event-divider">
 
-                {{-- =====================================================
-                     SECTION 07 - EVENT ITEMS
-                ====================================================== --}}
-
                 <div class="form-section">
 
                     <div class="form-section-heading">
@@ -1802,13 +1838,6 @@ LEAFLET CSS
                         <div id="items-container">
 
                             @php
-                                /*
-                                 * If validation failed, rebuild only the
-                                 * item rows that were actually submitted.
-                                 *
-                                 * This prevents deleted rows from being
-                                 * recreated from the old request.
-                                 */
                                 $oldItems = old('items');
 
                                 if (is_array($oldItems) && count($oldItems) > 0) {
@@ -1894,10 +1923,6 @@ LEAFLET CSS
                 </div>
 
                 <hr class="event-divider">
-
-                {{-- =====================================================
-                     SECTION 08 - WAIVERS
-                ====================================================== --}}
 
                 <div class="form-section">
 
@@ -2072,32 +2097,13 @@ LEAFLET CSS
     </div>
 
 </div>
-```
 
 </div>
-
-{{-- =============================================================
-LEAFLET JAVASCRIPT
-============================================================= --}}
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-
-    /*
-     * ============================================================
-     * OPENSTREETMAP / LEAFLET AUTOMATIC LOCATION SEARCH
-     * ============================================================
-     *
-     * User types a location.
-     * After a short delay, Nominatim searches automatically.
-     * The first/best result is placed on the map.
-     *
-     * The user can also click Search or press Enter.
-     *
-     * No map dragging/clicking is required.
-     */
 
     const mapElement =
         document.getElementById('event-location-map');
@@ -2133,20 +2139,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const autoStatus =
         document.getElementById('location-auto-status');
 
-
-    /*
-     * Existing coordinates after validation error.
-     */
     const oldLatitude =
         parseFloat(@json(old('latitude')));
 
     const oldLongitude =
         parseFloat(@json(old('longitude')));
 
-
-    /*
-     * Default location: Yangon.
-     */
     const defaultLatitude =
         Number.isFinite(oldLatitude)
             ? oldLatitude
@@ -2156,13 +2154,6 @@ document.addEventListener('DOMContentLoaded', function () {
         Number.isFinite(oldLongitude)
             ? oldLongitude
             : 96.1735;
-
-
-    /*
-     * ============================================================
-     * CREATE MAP
-     * ============================================================
-     */
 
     const eventMap =
         L.map('event-location-map', {
@@ -2180,10 +2171,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 : 12
         );
 
-
-    /*
-     * OpenStreetMap tiles.
-     */
     L.tileLayer(
         'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
         {
@@ -2193,13 +2180,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'
         }
     ).addTo(eventMap);
-
-
-    /*
-     * ============================================================
-     * READ-ONLY MARKER
-     * ============================================================
-     */
 
     const eventMarker =
         L.marker(
@@ -2211,13 +2191,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 draggable: false
             }
         ).addTo(eventMap);
-
-
-    /*
-     * ============================================================
-     * STATUS
-     * ============================================================
-     */
 
     function setAutoStatus(
         message,
@@ -2236,13 +2209,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-
-    /*
-     * ============================================================
-     * UPDATE COORDINATES
-     * ============================================================
-     */
-
     function updateCoordinates(
         latitude,
         longitude
@@ -2255,13 +2221,6 @@ document.addEventListener('DOMContentLoaded', function () {
             Number(longitude).toFixed(7);
 
     }
-
-
-    /*
-     * ============================================================
-     * SHOW SELECTED LOCATION
-     * ============================================================
-     */
 
     function showSelectedLocation(
         text
@@ -2279,13 +2238,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-
-    /*
-     * ============================================================
-     * SET MAP LOCATION
-     * ============================================================
-     */
-
     function setMapLocation(
         latitude,
         longitude,
@@ -2298,7 +2250,6 @@ document.addEventListener('DOMContentLoaded', function () {
         longitude =
             Number(longitude);
 
-
         if (
             !Number.isFinite(latitude) ||
             !Number.isFinite(longitude)
@@ -2306,28 +2257,16 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-
-        /*
-         * Save coordinates.
-         */
         updateCoordinates(
             latitude,
             longitude
         );
 
-
-        /*
-         * Move marker.
-         */
         eventMarker.setLatLng([
             latitude,
             longitude
         ]);
 
-
-        /*
-         * Move map.
-         */
         eventMap.setView(
             [
                 latitude,
@@ -2339,10 +2278,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         );
 
-
-        /*
-         * Update selected location.
-         */
         if (locationName) {
 
             locationInput.value =
@@ -2357,10 +2292,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
 
-
-        /*
-         * Popup.
-         */
         const popupTitle =
             locationName || 'Event Location';
 
@@ -2370,7 +2301,6 @@ document.addEventListener('DOMContentLoaded', function () {
             )
             .openPopup();
 
-
         setAutoStatus(
             '<i class="fa-solid fa-circle-check"></i> Location found and coordinates saved automatically.',
             'success'
@@ -2378,17 +2308,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-
-    /*
-     * ============================================================
-     * SEARCH LOCATION
-     * ============================================================
-     */
-
     let searchTimer = null;
 
     let currentSearchController = null;
-
 
     async function searchLocation(
         automatic = false
@@ -2396,7 +2318,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const query =
             searchInput.value.trim();
-
 
         if (!query) {
 
@@ -2408,10 +2329,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
 
-
-        /*
-         * Avoid unnecessary API requests for very short text.
-         */
         if (query.length < 3) {
 
             if (automatic) {
@@ -2427,17 +2344,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
 
-
-        /*
-         * Cancel previous request.
-         */
         if (currentSearchController) {
             currentSearchController.abort();
         }
 
         currentSearchController =
             new AbortController();
-
 
         if (!automatic) {
 
@@ -2449,19 +2361,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
 
-
         setAutoStatus(
             '<i class="fa-solid fa-spinner fa-spin"></i> Finding location...',
             'loading'
         );
-
 
         searchResults.innerHTML =
             '';
 
         searchResults.style.display =
             'none';
-
 
         try {
 
@@ -2484,7 +2393,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 );
 
-
             if (!response.ok) {
 
                 throw new Error(
@@ -2493,21 +2401,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
             }
 
-
             const results =
                 await response.json();
 
-
-            /*
-             * No result.
-             */
             if (!results.length) {
 
                 setAutoStatus(
                     '<i class="fa-solid fa-circle-exclamation"></i> Location not found. Try adding the city or country.',
                     'error'
                 );
-
 
                 searchResults.innerHTML = `
                     <div class="location-result">
@@ -2528,21 +2430,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             }
 
-
-            /*
-             * ====================================================
-             * AUTOMATICALLY SELECT BEST RESULT
-             * ====================================================
-             *
-             * This is the important part:
-             *
-             * User types:
-             * "Shwedagon Pagoda Yangon"
-             *
-             * The first/best Nominatim result is automatically
-             * placed on the map.
-             */
-
             const bestResult =
                 results[0];
 
@@ -2557,19 +2444,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 bestResult.name ||
                 query;
 
-
             setMapLocation(
                 bestLatitude,
                 bestLongitude,
                 bestLocationName
             );
-
-
-            /*
-             * ====================================================
-             * DISPLAY ALL SEARCH RESULTS
-             * ====================================================
-             */
 
             results.forEach(
                 function (result, index) {
@@ -2581,16 +2460,13 @@ document.addEventListener('DOMContentLoaded', function () {
                         'location-result' +
                         (index === 0 ? ' selected' : '');
 
-
                     const title =
                         result.name ||
                         'Selected Location';
 
-
                     const address =
                         result.display_name ||
                         '';
-
 
                     resultElement.innerHTML = `
                         <div class="location-result-title">
@@ -2603,10 +2479,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         </div>
                     `;
 
-
-                    /*
-                     * Select exact result manually.
-                     */
                     resultElement.addEventListener(
                         'click',
                         function () {
@@ -2622,20 +2494,17 @@ document.addEventListener('DOMContentLoaded', function () {
                                 result.name ||
                                 query;
 
-
                             setMapLocation(
                                 latitude,
                                 longitude,
                                 locationName
                             );
 
-
                             searchResults.style.display =
                                 'none';
 
                         }
                     );
-
 
                     searchResults.appendChild(
                         resultElement
@@ -2644,35 +2513,24 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             );
 
-
-            /*
-             * Show results for a short time.
-             */
             searchResults.style.display =
                 'block';
 
-
         } catch (error) {
 
-            /*
-             * AbortError is normal when the user keeps typing.
-             */
             if (error.name === 'AbortError') {
                 return;
             }
-
 
             console.error(
                 'Location search error:',
                 error
             );
 
-
             setAutoStatus(
                 '<i class="fa-solid fa-circle-exclamation"></i> Unable to search location. Please try again.',
                 'error'
             );
-
 
             searchResults.innerHTML = `
                 <div class="location-result">
@@ -2688,7 +2546,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             searchResults.style.display =
                 'block';
-
 
         } finally {
 
@@ -2706,13 +2563,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-
-    /*
-     * ============================================================
-     * AUTOMATIC SEARCH WHILE TYPING
-     * ============================================================
-     */
-
     searchInput.addEventListener(
         'input',
         function () {
@@ -2720,21 +2570,9 @@ document.addEventListener('DOMContentLoaded', function () {
             const query =
                 this.value.trim();
 
-
-            /*
-             * Keep main Location field synchronized.
-             */
             locationInput.value =
                 query;
 
-
-            /*
-             * Clear coordinates while the user is typing a
-             * different location.
-             *
-             * This prevents old coordinates from being submitted
-             * for a newly typed location.
-             */
             if (query.length >= 3) {
 
                 latitudeInput.value =
@@ -2745,9 +2583,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             }
 
-
             clearTimeout(searchTimer);
-
 
             if (query.length < 3) {
 
@@ -2763,10 +2599,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             }
 
-
-            /*
-             * Wait 800ms after typing stops.
-             */
             searchTimer =
                 setTimeout(
                     function () {
@@ -2780,13 +2612,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     );
 
-
-    /*
-     * ============================================================
-     * SEARCH BUTTON
-     * ============================================================
-     */
-
     searchButton.addEventListener(
         'click',
         function () {
@@ -2797,13 +2622,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
     );
-
-
-    /*
-     * ============================================================
-     * ENTER KEY
-     * ============================================================
-     */
 
     searchInput.addEventListener(
         'keydown',
@@ -2822,16 +2640,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     );
 
-
-    /*
-     * ============================================================
-     * MAIN LOCATION FIELD
-     * ============================================================
-     *
-     * If the user types directly into the main Location field,
-     * keep the search box synchronized.
-     */
-
     locationInput.addEventListener(
         'input',
         function () {
@@ -2841,10 +2649,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
             clearTimeout(searchTimer);
 
-
             const query =
                 this.value.trim();
-
 
             if (query.length < 3) {
 
@@ -2855,13 +2661,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
             }
 
-
             latitudeInput.value =
                 '';
 
             longitudeInput.value =
                 '';
-
 
             searchTimer =
                 setTimeout(
@@ -2875,13 +2679,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
     );
-
-
-    /*
-     * ============================================================
-     * CLOSE SEARCH RESULTS
-     * ============================================================
-     */
 
     document.addEventListener(
         'click',
@@ -2904,13 +2701,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     );
 
-
-    /*
-     * ============================================================
-     * HTML ESCAPE
-     * ============================================================
-     */
-
     function escapeHtml(value) {
 
         const div =
@@ -2923,13 +2713,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-
-    /*
-     * ============================================================
-     * LOAD OLD LOCATION AFTER VALIDATION ERROR
-     * ============================================================
-     */
-
     if (
         Number.isFinite(oldLatitude) &&
         Number.isFinite(oldLongitude)
@@ -2940,10 +2723,8 @@ document.addEventListener('DOMContentLoaded', function () {
             oldLongitude
         );
 
-
         const oldLocation =
             locationInput.value.trim();
-
 
         if (oldLocation) {
 
@@ -2954,7 +2735,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 oldLocation
             );
 
-
             eventMarker
                 .bindPopup(
                     `<strong>${escapeHtml(oldLocation)}</strong>`
@@ -2963,12 +2743,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
     }
-
-
-    /*
-     * If old location exists but coordinates don't,
-     * automatically search it.
-     */
     else if (
         locationInput.value.trim().length >= 3
     ) {
@@ -2985,10 +2759,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-
-    /*
-     * Fix Leaflet map size after rendering.
-     */
     setTimeout(
         function () {
             eventMap.invalidateSize();
@@ -3002,18 +2772,20 @@ document.addEventListener('DOMContentLoaded', function () {
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
+    // T-SHIRT SIZE TOGGLE SCRIPT
+    const toggleTshirtSize = document.getElementById('toggle_tshirt_size');
+    const tshirtSizesBox = document.getElementById('tshirt_sizes_box');
+
+    if (toggleTshirtSize && tshirtSizesBox) {
+        function handleTshirtToggle() {
+            tshirtSizesBox.style.display = toggleTshirtSize.checked ? 'block' : 'none';
+        }
+        toggleTshirtSize.addEventListener('change', handleTshirtToggle);
+        handleTshirtToggle();
+    }
+
     let categoryIndex = 1;
-
-    /*
-     * Start item index after the highest existing item index.
-     * This prevents duplicate input names.
-     */
     let itemIndex = 1;
-
-
-    /* =========================================================
-       FIND EXISTING ITEM INDEX
-    ========================================================== */
 
     document
         .querySelectorAll(
@@ -3045,11 +2817,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         });
 
-
-    /* =========================================================
-       BIB CONFIG TOGGLE LOGIC
-    ========================================================== */
-
     const enableBibCheckbox =
         document.getElementById('enable_bib_number');
 
@@ -3064,7 +2831,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const sharedPrefixBox =
         document.getElementById('shared_prefix_box');
 
-
     if (enableBibCheckbox && bibConfigWrapper) {
 
         enableBibCheckbox.addEventListener(
@@ -3078,7 +2844,6 @@ document.addEventListener('DOMContentLoaded', function () {
         );
 
     }
-
 
     shareBibRadios.forEach(function (radio) {
 
@@ -3125,11 +2890,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     });
 
-
-    /* =========================================================
-       TICKET CATEGORIES
-    ========================================================== */
-
     const categoryContainer =
         document.getElementById(
             'categories-container'
@@ -3140,9 +2900,6 @@ document.addEventListener('DOMContentLoaded', function () {
             'add-category-btn'
         );
 
-
-    /* ADD TICKET CATEGORY */
-
     if (addCategoryBtn && categoryContainer) {
 
         addCategoryBtn.addEventListener(
@@ -3152,21 +2909,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 const row =
                     document.createElement('div');
 
-
                 const selectedBibRadio =
                     document.querySelector(
                         'input[name="share_bib_prefix"]:checked'
                     );
 
-
                 const separateMode =
                     selectedBibRadio &&
                     selectedBibRadio.value === '0';
 
-
                 row.className =
                     'category-row grid grid-cols-1 md:grid-cols-6 gap-3';
-
 
                 row.innerHTML = `
                     <input
@@ -3225,16 +2978,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     </div>
                 `;
 
-
                 categoryContainer.appendChild(row);
 
                 categoryIndex++;
 
             }
         );
-
-
-        /* REMOVE TICKET CATEGORY */
 
         categoryContainer.addEventListener(
             'click',
@@ -3245,17 +2994,14 @@ document.addEventListener('DOMContentLoaded', function () {
                         '.remove-category-btn'
                     );
 
-
                 if (!removeButton) {
                     return;
                 }
-
 
                 const categoryRow =
                     removeButton.closest(
                         '.category-row'
                     );
-
 
                 if (categoryRow) {
 
@@ -3267,11 +3013,6 @@ document.addEventListener('DOMContentLoaded', function () {
         );
 
     }
-
-
-    /* =========================================================
-       EVENT ITEMS
-    ========================================================== */
 
     const itemsContainer =
         document.getElementById(
@@ -3288,22 +3029,16 @@ document.addEventListener('DOMContentLoaded', function () {
             'empty-items-message'
         );
 
-
-    /*
-     * Update empty-state visibility.
-     */
     function updateItemsEmptyState() {
 
         if (!itemsContainer || !emptyItemsMessage) {
             return;
         }
 
-
         const itemRows =
             itemsContainer.querySelectorAll(
                 '.item-row'
             );
-
 
         emptyItemsMessage.style.display =
             itemRows.length === 0
@@ -3311,13 +3046,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 : 'none';
 
     }
-
-
-    /*
-     * =========================================================
-     * ADD EVENT ITEM
-     * =========================================================
-     */
 
     if (addItemBtn && itemsContainer) {
 
@@ -3333,7 +3061,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 row.className =
                     'item-row';
-
 
                 row.innerHTML = `
                     <div>
@@ -3374,7 +3101,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     </button>
                 `;
 
-
                 itemsContainer.appendChild(row);
 
                 updateItemsEmptyState();
@@ -3383,23 +3109,6 @@ document.addEventListener('DOMContentLoaded', function () {
         );
 
     }
-
-
-    /*
-     * =========================================================
-     * REMOVE EVENT ITEM
-     * =========================================================
-     *
-     * Event delegation means this works for:
-     *
-     * - Original item
-     * - Dynamically added items
-     * - Any number of items
-     *
-     * The row is actually removed from the DOM, so its
-     * items[index][title] and items[index][image] fields are
-     * no longer submitted.
-     */
 
     if (itemsContainer) {
 
@@ -3412,36 +3121,24 @@ document.addEventListener('DOMContentLoaded', function () {
                         '.remove-item-btn'
                     );
 
-
                 if (!removeButton) {
                     return;
                 }
 
-
                 e.preventDefault();
                 e.stopPropagation();
-
 
                 const itemRow =
                     removeButton.closest(
                         '.item-row'
                     );
 
-
                 if (!itemRow) {
                     return;
                 }
 
-
-                /*
-                 * Remove completely.
-                 */
                 itemRow.remove();
 
-
-                /*
-                 * Update empty state.
-                 */
                 updateItemsEmptyState();
 
             }
@@ -3449,10 +3146,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-
-    /*
-     * Initial state.
-     */
     updateItemsEmptyState();
 
 });

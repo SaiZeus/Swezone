@@ -28,6 +28,7 @@ class Event extends Model
         'english_race_guide',
         'burmese_race_guide',
         'enabled_fields',
+        'tshirt_sizes',
         'enable_bib_number',
         'share_bib_prefix',
         'event_bib_prefix',
@@ -36,6 +37,7 @@ class Event extends Model
 
     protected $casts = [
         'enabled_fields' => 'array',
+        'tshirt_sizes' => 'array',
         'enable_bib_number' => 'boolean',
         'share_bib_prefix' => 'boolean',
         'latitude' => 'decimal:7',
@@ -67,4 +69,3 @@ class Event extends Model
         return $this->hasMany(Order::class);
     }
 }
-

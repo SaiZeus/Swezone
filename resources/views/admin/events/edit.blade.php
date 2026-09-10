@@ -22,28 +22,6 @@
         margin: 0 auto;
     }
 
-    .event-page-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 20px;
-        margin-bottom: 24px;
-    }
-
-    .event-page-header h1 {
-        margin: 0;
-        color: #172033;
-        font-size: 1.65rem;
-        font-weight: 850;
-        letter-spacing: -0.035em;
-    }
-
-    .event-page-header p {
-        margin-top: 5px;
-        color: #7b8798;
-        font-size: 0.88rem;
-    }
-
     .back-events-button {
         display: inline-flex;
         align-items: center;
@@ -72,65 +50,6 @@
         border: 1px solid #e7eaf0;
         border-radius: 22px;
         box-shadow: 0 14px 45px rgba(25, 35, 55, 0.065);
-    }
-
-    .event-form-header {
-        position: relative;
-        overflow: hidden;
-        padding: 28px 32px;
-        background:
-            radial-gradient(
-                circle at 95% 0%,
-                rgba(99, 102, 241, 0.15),
-                transparent 30%
-            ),
-            linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
-        border-bottom: 1px solid #e9ebf1;
-    }
-
-    .event-form-header::after {
-        content: "";
-        position: absolute;
-        width: 160px;
-        height: 160px;
-        right: -70px;
-        bottom: -100px;
-        border-radius: 50%;
-        background: rgba(79, 70, 229, 0.06);
-    }
-
-    .event-form-header-content {
-        position: relative;
-        z-index: 1;
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }
-
-    .event-header-icon {
-        width: 52px;
-        height: 52px;
-        min-width: 52px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 15px;
-        background: #eef2ff;
-        color: #4f46e5;
-        font-size: 1.35rem;
-    }
-
-    .event-form-header h2 {
-        margin: 0;
-        color: #172033;
-        font-size: 1.15rem;
-        font-weight: 850;
-    }
-
-    .event-form-header p {
-        margin: 4px 0 0;
-        color: #7b8798;
-        font-size: 0.78rem;
     }
 
     .event-form-body {
@@ -1032,14 +951,53 @@
         height: 16px;
     }
 
+    /* T-Shirt Sizes Section */
+    .tshirt-sizes-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .tshirt-sizes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 10px;
+    }
+
+    .tshirt-size-card {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        background: #ffffff;
+        cursor: pointer;
+        font-size: 0.76rem;
+        font-weight: 700;
+        color: #374151;
+    }
+
+    .tshirt-size-card input[type="checkbox"] {
+        accent-color: #4f46e5;
+        width: 15px;
+        height: 15px;
+    }
+
+    .custom-tshirt-input-group {
+        display: flex;
+        gap: 8px;
+        margin-top: 6px;
+    }
+
+    .custom-tshirt-input-group input {
+        max-width: 250px;
+    }
+
     @media (max-width: 767px) {
 
         .event-form-body {
             padding: 20px;
-        }
-
-        .event-form-header {
-            padding: 22px 20px;
         }
 
         .ticket-builder,
@@ -1062,11 +1020,6 @@
 
         .item-row {
             grid-template-columns: 1fr;
-        }
-
-        .event-page-header {
-            align-items: flex-start;
-            flex-direction: column;
         }
 
         .back-events-button {
@@ -1099,53 +1052,7 @@
 
     <div class="event-form-wrapper">
 
-        <div class="event-page-header">
-
-            <div>
-
-                <h1>Edit Marathon Event</h1>
-
-                <p>
-                    Update your event details, tickets, capacity, and participant information.
-                </p>
-
-            </div>
-
-            <a
-                href="{{ route('admin.events.index') }}"
-                class="back-events-button"
-            >
-                <i class="fa-solid fa-arrow-left"></i>
-                Back to Events
-            </a>
-
-        </div>
-
         <div class="event-form-card">
-
-            <div class="event-form-header">
-
-                <div class="event-form-header-content">
-
-                    <div class="event-header-icon">
-                        <i class="fa-solid fa-pen-to-square"></i>
-                    </div>
-
-                    <div>
-
-                        <h2>
-                            Edit {{ $event->title }}
-                        </h2>
-
-                        <p>
-                            Modify the information below to update your event.
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
 
             <div class="event-form-body">
 
@@ -1579,6 +1486,10 @@
 
                             ];
 
+                            $selectedTshirtSizes = old('tshirt_sizes', $event->tshirt_sizes ?? ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL']);
+                            $standardSizes = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'];
+                            $customSizes = array_diff($selectedTshirtSizes, $standardSizes);
+
                         @endphp
 
                         <div class="fields-toggle-box mb-4">
@@ -1597,6 +1508,7 @@
                                             type="checkbox"
                                             name="enabled_fields[]"
                                             value="{{ $fieldKey }}"
+                                            id="field_toggle_{{ $fieldKey }}"
                                             {{ in_array($fieldKey, $enabledFields) ? 'checked' : '' }}
                                         >
 
@@ -1607,6 +1519,86 @@
                                     </label>
 
                                 @endforeach
+
+                            </div>
+
+                        </div>
+
+                        {{-- T-SHIRT SIZES CONFIGURATION --}}
+
+                        <div 
+                            id="tshirt_sizes_config_box" 
+                            class="fields-toggle-box mb-4"
+                            style="{{ in_array('tshirt_size', $enabledFields) ? 'display: block;' : 'display: none;' }}"
+                        >
+
+                            <label class="event-label mb-1">
+                                Available T-Shirt Sizes
+                            </label>
+
+                            <p class="field-help mb-3 mt-0">
+                                Select which shirt sizes participants can choose during registration.
+                            </p>
+
+                            <div class="tshirt-sizes-wrapper">
+
+                                <div class="tshirt-sizes-grid" id="tshirt_sizes_grid">
+
+                                    @foreach($standardSizes as $size)
+
+                                        <label class="tshirt-size-card">
+
+                                            <input
+                                                type="checkbox"
+                                                name="tshirt_sizes[]"
+                                                value="{{ $size }}"
+                                                {{ in_array($size, $selectedTshirtSizes) ? 'checked' : '' }}
+                                            >
+
+                                            <span>{{ $size }}</span>
+
+                                        </label>
+
+                                    @endforeach
+
+                                    @foreach($customSizes as $customSize)
+
+                                        <label class="tshirt-size-card custom-size-card">
+
+                                            <input
+                                                type="checkbox"
+                                                name="tshirt_sizes[]"
+                                                value="{{ $customSize }}"
+                                                checked
+                                            >
+
+                                            <span>{{ $customSize }}</span>
+
+                                        </label>
+
+                                    @endforeach
+
+                                </div>
+
+                                <div class="custom-tshirt-input-group mt-2">
+
+                                    <input
+                                        type="text"
+                                        id="custom_tshirt_input"
+                                        placeholder="Add custom size (e.g. 4XL, Kids M)"
+                                        class="event-input"
+                                    >
+
+                                    <button
+                                        type="button"
+                                        id="add_custom_tshirt_btn"
+                                        class="add-category-button"
+                                        style="padding: 0 15px; white-space: nowrap;"
+                                    >
+                                        <i class="fa-solid fa-plus"></i> Add
+                                    </button>
+
+                                </div>
 
                             </div>
 
@@ -3029,6 +3021,53 @@
             }, 400);
         });
 
+        // --- T-Shirt Size Toggle Logic ---
+        const tshirtCheckbox = document.getElementById('field_toggle_tshirt_size');
+        const tshirtConfigBox = document.getElementById('tshirt_sizes_config_box');
+        
+        if (tshirtCheckbox) {
+            tshirtCheckbox.addEventListener('change', function() {
+                tshirtConfigBox.style.display = this.checked ? 'block' : 'none';
+            });
+        }
+
+        // Add Custom T-Shirt Size
+        const addCustomBtn = document.getElementById('add_custom_tshirt_btn');
+        const customInput = document.getElementById('custom_tshirt_input');
+        const tshirtGrid = document.getElementById('tshirt_sizes_grid');
+
+        if (addCustomBtn && customInput && tshirtGrid) {
+            addCustomBtn.addEventListener('click', function() {
+                const value = customInput.value.trim().toUpperCase();
+                if (!value) return;
+
+                const existingInputs = tshirtGrid.querySelectorAll('input[type="checkbox"]');
+                for (let input of existingInputs) {
+                    if (input.value === value) {
+                        input.checked = true;
+                        customInput.value = '';
+                        return;
+                    }
+                }
+
+                const label = document.createElement('label');
+                label.className = 'tshirt-size-card custom-size-card';
+                label.innerHTML = `
+                    <input type="checkbox" name="tshirt_sizes[]" value="${value}" checked>
+                    <span>${value}</span>
+                `;
+                tshirtGrid.appendChild(label);
+                customInput.value = '';
+            });
+
+            customInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addCustomBtn.click();
+                }
+            });
+        }
+
         // --- PDF Deletion Handlers ---
         document.querySelectorAll('.delete-file-button').forEach(button => {
             button.addEventListener('click', function() {
@@ -3169,13 +3208,13 @@
 
         const sharePrefixRadios = document.querySelectorAll('input[name="share_bib_prefix"]');
         const sharedPrefixBox = document.getElementById('shared_prefix_box');
-        const separateBibInputs = document.querySelectorAll('.separate-bib-inputs');
-
+        
         sharePrefixRadios.forEach(radio => {
             radio.addEventListener('change', function() {
                 const isShared = this.value === '1';
-                sharedPrefixBox.style.display = isShared ? 'grid' : 'none';
-                separateBibInputs.forEach(el => {
+                if (sharedPrefixBox) sharedPrefixBox.style.display = isShared ? 'grid' : 'none';
+                
+                document.querySelectorAll('.separate-bib-inputs').forEach(el => {
                     el.style.display = isShared ? 'none' : 'flex';
                 });
             });

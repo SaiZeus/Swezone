@@ -893,25 +893,6 @@
                         </span>
                     @endif
 
-                    @if($event->overall_capacity === null)
-
-                        <span>
-                            <i class="fas fa-infinity text-warning me-1"></i>
-                            Capacity: Unlimited
-                        </span>
-
-                    @else
-
-                        <span>
-                            <i class="fas fa-users text-warning me-1"></i>
-                            Remaining Capacity:
-                            {{ $overallTicketsRemaining }}
-                            /
-                            {{ $event->overall_capacity }}
-                        </span>
-
-                    @endif
-
                 </div>
 
                 {{-- DESCRIPTION --}}
@@ -1147,7 +1128,6 @@
                                             <th>Category</th>
                                             <th>Local Price</th>
                                             <th>Foreign Price</th>
-                                            <th>Availability</th>
 
                                             <th
                                                 style="width: 140px;"
@@ -1165,19 +1145,7 @@
                                         @foreach($event->ticketCategories as $category)
 
                                             @php
-
-                                                $categoryAvailable =
-                                                    $category->capacity === null
-                                                        ? null
-                                                        : max(
-                                                            0,
-                                                            $category->capacity - $category->tickets_sold
-                                                        );
-
-                                                $isCategorySoldOut =
-                                                    $category->capacity !== null &&
-                                                    $categoryAvailable <= 0;
-
+                                                $isCategorySoldOut = false;
                                             @endphp
 
                                             <tr>
@@ -1205,47 +1173,12 @@
 
                                                 <td>
 
-                                                    @if($category->capacity === null)
-
-                                                        @if($event->overall_capacity === null)
-
-                                                            <span class="text-success fw-bold">
-                                                                Unlimited
-                                                            </span>
-
-                                                        @else
-
-                                                            <span class="text-warning fw-bold">
-                                                                {{ $overallTicketsRemaining }} left
-                                                            </span>
-
-                                                        @endif
-
-                                                    @elseif($isCategorySoldOut)
-
-                                                        <span class="badge bg-danger">
-                                                            Sold Out
-                                                        </span>
-
-                                                    @else
-
-                                                        <span class="text-warning fw-bold">
-                                                            {{ $categoryAvailable }} left
-                                                        </span>
-
-                                                    @endif
-
-                                                </td>
-
-                                                <td>
-
                                                     <div class="input-group">
 
                                                         <button
                                                             class="btn btn-minus"
                                                             type="button"
                                                             data-id="{{ $category->id }}"
-                                                            {{ $isCategorySoldOut ? 'disabled' : '' }}
                                                         >
                                                             -
                                                         </button>
@@ -1258,18 +1191,16 @@
                                                             data-name="{{ $category->name }}"
                                                             data-local-price="{{ $category->local_price }}"
                                                             data-foreign-price="{{ $category->foreign_price ?? '' }}"
-                                                            data-max="{{ $categoryAvailable ?? 999 }}"
+                                                            data-max="999"
                                                             value="0"
                                                             min="0"
                                                             readonly
-                                                            {{ $isCategorySoldOut ? 'disabled' : '' }}
                                                         >
 
                                                         <button
                                                             class="btn btn-plus"
                                                             type="button"
                                                             data-id="{{ $category->id }}"
-                                                            {{ $isCategorySoldOut ? 'disabled' : '' }}
                                                         >
                                                             +
                                                         </button>
@@ -1501,7 +1432,7 @@ const districtOptions = {
     "9": ["ကဆန", "ကပတ", "ခမစ", "ခအစ", "ငဇန", "ငသရ", "စကတ", "စကန", "ဇဗသ", "ဇယသ", "ညဥန", "တကတ", "တကန", "တတဥ", "တသန", "ဒခသ", "နထက", "ပကခ", "ပဗသ", "pဘန", "ပမန", "ပသက", "ပဥလ", "မကန", "မခန", "မတရ", "မထလ", "မမန", "မလန", "မသန", "မဟမ", "ရမသ", "လဝန", "ဝတန", "သစန", "သပက", "အမစ", "အမရ", "ဥတသ"],
     "10": ["ကထန", "ကမရ", "ခဆန", "ခဇန", "ပမန", "ဘလန", "မဒန", "မလမ", "ရမန", "လမန", "သထန", "သဖြရ"],
     "11": ["ကတန", "ကတလ", "ကဖန", "ဂမန", "စတန", "တကန", "တပဝ", "ပဏတ", "ပတန", "ဗတထ", "ဘသတ", "မတန", "မပတ", "မပန", "မအတ", "မအန", "မဥန", "ရဗန", "ရသတ", "သတန", "အမန"],
-    "12": ["ကကက", "ကခက", "ကတတ", "ကတန", "ကမတ", "ကမန", "ကမရ", "ခရန", "စခန", "ဆကခ", "ဆကန", "တကန", "တတထ", "တတန", "တမန", "ထတပ", "ဒဂဆ", "ဒဂတ", "ဒဂန", "ဒဂမ", "ဒဂရ", "ဒပန", "ဒလန", "ပဇတ", "ပဘတ", "ဗဟန", "မဂတ", "မဂဒ", "မဘန", "မရက", "ရကန", "ရပသ", "လကန", "လမတ", "လမန", "လသန", "လသယ", "သကတ", "သခန", "သဃက", "သလန", "အစန", "အလန", "ဥကတ", "ဥကန", "ဥကမ"],
+    "12": ["ကကက", "ကခက", "ကတတ", "ကတန", "ကမတ", "ကမန", "ကမရ", "ခရန", "စခန", "ဆကခ", "ဆကန", "တကန", "တတထ", "တတန", "တမန", "ထတပ", "ဒဂဆ", "ဒဂတ", "ဒဂန", "ဒဂမ", "ဒဂရ", "ဒပန", "ဒလန", "ပဇတ", "ပဘတ", "ဗဟန", "မဂတ", "မဂဒ", "မဘန", "မရက", "ရကန", "ရပသ", "လကန", "lမတ", "လမန", "လသန", "လသယ", "သကတ", "သခန", "သဃက", "သလန", "အစန", "အလန", "ဥကတ", "ဥကန", "ဥကမ"],
     "13": ["ကခန", "ကတတ", "ကတန", "ကတလ", "ကမဆ", "ကမန", "ကရန", "ကလတ", "ကလဒ", "ကလန", "ကလဖ", "ကသန", "ကဟန", "ခမန", "ခရဟ", "ခလန", "ဆဆန", "ဆဖန", "ညရန", "တကန", "တခလ", "တမည", "တယန", "တလန", "နကန", "နခတ", "နခန", "နခဝ", "နဆန", "နတန", "နတယ", "နဖန", "နမတ", "နဝန", "ပခန", "ပဆန", "ပတယ", "ပပက", "ပယန", "ပလတ", "ပလန", "ပဝန", "ဖခန", "မကန", "မခန", "မငန", "မဆတ", "မဆန", "မတတ", "မတန", "မနန", "မပန", "မဖန", "မဗတ", "မဘန", "မမဆ", "မမတ", "မမန", "မယန", "မရတ", "မရန", "မလန", "မဟရ", "ယလန", "ရငန", "ရစန", "ရဖန", "လကတ", "လခတ", "လခန", "လရန", "လလန", "လဟန", "သနန", "သပန", "ဟတန", "ဟပတ", "ဟပန", "အခန", "အတန"],
     "14": ["ကကထ", "ကကန", "ကခန", "ကပန", "ကလန", "ငဆန", "ငပတ", "ငရက", "ငသခ", "ငသယ", "ဇလန", "ညတန", "ဒဒရ", "ဒနဖြ", "ပစလ", "ပတန", "ပသန", "ဖပန", "ဘကလ", "မမက", "မမန", "မအန", "မအပ", "ရကန", "ရသယ", "လပတ", "လမန", "ဝခမ", "သပန", "ဟကကျ", "ဟသတ", "အဂပ", "အမတ", "အမန"]
 };
@@ -1521,9 +1452,9 @@ const enabledFields = {!! \Illuminate\Support\Js::from($event->enabled_fields ??
     'address'
 ]) !!};
 
-const enableBibNumber = {!! \Illuminate\Support\Js::from((bool) ($event->enable_bib_number ?? true)) !!};
+const eventTshirtSizes = {!! \Illuminate\Support\Js::from($event->tshirt_sizes ?? ['S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL']) !!};
 
-const overallTicketsRemaining = {!! \Illuminate\Support\Js::from($overallTicketsRemaining) !!};
+const enableBibNumber = {!! \Illuminate\Support\Js::from((bool) ($event->enable_bib_number ?? true)) !!};
 
 
 /*
@@ -1725,10 +1656,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function updateButtonStates() {
 
-        const totalSelected =
-            getTotalSelectedTickets();
-
-
         document.querySelectorAll('.btn-plus').forEach(button => {
 
             const id =
@@ -1749,19 +1676,10 @@ document.addEventListener('DOMContentLoaded', function () {
             let isCategoryFull =
                 currentVal >= categoryMax;
 
-            let isOverallFull =
-                (overallTicketsRemaining !== null) &&
-                (totalSelected >= overallTicketsRemaining);
-
-
-            if (isCategoryFull || isOverallFull) {
-
+            if (isCategoryFull) {
                 button.disabled = true;
-
             } else {
-
                 button.disabled = false;
-
             }
 
         });
@@ -1807,19 +1725,10 @@ document.addEventListener('DOMContentLoaded', function () {
             const currentVal =
                 parseInt(input.value);
 
-            const totalSelected =
-                getTotalSelectedTickets();
-
-
             const canAddCategory =
                 currentVal < categoryMax;
 
-            const canAddOverall =
-                (overallTicketsRemaining === null) ||
-                (totalSelected < overallTicketsRemaining);
-
-
-            if (canAddCategory && canAddOverall) {
+            if (canAddCategory) {
 
                 input.value =
                     currentVal + 1;
@@ -1984,16 +1893,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (checkoutForm) {
 
         checkoutForm.addEventListener('submit', function (e) {
-
-            console.log(
-                '=== STEP 1: FRONTEND FORM SUBMIT ==='
-            );
-
-            console.log(
-                'Applied Promos Cache:',
-                appliedPromos
-            );
-
 
             const cards =
                 container.querySelectorAll(
@@ -3584,37 +3483,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                                     Select Size
                                                 </option>
 
-                                                <option value="S">
-                                                    S
-                                                </option>
-
-                                                <option value="M">
-                                                    M
-                                                </option>
-
-                                                <option value="L">
-                                                    L
-                                                </option>
-
-                                                <option value="XL">
-                                                    XL
-                                                </option>
-
-                                                <option value="2XL">
-                                                    2XL
-                                                </option>
-
-                                                <option value="3XL">
-                                                    3XL
-                                                </option>
-
-                                                <option value="4XL">
-                                                    4XL
-                                                </option>
-
-                                                <option value="5XL">
-                                                    5XL
-                                                </option>
+                                                ${eventTshirtSizes.map(size => `<option value="${size}">${size}</option>`).join('')}
 
                                             </select>
 
@@ -3633,13 +3502,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
                                             <label class="form-label">
                                                 Running / Event Experience
+                                                <span class="required-star">*</span>
                                             </label>
 
-                                            <textarea
+                                            <select
                                                 name="attendees[${formIndex}][experience]"
-                                                class="form-control"
-                                                placeholder="Previous marathons or race experience..."
-                                            ></textarea>
+                                                class="form-select"
+                                                required
+                                            >
+
+                                                <option value="">Select</option>
+                                                <option value="none">none</option>
+                                                <option value="10KM">10KM</option>
+                                                <option value="21KM">21KM</option>
+                                                <option value="42KM">42KM</option>
+
+                                            </select>
 
                                         </div>
 
