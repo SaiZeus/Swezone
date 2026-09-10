@@ -1150,28 +1150,41 @@ class AdminEventController extends Controller
     }
 
     public function destroyAttendee($id)
-    {
-        $attendee = Attendee::findOrFail($id);
+{
+    $attendee = Attendee::with('ticketCategory', 'order')->findOrFail($id);
 
-        if (
-            $attendee->ticketCategory &&
-            $attendee->ticketCategory->tickets_sold > 0
-        ) {
-            $attendee->ticketCategory->decrement(
-                'tickets_sold'
-            );
-        }
-
-        // Using Soft Delete so the record remains in the database
-        // and its sequence/BIB/Reg gaps can be reused
-        $attendee->delete();
-
-        return back()->with(
-            'success',
-            'Attendee deleted successfully!'
-        );
+    if (
+        $attendee->ticketCategory &&
+        $attendee->ticketCategory->tickets_sold > 0
+    ) {
+        $attendee->ticketCategory->decrement('tickets_sold');
     }
 
+    if ($attendee->order) {
+        $order = $attendee->order;
+        
+        // Determine price paid based on nationality or category price
+        $ticketPrice = (strtolower($attendee->nationality) === 'foreigner') 
+            ? ($attendee->ticketCategory->foreign_price ?? $attendee->ticketCategory->local_price) 
+            : $attendee->ticketCategory->local_price;
+
+        // Subtract this ticket's price from the order total
+        $newTotal = max(0, $order->total_amount - $ticketPrice);
+        
+        if ($newTotal == 0 || $order->attendees()->count() <= 1) {
+            $order->delete(); // Remove order entirely if empty or zero
+        } else {
+            $order->update(['total_amount' => $newTotal]);
+        }
+    }
+
+    $attendee->delete();
+
+    return back()->with(
+        'success',
+        'Attendee deleted and revenue updated successfully!'
+    );
+}
     public function downloadAttendeeTicket($id)
     {
         ini_set('memory_limit', '1024M');
