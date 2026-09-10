@@ -16,6 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
             guests: '/admin/login',
             users: '/admin'
         );
+
+        $middleware->alias([
+            'restrict.event.admin' => \App\Http\Middleware\RestrictEventAdmin::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -91,7 +91,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 });
 
 // Protected Admin Routes (Requires Admin Guard)
-Route::prefix('admin')->name('admin.')->middleware(['auth:admin'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'restrict.event.admin'])->group(function () {
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
 
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');

@@ -27,6 +27,7 @@
                 <tr class="border-b border-slate-100 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                     <th class="py-3 px-4">Name</th>
                     <th class="py-3 px-4">Email</th>
+                    <th class="py-3 px-4">Role & Assigned Event</th>
                     <th class="py-3 px-4">Created At</th>
                     <th class="py-3 px-4 text-right">Actions</th>
                 </tr>
@@ -39,15 +40,24 @@
                             {{ strtoupper(substr($admin->name, 0, 1)) }}
                         </div>
                         {{ $admin->name }}
-                        @if($admin->email === 'admin@gmail.com')
+                    </td>
+                    <td class="py-3.5 px-4">{{ $admin->email }}</td>
+                    <td class="py-3.5 px-4">
+                        @if($admin->role === 'event_admin')
+                            <span class="bg-indigo-100 text-indigo-700 text-[9px] font-extrabold px-2 py-0.5 rounded-md inline-block mb-1">Event Admin</span>
+                            @if($admin->event)
+                                <div class="text-[11px] text-slate-500 font-semibold">{{ $admin->event->title }}</div>
+                            @else
+                                <div class="text-[11px] text-rose-500 font-semibold">No event assigned</div>
+                            @endif
+                        @else
                             <span class="bg-amber-100 text-amber-700 text-[9px] font-extrabold px-2 py-0.5 rounded-md">Super Admin</span>
                         @endif
                     </td>
-                    <td class="py-3.5 px-4">{{ $admin->email }}</td>
                     <td class="py-3.5 px-4 text-slate-400">{{ $admin->created_at->format('M d, Y') }}</td>
                     <td class="py-3.5 px-4 text-right space-x-2">
                         <a href="{{ route('admin.admins.edit', $admin->id) }}" class="text-indigo-600 hover:text-indigo-900 font-bold px-2 py-1 bg-indigo-50 rounded-lg">Edit</a>
-                        @if($admin->email !== 'admin@gmail.com')
+                        @if($admin->email !== 'admin@gmail.com' && auth('admin')->id() !== $admin->id)
                             <form action="{{ route('admin.admins.destroy', $admin->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this admin?');">
                                 @csrf
                                 @method('DELETE')

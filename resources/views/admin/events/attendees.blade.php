@@ -1,9 +1,23 @@
-@extends('layouts.admin')
+@if(auth('admin')->user()->isEventAdmin())
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{{ $event->title }} - Attendees Directory</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    </head>
+    <body class="bg-slate-50 text-slate-800 font-sans p-6">
+        <div class="max-w-7xl mx-auto">
+@else
+    @extends('layouts.admin')
 
-@section('title', 'Event Attendees & Revenue')
-@section('page-title', 'Attendees Directory - ' . $event->title)
+    @section('title', 'Event Attendees & Revenue')
+    @section('page-title', 'Attendees Directory - ' . $event->title)
 
-@section('content')
+    @section('content')
+@endif
 
 <style>
     /* =========================================================
@@ -555,9 +569,18 @@
                 <i class="fa-solid fa-file-excel text-sm"></i> Download Excel Report
             </a>
 
-            <a href="{{ route('admin.events.index') }}" class="back-events-button">
-                <i class="fa-solid fa-arrow-left"></i> Back to Events
-            </a>
+            @if(!auth('admin')->user()->isEventAdmin())
+                <a href="{{ route('admin.events.index') }}" class="back-events-button">
+                    <i class="fa-solid fa-arrow-left"></i> Back to Events
+                </a>
+            @else
+                <form action="{{ route('admin.logout') }}" method="POST" class="inline-block">
+                    @csrf
+                    <button type="submit" class="inline-flex items-center gap-2 px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all">
+                        <i class="fa-solid fa-right-from-bracket text-sm"></i> Logout
+                    </button>
+                </form>
+            @endif
         </div>
     </div>
 
@@ -627,7 +650,9 @@
                         <th>Demographics</th>
                         <th>Health & ITRA</th>
                         <th>Address & Experience</th>
-                        <th class="text-right">Actions</th>
+                        @if(!auth('admin')->user()->isEventAdmin())
+                            <th class="text-right">Actions</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -752,30 +777,32 @@
                             @endif
                         </td>
 
-                        {{-- Actions --}}
-                        <td>
-                            <div class="attendee-actions">
-                                <a href="{{ route('admin.attendees.download_ticket', $attendee->id) }}" class="attendee-action download-ticket-button" title="Download Ticket PDF">
-                                    <i class="fa-solid fa-download"></i> Ticket
-                                </a>
+                        {{-- Actions (Super Admins Only) --}}
+                        @if(!auth('admin')->user()->isEventAdmin())
+                            <td>
+                                <div class="attendee-actions">
+                                    <a href="{{ route('admin.attendees.download_ticket', $attendee->id) }}" class="attendee-action download-ticket-button" title="Download Ticket PDF">
+                                        <i class="fa-solid fa-download"></i> Ticket
+                                    </a>
 
-                                <button type="button" onclick="document.getElementById('edit-modal-{{ $attendee->id }}').classList.remove('hidden')" class="attendee-action edit-attendee-button">
-                                    <i class="fa-solid fa-pen-to-square"></i> Edit
-                                </button>
-
-                                <form action="{{ route('admin.attendees.destroy', $attendee->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this attendee?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="attendee-action delete-attendee-button">
-                                        <i class="fa-solid fa-trash"></i> Delete
+                                    <button type="button" onclick="document.getElementById('edit-modal-{{ $attendee->id }}').classList.remove('hidden')" class="attendee-action edit-attendee-button">
+                                        <i class="fa-solid fa-pen-to-square"></i> Edit
                                     </button>
-                                </form>
-                            </div>
-                        </td>
+
+                                    <form action="{{ route('admin.attendees.destroy', $attendee->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this attendee?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="attendee-action delete-attendee-button">
+                                            <i class="fa-solid fa-trash"></i> Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        @endif
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="9" class="attendees-empty-state">
+                        <td colspan="{{ auth('admin')->user()->isEventAdmin() ? 8 : 9 }}" class="attendees-empty-state">
                             <div class="attendees-empty-icon"><i class="fa-solid fa-users-slash"></i></div>
                             <h3>No Runners Registered</h3>
                             <p>No runners registered for this event yet.</p>
@@ -787,164 +814,172 @@
         </div>
     </div>
 
-    {{-- EDIT RUNNER MODALS --}}
-    @foreach($attendees as $attendee)
-    <div id="edit-modal-{{ $attendee->id }}" class="edit-runner-modal fixed inset-0 flex items-center justify-center z-50 hidden p-4">
-        <div class="edit-runner-modal-card w-full">
-            <div class="edit-modal-header">
-                <div class="edit-modal-title-wrapper">
-                    <div class="edit-modal-icon"><i class="fa-solid fa-user-pen"></i></div>
-                    <div class="edit-modal-title">
-                        <h3>Edit Runner Details</h3>
-                        <p>Update participant profile and event record</p>
+    {{-- EDIT RUNNER MODALS (Super Admins Only) --}}
+    @if(!auth('admin')->user()->isEventAdmin())
+        @foreach($attendees as $attendee)
+        <div id="edit-modal-{{ $attendee->id }}" class="edit-runner-modal fixed inset-0 flex items-center justify-center z-50 hidden p-4">
+            <div class="edit-runner-modal-card w-full">
+                <div class="edit-modal-header">
+                    <div class="edit-modal-title-wrapper">
+                        <div class="edit-modal-icon"><i class="fa-solid fa-user-pen"></i></div>
+                        <div class="edit-modal-title">
+                            <h3>Edit Runner Details</h3>
+                            <p>Update participant profile and event record</p>
+                        </div>
                     </div>
+                    <button type="button" onclick="document.getElementById('edit-modal-{{ $attendee->id }}').classList.add('hidden')" class="edit-modal-close">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
                 </div>
-                <button type="button" onclick="document.getElementById('edit-modal-{{ $attendee->id }}').classList.add('hidden')" class="edit-modal-close">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
 
-            <div class="edit-modal-body">
-                <form action="{{ route('admin.attendees.update', $attendee->id) }}" method="POST" class="space-y-4">
-                    @csrf
-                    @method('PUT')
+                <div class="edit-modal-body">
+                    <form action="{{ route('admin.attendees.update', $attendee->id) }}" method="POST" class="space-y-4">
+                        @csrf
+                        @method('PUT')
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div class="edit-field">
-                            <label class="edit-label">Full Name</label>
-                            <input type="text" name="full_name" value="{{ $attendee->full_name }}" required class="edit-input">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="edit-field">
+                                <label class="edit-label">Full Name</label>
+                                <input type="text" name="full_name" value="{{ $attendee->full_name }}" required class="edit-input">
+                            </div>
+                            <div class="edit-field">
+                                <label class="edit-label">Father Name</label>
+                                <input type="text" name="father_name" value="{{ $attendee->father_name }}" class="edit-input">
+                            </div>
                         </div>
-                        <div class="edit-field">
-                            <label class="edit-label">Father Name</label>
-                            <input type="text" name="father_name" value="{{ $attendee->father_name }}" class="edit-input">
-                        </div>
-                    </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                        <div class="edit-field">
-                            <label class="edit-label">Email</label>
-                            <input type="email" name="email" value="{{ $attendee->email }}" required class="edit-input">
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                            <div class="edit-field">
+                                <label class="edit-label">Email</label>
+                                <input type="email" name="email" value="{{ $attendee->email }}" required class="edit-input">
+                            </div>
+                            <div class="edit-field">
+                                <label class="edit-label">Phone</label>
+                                <input type="text" name="phone" value="{{ $attendee->phone }}" required class="edit-input">
+                            </div>
+                            <div class="edit-field">
+                                <label class="edit-label">Viber Number</label>
+                                <input type="text" name="viber" value="{{ $attendee->viber }}" class="edit-input">
+                            </div>
+                            <div class="edit-field">
+                                <label class="edit-label">Emergency Contact (ICE)</label>
+                                <input type="text" name="emergency_contact" value="{{ $attendee->emergency_contact }}" required class="edit-input">
+                            </div>
                         </div>
-                        <div class="edit-field">
-                            <label class="edit-label">Phone</label>
-                            <input type="text" name="phone" value="{{ $attendee->phone }}" required class="edit-input">
-                        </div>
-                        <div class="edit-field">
-                            <label class="edit-label">Viber Number</label>
-                            <input type="text" name="viber" value="{{ $attendee->viber }}" class="edit-input">
-                        </div>
-                        <div class="edit-field">
-                            <label class="edit-label">Emergency Contact (ICE)</label>
-                            <input type="text" name="emergency_contact" value="{{ $attendee->emergency_contact }}" required class="edit-input">
-                        </div>
-                    </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div class="edit-field">
-                            <label class="edit-label">Nationality</label>
-                            <select name="nationality" class="edit-select">
-                                <option value="Myanmar" {{ $attendee->nationality === 'Myanmar' ? 'selected' : '' }}>Myanmar</option>
-                                <option value="Foreigner" {{ $attendee->nationality === 'Foreigner' ? 'selected' : '' }}>Foreigner</option>
-                            </select>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div class="edit-field">
+                                <label class="edit-label">Nationality</label>
+                                <select name="nationality" class="edit-select">
+                                    <option value="Myanmar" {{ $attendee->nationality === 'Myanmar' ? 'selected' : '' }}>Myanmar</option>
+                                    <option value="Foreigner" {{ $attendee->nationality === 'Foreigner' ? 'selected' : '' }}>Foreigner</option>
+                                </select>
+                            </div>
+                            <div class="edit-field">
+                                <label class="edit-label">NRC / Passport</label>
+                                <input type="text" name="nrc_passport" value="{{ $attendee->nrc_passport }}" required class="edit-input">
+                            </div>
+                            <div class="edit-field">
+                                <label class="edit-label">Country</label>
+                                <input type="text" name="country" value="{{ $attendee->country }}" class="edit-input">
+                            </div>
                         </div>
-                        <div class="edit-field">
-                            <label class="edit-label">NRC / Passport</label>
-                            <input type="text" name="nrc_passport" value="{{ $attendee->nrc_passport }}" required class="edit-input">
-                        </div>
-                        <div class="edit-field">
-                            <label class="edit-label">Country</label>
-                            <input type="text" name="country" value="{{ $attendee->country }}" class="edit-input">
-                        </div>
-                    </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-5 gap-4">
-                        <div class="edit-field">
-                            <label class="edit-label">Gender</label>
-                            <select name="gender" class="edit-select">
-                                <option value="male" {{ $attendee->gender === 'male' ? 'selected' : '' }}>Male</option>
-                                <option value="female" {{ $attendee->gender === 'female' ? 'selected' : '' }}>Female</option>
-                                <option value="prefer_not_to_say" {{ $attendee->gender === 'prefer_not_to_say' ? 'selected' : '' }}>Prefer not to say</option>
-                            </select>
+                        <div class="grid grid-cols-1 sm:grid-cols-5 gap-4">
+                            <div class="edit-field">
+                                <label class="edit-label">Gender</label>
+                                <select name="gender" class="edit-select">
+                                    <option value="male" {{ $attendee->gender === 'male' ? 'selected' : '' }}>Male</option>
+                                    <option value="female" {{ $attendee->gender === 'female' ? 'selected' : '' }}>Female</option>
+                                    <option value="prefer_not_to_say" {{ $attendee->gender === 'prefer_not_to_say' ? 'selected' : '' }}>Prefer not to say</option>
+                                </select>
+                            </div>
+                            <div class="edit-field">
+                                <label class="edit-label">Date of Birth</label>
+                                <input type="date" name="date_of_birth" value="{{ $attendee->date_of_birth }}" class="edit-input">
+                            </div>
+                            <div class="edit-field">
+                                <label class="edit-label">BIB Number</label>
+                                <input type="text" name="bib_number" value="{{ $attendee->bib_number }}" class="edit-input" placeholder="e.g. 1001">
+                            </div>
+                            <div class="edit-field">
+                                <label class="edit-label">BIB Name</label>
+                                <input type="text" name="bib_name" maxlength="10" value="{{ $attendee->bib_name }}" class="edit-input">
+                            </div>
+                            <div class="edit-field">
+                                <label class="edit-label">T-Shirt Size</label>
+                                <select name="tshirt_size" class="edit-select">
+                                    @foreach(['S', 'M', 'L', 'XL', '2XL'] as $size)
+                                        <option value="{{ $size }}" {{ $attendee->tshirt_size === $size ? 'selected' : '' }}>{{ $size }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
-                        <div class="edit-field">
-                            <label class="edit-label">Date of Birth</label>
-                            <input type="date" name="date_of_birth" value="{{ $attendee->date_of_birth }}" class="edit-input">
-                        </div>
-                        <div class="edit-field">
-                            <label class="edit-label">BIB Number</label>
-                            <input type="text" name="bib_number" value="{{ $attendee->bib_number }}" class="edit-input" placeholder="e.g. 1001">
-                        </div>
-                        <div class="edit-field">
-                            <label class="edit-label">BIB Name</label>
-                            <input type="text" name="bib_name" maxlength="10" value="{{ $attendee->bib_name }}" class="edit-input">
-                        </div>
-                        <div class="edit-field">
-                            <label class="edit-label">T-Shirt Size</label>
-                            <select name="tshirt_size" class="edit-select">
-                                @foreach(['S', 'M', 'L', 'XL', '2XL'] as $size)
-                                    <option value="{{ $size }}" {{ $attendee->tshirt_size === $size ? 'selected' : '' }}>{{ $size }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div class="edit-field">
-                            <label class="edit-label">Blood Type</label>
-                            <select name="blood_type" class="edit-select">
-                                @foreach(['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'] as $type)
-                                    <option value="{{ $type }}" {{ $attendee->blood_type === $type ? 'selected' : '' }}>{{ $type }}</option>
-                                @endforeach
-                            </select>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div class="edit-field">
+                                <label class="edit-label">Blood Type</label>
+                                <select name="blood_type" class="edit-select">
+                                    @foreach(['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'] as $type)
+                                        <option value="{{ $type }}" {{ $attendee->blood_type === $type ? 'selected' : '' }}>{{ $type }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="edit-field">
+                                <label class="edit-label">Has Medical Condition?</label>
+                                <select name="has_medical_condition" class="edit-select">
+                                    <option value="no" {{ strtolower($attendee->has_medical_condition) !== 'yes' ? 'selected' : '' }}>No</option>
+                                    <option value="yes" {{ strtolower($attendee->has_medical_condition) === 'yes' ? 'selected' : '' }}>Yes</option>
+                                </select>
+                            </div>
+                            <div class="edit-field">
+                                <label class="edit-label">Medical Details</label>
+                                <input type="text" name="medical_details" value="{{ $attendee->medical_details }}" class="edit-input">
+                            </div>
                         </div>
-                        <div class="edit-field">
-                            <label class="edit-label">Has Medical Condition?</label>
-                            <select name="has_medical_condition" class="edit-select">
-                                <option value="no" {{ strtolower($attendee->has_medical_condition) !== 'yes' ? 'selected' : '' }}>No</option>
-                                <option value="yes" {{ strtolower($attendee->has_medical_condition) === 'yes' ? 'selected' : '' }}>Yes</option>
-                            </select>
-                        </div>
-                        <div class="edit-field">
-                            <label class="edit-label">Medical Details</label>
-                            <input type="text" name="medical_details" value="{{ $attendee->medical_details }}" class="edit-input">
-                        </div>
-                    </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div class="edit-field">
-                            <label class="edit-label">ITRA Registered?</label>
-                            <select name="itra" class="edit-select">
-                                <option value="no" {{ strtolower($attendee->itra) !== 'yes' ? 'selected' : '' }}>No</option>
-                                <option value="yes" {{ strtolower($attendee->itra) === 'yes' ? 'selected' : '' }}>Yes</option>
-                            </select>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="edit-field">
+                                <label class="edit-label">ITRA Registered?</label>
+                                <select name="itra" class="edit-select">
+                                    <option value="no" {{ strtolower($attendee->itra) !== 'yes' ? 'selected' : '' }}>No</option>
+                                    <option value="yes" {{ strtolower($attendee->itra) === 'yes' ? 'selected' : '' }}>Yes</option>
+                                </select>
+                            </div>
+                            <div class="edit-field">
+                                <label class="edit-label">ITRA Details</label>
+                                <input type="text" name="itra_details" value="{{ $attendee->itra_details }}" class="edit-input">
+                            </div>
                         </div>
-                        <div class="edit-field">
-                            <label class="edit-label">ITRA Details</label>
-                            <input type="text" name="itra_details" value="{{ $attendee->itra_details }}" class="edit-input">
-                        </div>
-                    </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div class="edit-field">
-                            <label class="edit-label">Address</label>
-                            <textarea name="address" rows="2" class="edit-textarea">{{ $attendee->address }}</textarea>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="edit-field">
+                                <label class="edit-label">Address</label>
+                                <textarea name="address" rows="2" class="edit-textarea">{{ $attendee->address }}</textarea>
+                            </div>
+                            <div class="edit-field">
+                                <label class="edit-label">Running Experience</label>
+                                <textarea name="experience" rows="2" class="edit-textarea">{{ $attendee->experience }}</textarea>
+                            </div>
                         </div>
-                        <div class="edit-field">
-                            <label class="edit-label">Running Experience</label>
-                            <textarea name="experience" rows="2" class="edit-textarea">{{ $attendee->experience }}</textarea>
-                        </div>
-                    </div>
 
-                    <div class="edit-modal-footer">
-                        <button type="button" onclick="document.getElementById('edit-modal-{{ $attendee->id }}').classList.add('hidden')" class="cancel-edit-button">Cancel</button>
-                        <button type="submit" class="save-edit-button"><i class="fa-solid fa-check mr-1"></i> Save Changes</button>
-                    </div>
-                </form>
+                        <div class="edit-modal-footer">
+                            <button type="button" onclick="document.getElementById('edit-modal-{{ $attendee->id }}').classList.add('hidden')" class="cancel-edit-button">Cancel</button>
+                            <button type="submit" class="save-edit-button"><i class="fa-solid fa-check mr-1"></i> Save Changes</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
-    @endforeach
+        @endforeach
+    @endif
 
 </div>
 
-@endsection
+@if(auth('admin')->user()->isEventAdmin())
+        </div>
+    </body>
+    </html>
+@else
+    @endsection
+@endif

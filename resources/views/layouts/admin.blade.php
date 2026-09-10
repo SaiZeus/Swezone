@@ -467,237 +467,244 @@
 
 
 <body class="font-sans antialiased">
-
-    <div class="flex h-screen overflow-hidden">
-
-
-        <!-- =========================================
-             SIDEBAR
-             ========================================= -->
-        <aside class="admin-sidebar text-slate-200 flex flex-col flex-shrink-0">
+    @if(!auth('admin')->check() || !auth('admin')->user()->isEventAdmin())
+        <div class="flex h-screen overflow-hidden">
 
 
-            <!-- Brand -->
-            <div class="admin-brand">
+            <!-- =========================================
+                 SIDEBAR
+                 ========================================= -->
+            <aside class="admin-sidebar text-slate-200 flex flex-col flex-shrink-0">
 
-                <div class="admin-brand-icon">
-                    <i class="fa-solid fa-person-running"></i>
-                </div>
 
-                <div class="admin-brand-text">
+                <!-- Brand -->
+                <div class="admin-brand">
 
-                    <div class="admin-brand-title">
-                        MARATHON ADMIN
+                    <div class="admin-brand-icon">
+                        <i class="fa-solid fa-person-running"></i>
                     </div>
 
-                    <div class="admin-brand-subtitle">
-                        Ticketing System
-                    </div>
+                    <div class="admin-brand-text">
 
-                </div>
-
-            </div>
-
-
-            <!-- Navigation -->
-            <nav class="admin-nav flex-1">
-
-                <div class="admin-nav-label">
-                    Main Menu
-                </div>
-
-
-                <!-- Dashboard -->
-                <a
-                    href="{{ route('admin.dashboard') }}"
-                    class="admin-nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
-                >
-
-                    <i class="fa-solid fa-chart-line"></i>
-
-                    <span>
-                        Dashboard
-                    </span>
-
-                </a>
-
-
-                <!-- Events -->
-                <a
-                    href="{{ route('admin.events.index') }}"
-                    class="admin-nav-link {{ request()->routeIs('admin.events.*') ? 'active' : '' }}"
-                >
-
-                    <i class="fa-solid fa-calendar-days"></i>
-
-                    <span>
-                        Manage Events
-                    </span>
-
-                </a>
-
-                <a
-    href="{{ route('admin.admins.index') }}"
-    class="admin-nav-link {{ request()->routeIs('admin.admins.*') ? 'active' : '' }}"
->
-    <i class="fa-solid fa-shield-halved"></i>
-    <span>Manage Admins</span>
-</a>
-
-
-                <!-- Main Site -->
-                <a
-                    href="{{ route('home') }}"
-                    target="_blank"
-                    class="admin-nav-link external"
-                >
-
-                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
-
-                    <span>
-                        Visit Main Site
-                    </span>
-
-                </a>
-
-            </nav>
-
-
-            <!-- Sidebar Footer -->
-            <div class="admin-sidebar-footer">
-
-                <div class="admin-system-status">
-
-                    <span class="admin-status-dot"></span>
-
-                    <span>
-                        System Online
-                    </span>
-
-                </div>
-
-            </div>
-
-        </aside>
-
-
-        <!-- =========================================
-             MAIN CONTENT AREA
-             ========================================= -->
-        <div class="admin-main flex-1 flex flex-col overflow-y-auto">
-
-
-            <!-- =====================================
-                 HEADER
-                 ===================================== -->
-            <header class="admin-header px-7 flex items-center justify-between flex-shrink-0">
-
-
-                <!-- Page Title -->
-                <div class="admin-page-title-wrapper">
-
-                    <div class="admin-page-title-icon">
-
-                        <i class="fa-solid fa-layer-group"></i>
-
-                    </div>
-
-                    <h1 class="admin-page-title">
-                        @yield('page-title', 'Dashboard')
-                    </h1>
-
-                </div>
-
-
-                <!-- Admin Profile Dropdown -->
-                <div class="relative" x-data="{ open: false }">
-
-                    <div class="admin-profile" @click="open = !open">
-
-                        <div class="admin-profile-info">
-
-                            <div class="admin-profile-name">
-                                {{ Auth::user()->name ?? 'Admin User' }}
-                            </div>
-
-                            <div class="admin-profile-role">
-                                Administrator
-                            </div>
-
+                        <div class="admin-brand-title">
+                            MARATHON ADMIN
                         </div>
 
-                        <div class="admin-avatar">
-                            {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
+                        <div class="admin-brand-subtitle">
+                            Ticketing System
                         </div>
-
-                        <i class="fa-solid fa-chevron-down text-slate-400 text-[10px] ml-1 transition-transform" :class="{ 'rotate-180': open }"></i>
 
                     </div>
 
-                    <!-- Dropdown Menu -->
-                    <div 
-                        x-show="open" 
-                        @click.outside="open = false"
-                        x-transition:enter="transition ease-out duration-100"
-                        x-transition:enter-start="transform opacity-0 scale-95"
-                        x-transition:enter-end="transform opacity-100 scale-100"
-                        x-transition:leave="transition ease-in duration-75"
-                        x-transition:leave-start="transform opacity-100 scale-100"
-                        x-transition:leave-end="transform opacity-0 scale-95"
-                        class="absolute right-0 mt-3 w-48 bg-white rounded-xl shadow-lg py-2 z-50 border border-slate-100"
-                        style="display: none;"
+                </div>
+
+
+                <!-- Navigation -->
+                <nav class="admin-nav flex-1">
+
+                    <div class="admin-nav-label">
+                        Main Menu
+                    </div>
+
+
+                    <!-- Dashboard -->
+                    <a
+                        href="{{ route('admin.dashboard') }}"
+                        class="admin-nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
                     >
-                        <div class="px-4 py-2 border-b border-slate-100">
-                            <p class="text-xs font-bold text-slate-800">{{ Auth::user()->name ?? 'Admin User' }}</p>
-                            <p class="text-[10px] text-slate-400 truncate">{{ Auth::user()->email ?? 'admin@example.com' }}</p>
-                        </div>
 
-                        <form method="POST" action="{{ route('admin.logout') }}">
-                            @csrf
-                            <button type="submit" class="w-full text-left px-4 py-2 text-xs text-rose-600 font-bold hover:bg-rose-50 flex items-center gap-2 transition-colors">
-                                <i class="fa-solid fa-right-from-bracket"></i>
-                                Log Out
-                            </button>
-                        </form>
-                    </div>
-
-                </div>
-
-            </header>
-
-
-            <!-- =====================================
-                 PAGE CONTENT
-                 ===================================== -->
-            <main class="admin-content">
-
-                @if(session('success'))
-
-                    <div class="admin-success-alert">
-
-                        <div class="admin-success-icon">
-
-                            <i class="fa-solid fa-check"></i>
-
-                        </div>
+                        <i class="fa-solid fa-chart-line"></i>
 
                         <span>
-                            {{ session('success') }}
+                            Dashboard
+                        </span>
+
+                    </a>
+
+
+                    <!-- Events -->
+                    <a
+                        href="{{ route('admin.events.index') }}"
+                        class="admin-nav-link {{ request()->routeIs('admin.events.*') ? 'active' : '' }}"
+                    >
+
+                        <i class="fa-solid fa-calendar-days"></i>
+
+                        <span>
+                            Manage Events
+                        </span>
+
+                    </a>
+
+                    @if(!auth('admin')->check() || method_exists(auth('admin')->user(), 'isSuperAdmin') ? auth('admin')->user()->isSuperAdmin() : true)
+                    <a
+                        href="{{ route('admin.admins.index') }}"
+                        class="admin-nav-link {{ request()->routeIs('admin.admins.*') ? 'active' : '' }}"
+                    >
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>Manage Admins</span>
+                    </a>
+                    @endif
+
+
+                    <!-- Main Site -->
+                    <a
+                        href="{{ route('home') }}"
+                        target="_blank"
+                        class="admin-nav-link external"
+                    >
+
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+
+                        <span>
+                            Visit Main Site
+                        </span>
+
+                    </a>
+
+                </nav>
+
+
+                <!-- Sidebar Footer -->
+                <div class="admin-sidebar-footer">
+
+                    <div class="admin-system-status">
+
+                        <span class="admin-status-dot"></span>
+
+                        <span>
+                            System Online
                         </span>
 
                     </div>
 
-                @endif
+                </div>
+
+            </aside>
 
 
-                @yield('content')
+            <!-- =========================================
+                 MAIN CONTENT AREA
+                 ========================================= -->
+            <div class="admin-main flex-1 flex flex-col overflow-y-auto">
 
-            </main>
 
+                <!-- =====================================
+                     HEADER
+                     ===================================== -->
+                <header class="admin-header px-7 flex items-center justify-between flex-shrink-0">
+
+
+                    <!-- Page Title -->
+                    <div class="admin-page-title-wrapper">
+
+                        <div class="admin-page-title-icon">
+
+                            <i class="fa-solid fa-layer-group"></i>
+
+                        </div>
+
+                        <h1 class="admin-page-title">
+                            @yield('page-title', 'Dashboard')
+                        </h1>
+
+                    </div>
+
+
+                    <!-- Admin Profile Dropdown -->
+                    <div class="relative" x-data="{ open: false }">
+
+                        <div class="admin-profile" @click="open = !open">
+
+                            <div class="admin-profile-info">
+
+                                <div class="admin-profile-name">
+                                    {{ Auth::user()->name ?? 'Admin User' }}
+                                </div>
+
+                                <div class="admin-profile-role">
+                                    Administrator
+                                </div>
+
+                            </div>
+
+                            <div class="admin-avatar">
+                                {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
+                            </div>
+
+                            <i class="fa-solid fa-chevron-down text-slate-400 text-[10px] ml-1 transition-transform" :class="{ 'rotate-180': open }"></i>
+
+                        </div>
+
+                        <!-- Dropdown Menu -->
+                        <div 
+                            x-show="open" 
+                            @click.outside="open = false"
+                            x-transition:enter="transition ease-out duration-100"
+                            x-transition:enter-start="transform opacity-0 scale-95"
+                            x-transition:enter-end="transform opacity-100 scale-100"
+                            x-transition:leave="transition ease-in duration-75"
+                            x-transition:leave-start="transform opacity-100 scale-100"
+                            x-transition:leave-end="transform opacity-0 scale-95"
+                            class="absolute right-0 mt-3 w-48 bg-white rounded-xl shadow-lg py-2 z-50 border border-slate-100"
+                            style="display: none;"
+                        >
+                            <div class="px-4 py-2 border-b border-slate-100">
+                                <p class="text-xs font-bold text-slate-800">{{ Auth::user()->name ?? 'Admin User' }}</p>
+                                <p class="text-[10px] text-slate-400 truncate">{{ Auth::user()->email ?? 'admin@example.com' }}</p>
+                            </div>
+
+                            <form method="POST" action="{{ route('admin.logout') }}">
+                                @csrf
+                                <button type="submit" class="w-full text-left px-4 py-2 text-xs text-rose-600 font-bold hover:bg-rose-50 flex items-center gap-2 transition-colors">
+                                    <i class="fa-solid fa-right-from-bracket"></i>
+                                    Log Out
+                                </button>
+                            </form>
+                        </div>
+
+                    </div>
+
+                </header>
+
+
+                <!-- =====================================
+                     PAGE CONTENT
+                     ===================================== -->
+                <main class="admin-content">
+
+                    @if(session('success'))
+
+                        <div class="admin-success-alert">
+
+                            <div class="admin-success-icon">
+
+                                <i class="fa-solid fa-check"></i>
+
+                            </div>
+
+                            <span>
+                                {{ session('success') }}
+                            </span>
+
+                        </div>
+
+                    @endif
+
+
+                    @yield('content')
+
+                </main>
+
+
+            </div>
 
         </div>
-
-    </div>
+    @else
+        <main class="w-full">
+            @yield('content')
+        </main>
+    @endif
 
 </body>
 
