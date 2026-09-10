@@ -90,36 +90,36 @@
 
     .event-description {
         margin-top: 18px !important;
-        padding: 18px 20px;
+        padding: 22px 24px;
     }
 
     .event-description h4 {
         color: #581c87;
-        font-size: .98rem;
+        font-size: 1rem;
         font-weight: 800;
-        margin-bottom: 6px;
+        margin-bottom: 8px;
     }
 
     .event-description p {
         color: #6b21a8;
-        line-height: 1.6;
-        font-size: .88rem;
+        line-height: 1.7;
+        font-size: .9rem;
         margin-bottom: 0;
     }
 
     .event-details-section .d-flex.flex-wrap {
-        gap: 8px 10px !important;
+        gap: 10px 12px !important;
     }
 
     .event-details-section .d-flex.flex-wrap > span {
         display: inline-flex;
         align-items: center;
-        padding: 6px 12px;
+        padding: 8px 14px;
         border: 1px solid #e9d5ff;
         border-radius: 999px;
         background: #faf5ff;
         color: #6b21a8 !important;
-        font-size: .8rem;
+        font-size: .82rem;
         box-shadow: 0 2px 8px rgba(147, 51, 234, .03);
     }
 
@@ -132,7 +132,7 @@
     .items-panel,
     .ticket-panel,
     .attendee-panel {
-        padding: 18px 20px;
+        padding: 24px;
     }
 
     .items-panel h3 i.text-primary {
@@ -148,24 +148,24 @@
 
     .event-map-panel {
         margin-top: 18px;
-        padding: 18px 20px;
+        padding: 22px 24px;
     }
 
     .event-map-header {
         display: flex;
         align-items: center;
-        gap: 10px;
-        margin-bottom: 12px;
+        gap: 12px;
+        margin-bottom: 14px;
     }
 
     .event-map-icon {
-        width: 36px;
-        height: 36px;
-        min-width: 36px;
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 10px;
+        border-radius: 12px;
         background: #f3e8ff;
         color: #a855f7;
     }
@@ -173,14 +173,14 @@
     .event-map-header h4 {
         margin: 0;
         color: #581c87;
-        font-size: .98rem;
+        font-size: 1rem;
         font-weight: 800;
     }
 
     .event-map-header p {
         margin: 2px 0 0;
         color: #929baa;
-        font-size: .68rem;
+        font-size: .72rem;
     }
 
     #event-details-map {
@@ -188,21 +188,21 @@
         height: 360px;
         overflow: hidden;
         border: 1px solid #e9d5ff;
-        border-radius: 13px;
+        border-radius: 14px;
         background: #eef1f5;
     }
 
     .event-map-address {
         display: flex;
         align-items: center;
-        gap: 8px;
-        margin-top: 10px;
-        padding: 10px 12px;
+        gap: 10px;
+        margin-top: 12px;
+        padding: 12px 14px;
         border: 1px solid #e9d5ff;
-        border-radius: 10px;
+        border-radius: 12px;
         background: #faf5ff;
         color: #6b21a8;
-        font-size: .75rem;
+        font-size: .8rem;
     }
 
     .event-map-address i {
@@ -212,8 +212,8 @@
     .event-item-card {
         height: 100%;
         border: 1px solid #e9d5ff;
-        border-radius: 12px;
-        padding: 10px;
+        border-radius: 14px;
+        padding: 12px;
         text-align: center;
         background: #fff;
         box-shadow: 0 4px 12px rgba(147, 51, 234, .03);
@@ -237,7 +237,7 @@
         width: 100%;
         height: 150px;
         padding: 0;
-        margin: 0 0 8px;
+        margin: 0 0 10px;
         border: 0;
         border-radius: 12px;
         overflow: hidden;
@@ -290,7 +290,7 @@
         height: 150px;
         object-fit: cover;
         border-radius: 12px;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
         background: #f3e8ff;
         display: flex;
         align-items: center;
@@ -300,8 +300,8 @@
     }
 
     .event-item-card h6 {
-        font-size: .82rem;
-        line-height: 1.3;
+        font-size: .85rem;
+        line-height: 1.4;
         color: #581c87 !important;
     }
 
@@ -384,19 +384,19 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 10px 14px;
-        margin-bottom: 14px;
-        border-radius: 12px;
+        padding: 14px 18px;
+        margin-bottom: 18px;
+        border-radius: 14px;
         background: linear-gradient(135deg, #c084fc 0%, #a855f7 100%);
-        box-shadow: 0 4px 14px rgba(168, 85, 247, .25);
+        box-shadow: 0 6px 18px rgba(168, 85, 247, .25);
         color: #ffffff;
     }
 
     .ticket-header-title {
         display: flex;
         align-items: center;
-        gap: 9px;
-        font-size: .98rem;
+        gap: 12px;
+        font-size: 1rem;
         font-weight: 800;
         letter-spacing: .01em;
         margin: 0;
@@ -406,44 +406,42 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 28px;
-        height: 28px;
-        border-radius: 8px;
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
         background: rgba(255, 255, 255, .25);
-        font-size: .85rem;
+        font-size: .9rem;
     }
 
     .ticket-header-tag {
-        font-size: .7rem;
+        font-size: .75rem;
         font-weight: 700;
         background: rgba(255, 255, 255, .25);
-        padding: 3px 9px;
+        padding: 5px 12px;
         border-radius: 999px;
         letter-spacing: .03em;
     }
 
     .ticket-table-wrap {
         border: 1px solid #e9d5ff;
-        border-radius: 12px;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
+        border-radius: 14px;
+        overflow: hidden;
     }
 
     .ticket-table {
         margin-bottom: 0 !important;
-        min-width: 500px;
+        width: 100%;
     }
 
     .ticket-table thead th {
         background: #6b21a8 !important;
         color: #faf5ff;
         border: 0;
-        padding: 12px 14px;
-        font-size: .7rem;
+        padding: 14px 16px;
+        font-size: .75rem;
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: .06em;
-        white-space: nowrap;
     }
 
     .ticket-table tbody tr:hover {
@@ -451,11 +449,11 @@
     }
 
     .ticket-table tbody td {
-        padding: 12px 14px;
+        padding: 16px;
         border-color: #f3e8ff;
         color: #6b21a8;
         vertical-align: middle;
-        font-size: .88rem;
+        font-size: .95rem;
     }
 
     .ticket-table tbody td strong {
@@ -464,24 +462,27 @@
     }
 
     .ticket-table .input-group {
-        width: 120px !important;
+        width: 130px !important;
         margin: 0 auto;
         flex-wrap: nowrap !important;
     }
 
     .ticket-table .btn-minus,
     .ticket-table .btn-plus {
-        width: 34px !important;
-        height: 34px !important;
+        width: 38px !important;
+        height: 38px !important;
         padding: 0;
-        border-radius: 7px !important;
+        border-radius: 10px !important;
         border-color: #d8b4fe;
         background: #fff;
         color: #6b21a8;
-        font-size: .9rem;
+        font-size: 1rem;
         font-weight: 800;
         flex-shrink: 0;
         transition: all .15s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .ticket-table .btn-minus:hover:not(:disabled),
@@ -493,17 +494,17 @@
 
     .ticket-table .btn-plus:disabled,
     .ticket-table .btn-minus:disabled {
-        opacity: 0.5;
+        opacity: 0.4;
         cursor: not-allowed;
     }
 
     .ticket-table .ticket-qty {
-        width: 40px !important;
-        height: 34px !important;
-        min-height: 34px !important;
-        max-height: 34px !important;
-        line-height: 34px !important;
-        font-size: .88rem;
+        width: 45px !important;
+        height: 38px !important;
+        min-height: 38px !important;
+        max-height: 38px !important;
+        line-height: 38px !important;
+        font-size: 1rem;
         border-color: #d8b4fe;
         background: #faf5ff;
         font-weight: 800;
@@ -515,10 +516,10 @@
 
     .attendee-card {
         position: relative;
-        margin-bottom: 14px;
-        padding: 16px !important;
+        margin-bottom: 18px;
+        padding: 22px !important;
         border: 1px solid #e9d5ff !important;
-        border-radius: 14px !important;
+        border-radius: 16px !important;
         background: #ffffff;
         box-shadow: 0 4px 16px rgba(147, 51, 234, .03);
     }
@@ -528,20 +529,20 @@
         position: absolute;
         top: 0;
         left: 0;
-        width: 4px;
+        width: 5px;
         height: 100%;
         background: linear-gradient(180deg, #c084fc, #a855f7);
-        border-radius: 14px 0 0 14px;
+        border-radius: 16px 0 0 16px;
     }
 
     .attendee-card h5 {
         display: flex;
         align-items: center;
-        gap: 7px;
+        gap: 10px;
         color: #3b0764 !important;
-        font-size: .92rem;
+        font-size: 1rem;
         font-weight: 800;
-        margin-bottom: 14px !important;
+        margin-bottom: 18px !important;
     }
 
     .attendee-card h5::before {
@@ -549,54 +550,54 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 22px;
-        height: 22px;
+        width: 24px;
+        height: 24px;
         border-radius: 50%;
         background: #f3e8ff;
         color: #a855f7;
-        font-size: .72rem;
+        font-size: .75rem;
         font-weight: 900;
     }
 
     .attendee-card .form-label,
     .checkout-summary .form-label {
         color: #6b21a8;
-        font-size: .74rem;
+        font-size: .8rem;
         font-weight: 750;
-        margin-bottom: 4px;
+        margin-bottom: 6px;
     }
 
     .attendee-card .form-control:not(textarea),
     .attendee-card .form-select,
     .checkout-summary .form-control:not(textarea) {
-        height: 38px !important;
-        min-height: 38px !important;
-        max-height: 38px !important;
-        padding: 4px 10px !important;
+        height: 44px !important;
+        min-height: 44px !important;
+        max-height: 44px !important;
+        padding: 8px 14px !important;
         border: 1px solid #d8b4fe;
-        border-radius: 8px;
+        border-radius: 10px;
         background: #fff;
         color: #3b0764;
-        font-size: .82rem;
-        line-height: 1.4 !important;
+        font-size: .9rem;
+        line-height: 1.5 !important;
         box-shadow: 0 1px 3px rgba(147, 51, 234, .02);
     }
 
     .attendee-card textarea.form-control {
-        height: 60px !important;
-        min-height: 60px !important;
-        max-height: 90px !important;
-        padding: 8px 10px !important;
-        line-height: 1.4 !important;
+        height: 80px !important;
+        min-height: 80px !important;
+        max-height: 120px !important;
+        padding: 10px 14px !important;
+        line-height: 1.5 !important;
         resize: vertical;
         border: 1px solid #d8b4fe;
         color: #3b0764;
     }
 
     .attendee-card textarea.form-control[name*="[medical_details]"] {
-        height: 50px !important;
-        min-height: 50px !important;
-        max-height: 80px !important;
+        height: 70px !important;
+        min-height: 70px !important;
+        max-height: 100px !important;
     }
 
     .attendee-card .form-control:focus,
@@ -613,11 +614,11 @@
             linear-gradient(45deg, transparent 50%, #a855f7 50%),
             linear-gradient(135deg, #a855f7 50%, transparent 50%);
         background-position:
-            calc(100% - 14px) 50%,
-            calc(100% - 9px) 50%;
+            calc(100% - 16px) 50%,
+            calc(100% - 11px) 50%;
         background-size: 5px 5px, 5px 5px;
         background-repeat: no-repeat;
-        padding-right: 28px !important;
+        padding-right: 32px !important;
         appearance: none;
         -webkit-appearance: none;
         cursor: pointer;
@@ -626,31 +627,31 @@
     .attendee-section-title {
         display: flex;
         align-items: center;
-        gap: 8px;
-        margin: 4px 0 12px;
-        padding: 8px 10px;
-        border-radius: 10px;
+        gap: 10px;
+        margin: 8px 0 14px;
+        padding: 10px 14px;
+        border-radius: 12px;
         background: #faf5ff;
         border: 1px solid #e9d5ff;
         color: #581c87;
-        font-size: .82rem;
+        font-size: .88rem;
         font-weight: 800;
     }
 
     .attendee-section-title i {
-        width: 24px;
-        height: 24px;
+        width: 28px;
+        height: 28px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        border-radius: 6px;
+        border-radius: 8px;
         background: #f3e8ff;
         color: #a855f7;
-        font-size: .75rem;
+        font-size: .8rem;
     }
 
     .attendee-section {
-        margin-bottom: 12px;
+        margin-bottom: 16px;
     }
 
     .required-star {
@@ -659,10 +660,10 @@
     }
 
     .checkout-summary {
-        margin-top: 16px !important;
-        padding: 16px 18px !important;
+        margin-top: 20px !important;
+        padding: 20px 24px !important;
         border: 1px solid #e9d5ff !important;
-        border-radius: 14px !important;
+        border-radius: 16px !important;
         background: #ffffff;
         box-shadow: 0 8px 22px rgba(147, 51, 234, .04);
     }
@@ -672,9 +673,9 @@
         align-items: center;
         background: #fff;
         border: 1px solid #d8b4fe;
-        border-radius: 8px;
+        border-radius: 10px;
         overflow: hidden;
-        height: 38px !important;
+        height: 44px !important;
         transition: border-color .15s ease;
     }
 
@@ -687,11 +688,11 @@
         background: #a855f7 !important;
         border: 0 !important;
         color: #fff !important;
-        font-size: .75rem !important;
+        font-size: .8rem !important;
         font-weight: 800 !important;
-        padding: 0 14px !important;
-        height: 38px !important;
-        line-height: 38px !important;
+        padding: 0 16px !important;
+        height: 44px !important;
+        line-height: 44px !important;
         white-space: nowrap;
         transition: background .2s ease;
     }
@@ -705,24 +706,24 @@
         justify-content: space-between;
         align-items: center;
         gap: 12px;
-        margin-bottom: 6px;
+        margin-bottom: 8px;
         color: #6b21a8;
-        font-size: .82rem;
+        font-size: .9rem;
     }
 
     .summary-line.total-line {
         border-top: 1px dashed #d8b4fe;
-        padding-top: 10px;
-        margin-top: 10px;
+        padding-top: 12px;
+        margin-top: 12px;
     }
 
     .payment-btn {
-        min-height: 42px;
+        min-height: 48px;
         border: 0;
-        border-radius: 10px;
+        border-radius: 12px;
         background: linear-gradient(135deg, #c084fc 0%, #a855f7 100%);
         box-shadow: 0 6px 18px rgba(168, 85, 247, .3);
-        font-size: .88rem;
+        font-size: .95rem;
         font-weight: 850;
         letter-spacing: .01em;
         transition: transform .15s ease, box-shadow .15s ease;
@@ -736,7 +737,7 @@
 
     .event-details-section .alert {
         border: 1px solid transparent;
-        border-radius: 12px !important;
+        border-radius: 14px !important;
         box-shadow: 0 6px 18px rgba(147, 51, 234, .04);
     }
 
@@ -752,25 +753,26 @@
     }
 
     .leaflet-popup-content-wrapper {
-        border-radius: 10px;
+        border-radius: 12px;
     }
 
     .leaflet-popup-content {
-        margin: 10px 12px;
+        margin: 12px 14px;
         color: #581c87;
-        font-size: .78rem;
+        font-size: .82rem;
         font-weight: 700;
     }
 
     @media (max-width: 767.98px) {
         .event-details-section {
-            padding-top: 40px !important;
+            padding-top: 24px !important;
             padding-bottom: 40px !important;
         }
 
         .event-banner {
             aspect-ratio: 16 / 9;
-            max-height: 240px;
+            max-height: 220px;
+            border-radius: 14px !important;
         }
 
         .event-description,
@@ -778,29 +780,128 @@
         .attendee-panel,
         .items-panel,
         .event-map-panel {
-            padding: 14px;
+            padding: 16px;
+            border-radius: 14px;
         }
 
         #event-details-map {
-            height: 280px;
+            height: 260px;
         }
 
         .event-item-image-button,
         .event-item-placeholder {
-            height: 125px;
+            height: 120px;
         }
 
         .attendee-card {
-            padding: 12px !important;
+            padding: 16px !important;
         }
 
-        .ticket-table thead th,
+        .ticket-header-box {
+            padding: 12px 14px;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .ticket-header-tag {
+            align-self: flex-end;
+            margin-top: -24px;
+        }
+
+        .ticket-table-wrap {
+            border: 0;
+            background: transparent;
+            overflow-x: visible;
+        }
+
+        /* Card layout transformation for mobile tickets (No ugly squishing / stuck together look) */
+        .ticket-table, 
+        .ticket-table thead, 
+        .ticket-table tbody, 
+        .ticket-table tr, 
+        .ticket-table th, 
+        .ticket-table td {
+            display: block;
+            width: 100% !important;
+        }
+
+        .ticket-table thead {
+            display: none;
+        }
+
+        .ticket-table tbody tr {
+            background: #ffffff;
+            border: 1px solid #e9d5ff;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            padding: 14px;
+            box-shadow: 0 4px 12px rgba(147, 51, 234, .03);
+        }
+
         .ticket-table tbody td {
-            padding: 10px 8px;
+            padding: 6px 0 !important;
+            border: none !important;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-align: right;
+            font-size: .88rem !important;
+        }
+
+        .ticket-table tbody td:first-child {
+            font-size: 1rem !important;
+            font-weight: 800;
+            color: #3b0764;
+            border-bottom: 1px solid #f3e8ff !important;
+            padding-bottom: 10px !important;
+            margin-bottom: 8px;
+            justify-content: space-between;
+        }
+
+        .ticket-table tbody td:nth-child(2)::before {
+            content: "Price:";
+            font-weight: 700;
+            color: #7e22ce;
+        }
+
+        .ticket-table tbody td:last-child {
+            margin-top: 8px;
+            padding-top: 10px !important;
+            border-top: 1px dashed #f3e8ff !important;
+            justify-content: space-between;
+        }
+
+        .ticket-table tbody td:last-child::before {
+            content: "Select Quantity:";
+            font-weight: 700;
+            color: #7e22ce;
+            font-size: .85rem;
+        }
+
+        .ticket-table .input-group {
+            width: 135px !important;
+            margin: 0 !important;
+        }
+
+        .ticket-table .btn-minus,
+        .ticket-table .btn-plus {
+            width: 38px !important;
+            height: 38px !important;
+            font-size: 1rem !important;
+        }
+
+        .ticket-table .ticket-qty {
+            width: 45px !important;
+            height: 38px !important;
+            min-height: 38px !important;
+            max-height: 38px !important;
+            line-height: 38px !important;
+            font-size: .95rem !important;
         }
 
         .checkout-summary {
-            padding: 14px !important;
+            padding: 16px !important;
         }
 
         .event-image-modal {
@@ -814,39 +915,6 @@
         .event-image-modal-close {
             top: -8px;
             right: -8px;
-        }
-        
-        /* Mobile adjustments for the table and quantity controls to avoid horizontal scrolling */
-        .ticket-table-wrap {
-            overflow-x: hidden;
-        }
-        .ticket-table {
-            min-width: 100% !important;
-            width: 100% !important;
-            table-layout: fixed;
-        }
-        .ticket-table th, .ticket-table td {
-            padding: 8px 4px !important;
-            font-size: 0.75rem !important;
-            word-break: break-word;
-        }
-        .ticket-table .input-group {
-            width: 95px !important;
-        }
-        .ticket-table .btn-minus,
-        .ticket-table .btn-plus {
-            width: 28px !important;
-            height: 30px !important;
-            font-size: 0.8rem !important;
-        }
-        .ticket-table .ticket-qty {
-            width: 31px !important;
-            height: 30px !important;
-            min-height: 30px !important;
-            max-height: 30px !important;
-            line-height: 30px !important;
-            font-size: 0.8rem !important;
-            padding: 0 !important;
         }
     }
 </style>
@@ -1139,7 +1207,7 @@
                                     <i class="fas fa-ticket-alt"></i>
 
                                     <span>
-                                        Select Your Tickets <small class="text-white-50 ms-1" style="font-size: 0.75rem; font-weight: normal;">(Identify the quantity of ticket you wish to purchase by clicking the plus sign ("+") below.)</small>
+                                        Select Your Tickets <small class="text-white-50 ms-1" style="font-size: 0.75rem; font-weight: normal;">(Tap plus "+" to select quantity)</small>
                                     </span>
 
                                 </div>
@@ -1159,11 +1227,11 @@
                                         <tr>
 
                                             <th>Category</th>
-                                            <th>Local Price</th>
-                                            <th>Foreign Price</th>
+                                            <th>Price</th>
+                                            <th style="display: none;">Foreign Price</th> {{-- Hidden for now without breaking functional references --}}
 
                                             <th
-                                                style="width: 140px;"
+                                                style="width: 150px;"
                                                 class="text-center"
                                             >
                                                 Quantity
@@ -1194,14 +1262,12 @@
                                                     MMK
                                                 </td>
 
-                                                <td>
-
+                                                <td style="display: none;">
                                                     {{
                                                         $category->foreign_price
                                                             ? number_format($category->foreign_price) . ' MMK'
                                                             : 'N/A'
                                                     }}
-
                                                 </td>
 
                                                 <td>
@@ -1454,20 +1520,20 @@
 <script>
 
 const districtOptions = {
-    "1": ["ကမတ", "ကပတ", "ခလဖ", "ခပန", "ငဇန", "စကန", "ဆဒန", "ဆဘန", "ဆပရ", "တနန", "တဆလ", "ဒဖယ", "နမန", "ပနဒ", "ပတအ", "ပဝန", "ဖကန", "ဗမန", "မကတ", "မကန", "မခဘ", "မညန", "မစန", "မလန", "မမန", "ရှကန", "ရှဗယ", "ဟပန", "အဂျယ", "၀မန"],
+    "1": ["ကမတ", "ကပတ", "ခလဖ", "ခပန", "ငဇန", "စကန", "ဆဒန", "ဆဘန", "ဆပရ", "တနန", "တဆလ", "ဒဖယ", "နမန", "ပနဒ", "ပတအ", "ပဝန", "ဖကန", "ဗမန", "မကတ", "မကန", "မခဘ", "မညန", "မစန", "မလန", "မမန", "ရှကန", "ရှဗယ", "ဟပန", "အဂျယ", "ဝမန"],
     "2": ["ဒမဆ", "ဖဆန", "ဖရဆ", "ဘလခ", "မစန", "လကန", "ရတန", "ရသန"],
-    "3": ["ကကရ", "ကဆက", "ကဒတ", "ကဒန", "ကမမ", "ကဝန", "ဂရန", "စကလ", "တငန", "ဒဥန", "နတလ", "ပကန", "ဖပန", "ဘဂလ", "ဘအန", "ဘသဆ", "မဝတ", "လဘန", "လသန", "ဝလမ", "ရသန", "သတက", "သတန"],
-    "4": ["ကပလ", "ကခန", "စမန", "ဇတန", "တတန", "တဇန", "ထတလ", "ပလဝ", "ဖလန", "မတပ", "မတန", "ရဇန", "ရခဒ", "ဟခန"],
-    "5": ["အတန", "အရတ", "အဥန", "ကဘလ", "ကလန", "ကလတ", "ကလဝ", "ကလထ", "ကနန", "ကသန", "ကမန", "ခတန", "ခဥန", "ခဥတ", "ခပန", "ငဇန", "စကန", "ဆလက", "ဇယန", "တမန", "တဆန", "ဒပယ", "ထခန", "နယန", "ပလန", "ပလဘ", "ဖပန", "ဗမန", "ဘတလ", "မကန", "မရန", "မလန", "မမန", "မမတ", "ယမပ", "ရဘန", "လဟန", "လရန", "ဝလန", "ဝသန", "ဟမလ"],
-    "6": ["ကစန", "ကသန", "ကလအ", "ကရရ", "ခမန", "ထဝန", "ပလန", "ပလတ", "ဘပန", "မတန", "မမန", "လလန", "ရဖြန", "သရခ", "တသရ"],
-    "7": ["ကကန", "ကတခ", "ကပက", "ကဝန", "ခမန", "ငဇန", "စကန", "ဇကန", "တငန", "ထတပ", "ဒဥန", "နတလ", "ညလပ", "ပနက", "ပတန", "ပတတ", "ပခန", "ပခတ", "ပမန", "ဖမန", "မလန", "မညန", "ရတန", "ရကန", "ရတရှ", "လပတ", "ဝမန", "သနပ", "သဝတ", "သကန", "သဆန", "အဖန", "အတန"],
+    "3": ["ကကရ", "ကဆက", "ကဒတ", "ကဒန", "ကမမ", "ကဝန", "စကလ", "တငန", "ဒဥန", "နတလ", "ပကန", "ဖပန", "ဘဂလ", "ဘအန", "ဘသဆ", "မဝတ", "လဘန", "လသန", "ဝလမ", "ရသန", "သတက", "သတန"],
+    "4": ["ကပလ", "ကခန", "ဆမန", "တတန", "တဇန", "ထတလ", "ပလဝ", "ဖလန", "မတပ", "မတန", "ရဇန", "ရခဒ", "ဟခန"],
+    "5": ["ကဘလ", "ကလန", "ကလတ", "ကလဝ", "ကလထ", "ကနန", "ကသန", "ကမန", "ခတန", "ခဥန", "ခဥတ", "ခပန", "ငဇန", "စကန", "ဆလက", "တမန", "တဆန", "ဒပယ", "ထခန", "နယန", "ပလန", "ပလဘ", "ဖပန", "ဗမန", "ဘတလ", "မကန", "မရန", "မလန", "မမန", "မမတ", "ယမပ", "ရဘန", "လဟန", "လရန", "ဝလန", "ဝသန", "ဟမလ", "အတန", "အရတ", "အဥန"],
+    "6": ["ကစန", "ကသန", "ကလအ", "ကရရ", "ခမန", "တသရ", "ထဝန", "ပလန", "ပလတ", "ဘပန", "မတန", "မမန", "လလန", "ရဖြန", "သရခ"],
+    "7": ["ကကန", "ကတခ", "ကပက", "ကဝန", "ခမန", "ငဇန", "စကန", "ဇကန", "ညလပ", "တငန", "ထတပ", "ဒဥန", "နတလ", "ပနက", "ပတန", "ပတတ", "ပခန", "ပခတ", "ပမန", "ဖမန", "မလန", "မညန", "ရတန", "ရကန", "ရတရှ", "လပတ", "ဝမန", "သနပ", "သဝတ", "သကန", "သဆန", "အတန", "အဖန"],
     "8": ["ကမန", "ကထန", "ခမန", "ဂဂန", "ငဖန", "စတရ", "စလန", "ဆမန", "ဆဖန", "ဆပဝ", "တတက", "ထလန", "နမန", "ပခက", "ပဖြန", "ပမန", "မကန", "မခန", "မတန", "မထန", "မဘန", "မမန", "မလန", "မသန", "ရစက", "ရနခ", "သရန", "အလန"],
-    "9": ["ကပတ", "ကဆန", "ခအစ", "ခမစ", "စကန", "စကတ", "ဇဗသ", "ဇယသ", "တတဥ", "တကန", "တကတ", "တသန", "ဒခသ", "နထက", "ညဥန", "ငဇန", "ငသရ", "ပဘန", "ပကခ", "ပသက", "ပဥလ", "ပဗသ", "ပမန", "မတရ", "မဟမ", "မခန", "မထလ", "မနမ", "မကန", "မလန", "မသန", "မမန", "ရမသ", "လဝန", "ဝတန", "သစန", "သပက", "အမရ", "အမစ", "ဥတသ"],
+    "9": ["ကပတ", "ကဆန", "ခအစ", "ခမစ", "ငဇန", "ငသရ", "စကန", "စကတ", "ဆပက", "ဇဗသ", "ဇယသ", "ညဥန", "တတဥ", "တကန", "တကတ", "တသန", "ဒခသ", "နထက", "ပဘန", "ပကခ", "ပသက", "ပဥလ", "ပဗသ", "ပမန", "မတရ", "မဟမ", "မခန", "မထလ", "မကန", "မလန", "မသန", "မမန", "ရမသ", "လဝန", "ဝတန", "သစန", "သပက", "အမရ", "အမစ", "ဥတသ"],
     "10": ["ကမရ", "ကထန", "ခဆန", "ခဇန", "ဘလန", "မလမ", "မဒန", "ပမန", "လမန", "ရမန", "သထန", "သဖြရ"],
     "11": ["ကဖန", "ကတန", "ကတလ", "ဂမန", "စတန", "တကန", "တပဝ", "ပတန", "ပဏတ", "ဘသတ", "မအတ", "မအန", "မဥန", "မတန", "မပန", "မပတ", "ရဗန", "ရသတ", "သတန", "အမန"],
-    "12": ["အစန", "အလန", "ဥကတ", "ဥကမ", "ဥကန", "ကကက", "ကမန", "ကမရ", "ကမတ", "ကတတ", "ကတန", "ကခက", "ခရန", "စခန", "ဆကန", "ဆကခ", "တတန", "တတထ", "တကန", "တမန", "ဒလန", "ဒပန", "ဒဂန", "ဒဂရ", "ဒဂမ", "ဒဂဆ", "ဒဂတ", "ပဘတ", "ပဇတ", "ဗဟန", "ဗတထ", "မဂတ", "မဂဒ", "မရက", "မဘန", "ရပသ", "ရကန", "လသယ", "လသန", "လမန", "လမတ", "လကန", "သကတ", "သဃက", "သခန", "သလန", "ထတပ"],
-    "13": ["ကတတ", "ကတလ", "ကတန", "ကသန", "ကဟန", "ကလန", "ကလဒ", "ကလဖ", "ကလတ", "ကခန", "ကမန", "ကမဆ", "ကရန", "ခရဟ", "ခမန", "ခလန", "ဆဆန", "ဆဖန", "ဇယန", "တခလ", "တယန", "တကန", "တလန", "တမည", "နခန", "နခဝ", "နခတ", "နဆန", "နတန", "နတယ", "နဖန", "နမတ", "နဝန", "နကန", "ညရန", "ပခန", "ပယန", "ပဆန", "ပဝန", "ပတယ", "ပလန", "ပလတ", "ပပက", "ဖခန", "မတန", "မတတ", "မခန", "မဆန", "မဆတ", "မနန", "မပန", "မဖန", "မမန", "မမဆ", "မမတ", "မယန", "မရန", "မရတ", "မလန", "မကန", "မဟရ", "မဗတ", "မငန", "ယလန", "ရစန", "ရဖန", "ရငန", "လခန", "လခတ", "လကတ", "လဟန", "လလန", "လရန", "သနန", "သပန", "ဟတန", "ဟပန", "ဟပတ", "အခန", "အတန"],
-    "14": ["ကကန", "ကကထ", "ကခန", "ကပန", "ကလန", "ငဆန", "ငရက", "ငသခ", "ငသယ", "ငပတ", "စလန", "ဇလန", "ညတန", "ဒနဖြ", "ဒဒရ", "ပသန", "ပတန", "ပစလ", "ဖပန", "ဘကလ", "မအန", "မအပ", "မမန", "မမက", "ရသယ", "ရကန", "လပတ", "လမန", "ဝခမ", "သပန", "ဟကကျ", "ဟသတ", "အမတ", "အမန", "အဂပ"]
+    "12": ["ကကက", "ကမန", "ကမရ", "ကမတ", "ကတတ", "ကတန", "ကခက", "ခရန", "စခန", "ဆကန", "ဆကခ", "တတန", "တတထ", "တကန", "တမန", "ဒလန", "ဒပန", "ဒဂန", "ဒဂရ", "ဒဂမ", "ဒဂဆ", "ဒဂတ", "ထတပ", "ပဘတ", "ပဇတ", "ဗဟန", "ဗတထ", "မဂတ", "မဂဒ", "မရက", "မဘန", "ရပသ", "ရကန", "လသယ", "လသန", "လမန", "လမတ", "လကန", "သကတ", "သဃက", "သခန", "သလန", "အစန", "အလန", "ဥကတ", "ဥကမ", "ဥကန"],
+    "13": ["ကတတ", "ကတလ", "ကတန", "ကသန", "ကဟန", "ကလန", "ကလဒ", "ကလဖ", "ကလတ", "ကခန", "ကမန", "ကမဆ", "ကရန", "ခရဟ", "ခမန", "ခလန", "ဆဆန", "ဆဖန", "ညရန", "တခလ", "တယန", "တကန", "တလန", "တမည", "နခန", "နခဝ", "နခတ", "နဆန", "နတန", "နတယ", "နဖန", "နမတ", "နဝန", "နကန", "ပခန", "ပယန", "ပဆန", "ပဝန", "ပတယ", "ပလန", "ပလတ", "ပပက", "ဖခန", "မတန", "မတတ", "မခန", "မဆန", "မဆတ", "မနန", "မပန", "မဖန", "မမန", "မမဆ", "မမတ", "မယန", "မရန", "မရတ", "မလန", "မကန", "မဟရ", "မဗတ", "မငန", "ယလန", "ရစန", "ရဖန", "ရငန", "လခန", "လခတ", "လကတ", "လဟန", "လလန", "လရန", "သနန", "သပန", "ဟတန", "ဟပန", "ဟပတ", "အတန", "အခန"],
+    "14": ["ကကန", "ကကထ", "ကခန", "ကပန", "ကလန", "ငဆန", "ငရက", "ငသခ", "ငသယ", "ငပတ", "စလန", "ဇလန", "ညတန", "ဒနဖြ", "ဒဒရ", "ပသန", "ပတန", "ပစလ", "ဖပန", "ဘကလ", "မအန", "မအပ", "မမန", "မမက", "ရသယ", "ရကန", "လပတ", "လမန", "ဝခမ", "သပန", "ဟကကျ", "ဟသတ", "အဂပ", "အမတ", "အမန"]
 };
 
 const countriesList = [
