@@ -77,8 +77,8 @@
                     Waiting for payment confirmation...
                 </div>
 
-               {{-- SIMULATE PAYMENT BUTTON (TESTING) --}}
-<div class="mt-4" style="max-width: 340px; margin: 0 auto;">
+                {{-- SIMULATE PAYMENT BUTTON (HIDDEN) --}}
+                <div class="mt-4" style="max-width: 340px; margin: 0 auto; display: none;">
                     <form action="{{ route('checkout.complete', $order) }}" method="POST">
                         @csrf
                         <button type="submit" class="btn btn-primary w-100 py-2" style="font-size: 14px; font-weight: bold;">
