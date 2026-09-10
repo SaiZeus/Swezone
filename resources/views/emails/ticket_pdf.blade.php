@@ -27,13 +27,14 @@
         }
         .banner-container { 
             width: 100%; 
-            height: 130px; 
+            aspect-ratio: 16 / 9; /* Enforces strict 16:9 proportions */
+            max-height: 304px; /* 540px width * 9 / 16 */
             overflow: hidden; 
             background: #0f172a; 
         }
         .banner-container img { 
             width: 100%; 
-            height: 130px; 
+            height: 100%; 
             object-fit: cover; 
             display: block; 
         }
@@ -152,7 +153,7 @@
 
         @isset($logoBase64)
         <div class="logo-footer">
-            <img src="{{ $logoBase64 }}" alt="Swezon Logo" width="100" style="height: auto; display: block; margin: 0 auto;">
+            <img src="{{ $logoBase64 }}" alt="Logo" width="100" style="height: auto; display: block; margin: 0 auto;">
         </div>
         @endisset
     </div>
