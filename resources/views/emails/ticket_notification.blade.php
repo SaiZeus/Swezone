@@ -231,41 +231,51 @@
             </div>
 
             <!-- 19:6 TICKET GRAPHIC CONTAINER -->
-            <div class="email-ticket-wrapper">
+            <div style="width:100%; max-width:600px; margin:0 auto; text-align:center;">
+
+    @if(!empty($emailTicketImagePath) && file_exists($emailTicketImagePath))
+
+        @if(isset($message))
 
             <img
-                src="{{ asset('assets/img/ticket/ticket1.jpg') }}"
+                src="{{ $message->embed($emailTicketImagePath) }}"
                 alt="Event Ticket"
-                style="display:block; width:100%; height:auto; border:0;"
+                width="600"
+                style="
+                    display:block;
+                    width:100%;
+                    max-width:600px;
+                    height:auto;
+                    margin:0 auto;
+                    border:0;
+                    outline:none;
+                    text-decoration:none;
+                "
             >
 
-            @isset($qrBase64)
-                <img
-                    src="{{ $qrBase64 }}"
-                    class="email-ticket-qr"
-                    alt="QR Code"
-                >
-            @endisset
+        @else
 
-            <div class="email-ticket-number-area">
-                <div class="email-ticket-number">
-                    {{ $formattedTicketRef ?? '' }}
-                </div>
-            </div>
+            <img
+                src="{{ asset('storage/email-tickets/' . basename($emailTicketImagePath)) }}"
+                alt="Event Ticket"
+                width="600"
+                style="
+                    display:block;
+                    width:100%;
+                    max-width:600px;
+                    height:auto;
+                    margin:0 auto;
+                    border:0;
+                    outline:none;
+                    text-decoration:none;
+                "
+            >
 
-            <div class="email-buyer-data-area">
-                <div class="email-buyer-info-group">
-                    <span class="email-buyer-name">
-                        {{ $attendee->full_name ?? '' }}
-                    </span>
+        @endif
 
-                    <span class="email-buyer-phone">
-                        {{ $attendee->phone ?? '' }}
-                    </span>
-                </div>
-            </div>
+    @endif
 
-        </div>
+</div>
 
             <!-- MAIN EMAIL CONTENT -->
             <div class="content">
