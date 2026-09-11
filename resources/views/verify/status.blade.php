@@ -6,9 +6,9 @@
 
 <style>
     /* =========================================================
-       TICKET VERIFICATION PAGE
-       Responsive / Mobile First
-       ========================================================= */
+        TICKET VERIFICATION PAGE
+        Responsive / Mobile First
+        ========================================================= */
 
     .verification-page {
         min-height: calc(100vh - 80px);
@@ -24,7 +24,7 @@
 
     .verification-wrapper {
         width: 100%;
-        max-width: 560px;
+        max-width: 620px;
     }
 
     /* Header */
@@ -172,6 +172,8 @@
 
     .ticket-info {
         padding: 28px 25px 25px;
+        max-height: 480px;
+        overflow-y: auto;
     }
 
     .info-item {
@@ -263,8 +265,8 @@
     }
 
     /* =========================================================
-       MOBILE
-       ========================================================= */
+        MOBILE
+        ========================================================= */
 
     @media (max-width: 576px) {
 
@@ -358,50 +360,19 @@
             margin-top: 14px;
         }
     }
-
-    @media (max-width: 360px) {
-
-        .verification-page {
-            padding-left: 8px;
-            padding-right: 8px;
-        }
-
-        .ticket-name {
-            font-size: 1.2rem;
-        }
-
-        .ticket-status {
-            padding-left: 14px;
-            padding-right: 14px;
-        }
-
-        .ticket-info {
-            padding-left: 14px;
-            padding-right: 14px;
-        }
-
-        .verification-message {
-            margin-left: 14px;
-            margin-right: 14px;
-        }
-    }
 </style>
 
 <div class="verification-page">
-
 
 <div class="verification-wrapper">
 
     {{-- Page Header --}}
     <div class="verification-header">
-
         <div class="small-label">
             <i class="bi bi-shield-check"></i>
             Ticket Verification
         </div>
-
         <h2>Ticket Status</h2>
-
     </div>
 
     {{-- Ticket --}}
@@ -411,27 +382,21 @@
         <div class="ticket-status">
 
             @if($isExpired)
-
                 <div class="status-icon expired">
                     <i class="bi bi-clock-history"></i>
                 </div>
-
                 <div class="status-badge expired">
                     <i class="bi bi-x-circle-fill"></i>
                     STATUS: EXPIRED
                 </div>
-
             @else
-
                 <div class="status-icon active">
                     <i class="bi bi-check-circle-fill"></i>
                 </div>
-
                 <div class="status-badge active">
                     <i class="bi bi-check-circle-fill"></i>
                     STATUS: ACTIVE
                 </div>
-
             @endif
 
             <h1 class="ticket-name">
@@ -447,87 +412,201 @@
         {{-- Ticket Divider --}}
         <div class="ticket-divider"></div>
 
-        {{-- Event Information --}}
+        {{-- Event Information & Complete Runner Details --}}
         <div class="ticket-info">
 
+            {{-- Reg Code / Ticket Reference --}}
             <div class="info-item">
+                <div class="info-icon">
+                    <i class="bi bi-upc-scan"></i>
+                </div>
+                <div class="info-content">
+                    <span class="info-label">Reg Code / Ticket Ref</span>
+                    <span class="info-value">
+                        {{ $formattedTicketRef ?? ($attendee->ticket_code ?? 'BGR26' . str_pad($attendee->id, 4, '0', STR_PAD_LEFT)) }}
+                    </span>
+                </div>
+            </div>
 
+            {{-- BIB Number --}}
+            <div class="info-item">
+                <div class="info-icon">
+                    <i class="bi bi-hash"></i>
+                </div>
+                <div class="info-content">
+                    <span class="info-label">BIB Number</span>
+                    <span class="info-value text-primary">
+                        {{ $attendee->bib_number ?? 'Not Assigned Yet' }}
+                    </span>
+                </div>
+            </div>
+
+            {{-- Event Name --}}
+            <div class="info-item">
                 <div class="info-icon">
                     <i class="bi bi-calendar-event"></i>
                 </div>
-
                 <div class="info-content">
                     <span class="info-label">Event</span>
                     <span class="info-value">
-                        {{ $attendee->ticketCategory->event->title }}
+                        {{ $attendee->ticketCategory->event->title ?? 'N/A' }}
                     </span>
                 </div>
-
             </div>
 
+            {{-- Ticket Category --}}
             <div class="info-item">
-
                 <div class="info-icon">
                     <i class="bi bi-ticket-perforated"></i>
                 </div>
-
                 <div class="info-content">
                     <span class="info-label">Ticket Category</span>
                     <span class="info-value">
-                        {{ $attendee->ticketCategory->name }}
+                        {{ $attendee->ticketCategory->name ?? 'N/A' }}
                     </span>
                 </div>
-
             </div>
 
+            {{-- Event Date --}}
             <div class="info-item">
-
                 <div class="info-icon">
                     <i class="bi bi-calendar3"></i>
                 </div>
-
                 <div class="info-content">
                     <span class="info-label">Event Date</span>
                     <span class="info-value">
-                        {{ \Carbon\Carbon::parse($attendee->ticketCategory->event->event_date)->format('F d, Y - h:i A') }}
+                        {{ isset($attendee->ticketCategory->event->event_date) ? \Carbon\Carbon::parse($attendee->ticketCategory->event->event_date)->format('F d, Y - h:i A') : 'N/A' }}
                     </span>
                 </div>
+            </div>
 
+            {{-- Father's Name --}}
+            <div class="info-item">
+                <div class="info-icon">
+                    <i class="bi bi-person-lines-fill"></i>
+                </div>
+                <div class="info-content">
+                    <span class="info-label">Father's Name</span>
+                    <span class="info-value">
+                        {{ $attendee->father_name ?? '-' }}
+                    </span>
+                </div>
+            </div>
+
+            {{-- Contact Information --}}
+            <div class="info-item">
+                <div class="info-icon">
+                    <i class="bi bi-telephone"></i>
+                </div>
+                <div class="info-content">
+                    <span class="info-label">Contact / Email</span>
+                    <span class="info-value">
+                        {{ $attendee->phone ?? '' }} @if($attendee->email) <br><small class="text-muted">{{ $attendee->email }}</small> @endif
+                    </span>
+                </div>
+            </div>
+
+            {{-- Emergency Contact --}}
+            <div class="info-item">
+                <div class="info-icon">
+                    <i class="bi bi-heart-pulse"></i>
+                </div>
+                <div class="info-content">
+                    <span class="info-label">Emergency Contact</span>
+                    <span class="info-value">
+                        {{ $attendee->emergency_contact ?? '-' }} @if($attendee->emergency_phone) ({{ $attendee->emergency_phone }}) @endif
+                    </span>
+                </div>
+            </div>
+
+            {{-- NRC / Passport / Country --}}
+            <div class="info-item">
+                <div class="info-icon">
+                    <i class="bi bi-card-heading"></i>
+                </div>
+                <div class="info-content">
+                    <span class="info-label">NRC / Passport / Country</span>
+                    <span class="info-value">
+                        {{ $attendee->nrc_passport ?? '-' }} <span class="text-muted">({{ $attendee->country ?? 'Myanmar' }})</span>
+                    </span>
+                </div>
+            </div>
+
+            {{-- Demographics (Gender, Age / DOB) --}}
+            <div class="info-item">
+                <div class="info-icon">
+                    <i class="bi bi-person-badge"></i>
+                </div>
+                <div class="info-content">
+                    <span class="info-label">Demographics</span>
+                    <span class="info-value">
+                        {{ ucfirst($attendee->gender ?? '-') }} @if($attendee->dob) &bull; Age: {{ \Carbon\Carbon::parse($attendee->dob)->age }} yrs (DOB: {{ $attendee->dob }}) @endif
+                    </span>
+                </div>
+            </div>
+
+            {{-- Health & ITRA --}}
+            <div class="info-item">
+                <div class="info-icon">
+                    <i class="bi bi-activity"></i>
+                </div>
+                <div class="info-content">
+                    <span class="info-label">Health & ITRA</span>
+                    <span class="info-value">
+                        Medical Cond: {{ $attendee->medical_conditions ?? 'None' }} @if($attendee->itra_profile) <br>ITRA: {{ $attendee->itra_profile }} @endif
+                    </span>
+                </div>
+            </div>
+
+            {{-- Address & Experience --}}
+            <div class="info-item">
+                <div class="info-icon">
+                    <i class="bi bi-geo-alt"></i>
+                </div>
+                <div class="info-content">
+                    <span class="info-label">Address & Experience</span>
+                    <span class="info-value">
+                        {{ $attendee->address ?? '-' }} @if($attendee->running_experience) <br><small class="text-muted">Exp: {{ $attendee->running_experience }}</small> @endif
+                    </span>
+                </div>
+            </div>
+
+            {{-- Promo Applied --}}
+            <div class="info-item">
+                <div class="info-icon">
+                    <i class="bi bi-tag"></i>
+                </div>
+                <div class="info-content">
+                    <span class="info-label">Promo Applied</span>
+                    <span class="info-value">
+                        {{ $attendee->promo_code ?? 'None' }}
+                    </span>
+                </div>
             </div>
 
         </div>
 
         {{-- Verification Message --}}
         @if($isExpired)
-
             <div class="verification-message expired">
-
                 <div class="message-icon">
                     <i class="bi bi-info-circle-fill"></i>
                 </div>
-
                 <div>
                     <strong>Ticket Expired</strong><br>
                     This event has passed and the ticket status is now expired.
                 </div>
-
             </div>
-
         @else
-
             <div class="verification-message active">
-
                 <div class="message-icon">
                     <i class="bi bi-shield-check"></i>
                 </div>
-
                 <div>
                     <strong>Ticket Valid</strong><br>
                     This ticket is valid and the event is currently active.
                 </div>
-
             </div>
-
         @endif
 
     </div>
@@ -538,7 +617,6 @@
     </div>
 
 </div>
-
 
 </div>
 
