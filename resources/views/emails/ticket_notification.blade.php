@@ -11,11 +11,11 @@
 
     $formattedTicketRef = 'BGR26' . str_pad($position, 4, '0', STR_PAD_LEFT);
     
-    // Banner asset logic
-    $ticketPath = public_path('assets/img/ticket/ticket1.jpg');
+    // Banner asset logic - Changed to use the Event banner instead of ticket1.jpg
+    $bannerPath = $event->image ? public_path('storage/' . $event->image) : null;
 
-    $ticketBase64 = file_exists($ticketPath)
-    ? 'data:image/jpeg;base64,' . base64_encode(file_get_contents($ticketPath))
+    $bannerBase64 = ($bannerPath && file_exists($bannerPath))
+    ? 'data:image/jpeg;base64,' . base64_encode(file_get_contents($bannerPath))
     : null;
     /*
     |--------------------------------------------------------------------------
@@ -82,24 +82,23 @@
         .container { max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e7eaf0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         .header { text-align: center; background: #f8f9ff; padding: 30px 20px; border-bottom: 1px solid #e9ebf1; }
         
-        /* Responsive 19:6 Ticket Banner Styling */
+        /* Responsive 16:9 Event Banner Styling */
         .ticket-banner-wrapper {
-    width: 100%;
-    background-color: #111111;
-    text-align: center;
-    overflow: hidden;
-    /* Height removed so wrapper shrinks/grows to fit full image height */
-}
+            width: 100%;
+            background-color: #111111;
+            text-align: center;
+            overflow: hidden;
+        }
 
-.ticket-banner-img {
-    width: 100% !important;
-    max-width: 100% !important;
-    height: auto !important; /* Forces vertical scale without cropping */
-    display: block;
-    border: 0;
-    outline: none;
-    text-decoration: none;
-}
+        .ticket-banner-img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block;
+            border: 0;
+            outline: none;
+            text-decoration: none;
+        }
 
         .content { padding: 30px; color: #1f2937; }
         .footer { text-align: center; font-size: 11px; color: #98a2b3; padding: 20px; background: #fafbfc; border-top: 1px solid #e9ebf1; }
@@ -129,13 +128,13 @@
                 @endif
             </div>
 
-            <!-- 19:6 TICKET GRAPHIC CONTAINER -->
-            @if($ticketBase64)
-                <div style="text-align:center; margin:20px 0;">
+            <!-- 16:9 EVENT BANNER GRAPHIC CONTAINER -->
+            @if($bannerBase64)
+                <div class="ticket-banner-wrapper">
                     <img
-                        src="{{ $ticketBase64 }}"
-                        alt="Event Ticket"
-                        style="display:block; width:100%; max-width:800px; height:auto; margin:0 auto;"
+                        src="{{ $bannerBase64 }}"
+                        alt="{{ $event->title }} Banner"
+                        class="ticket-banner-img"
                     >
                 </div>
             @endif
