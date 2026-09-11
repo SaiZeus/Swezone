@@ -62,8 +62,8 @@
     );
 
     $qrBase64 = $qrImageData
-    ? $qrApiUrl
-    : null;
+        ? 'data:image/png;base64,' . base64_encode($qrImageData)
+        : null;
 @endphp
 <!DOCTYPE html>
 <html>
@@ -111,111 +111,6 @@
         ul.attachments-list li { margin-bottom: 6px; font-size: 13px; color: #4f46e5; font-weight: 600; }
         .highlight-text { color: #4f46e5; font-weight: bold; }
     </style>
-<style>
-    .email-ticket-wrapper {
-        position: relative;
-        width: 100%;
-        max-width: 600px;
-        margin: 0 auto;
-        overflow: hidden;
-        line-height: normal;
-    }
-
-    .email-ticket-bg {
-        display: block;
-        width: 100%;
-        height: auto;
-        border: 0;
-        margin: 0;
-        padding: 0;
-    }
-
-    /* QR */
-    .email-ticket-qr {
-        position: absolute;
-        top: 24.37%;
-        left: 59.37%;
-        width: 19.37%;
-        height: auto;
-        display: block;
-    }
-
-    /* Ticket Number */
-    .email-ticket-number-area {
-        position: absolute;
-        top: 58.03%;
-        left: 86.87%;
-    }
-
-    .email-ticket-number {
-        position: absolute;
-        top: 0;
-        left: 0;
-
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 9px;
-        font-weight: 800;
-        color: #000000;
-
-        white-space: nowrap;
-
-        -webkit-transform: rotate(270deg);
-        transform: rotate(270deg);
-
-        -webkit-transform-origin: top left;
-        transform-origin: top left;
-    }
-
-    /* Buyer Name + Phone */
-    .email-buyer-data-area {
-        position: absolute;
-        top: 75.43%;
-        left: 92.5%;
-    }
-
-    .email-buyer-info-group {
-        position: absolute;
-        top: 0;
-        left: 0;
-
-        white-space: nowrap;
-
-        -webkit-transform: rotate(270deg);
-        transform: rotate(270deg);
-
-        -webkit-transform-origin: top left;
-        transform-origin: top left;
-    }
-
-    .email-buyer-name {
-        display: block;
-
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 11px;
-        font-weight: 700;
-        color: #FFFFFF;
-
-        text-transform: uppercase;
-        white-space: nowrap;
-
-        margin: 0 0 3px 0;
-        padding: 0;
-    }
-
-    .email-buyer-phone {
-        display: block;
-
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 10px;
-        font-weight: 600;
-        color: #FFFFFF;
-
-        white-space: nowrap;
-
-        margin: 0;
-        padding: 0;
-    }
-</style>
 </head>
 <body>
     <div class="wrapper">
@@ -231,51 +126,15 @@
             </div>
 
             <!-- 19:6 TICKET GRAPHIC CONTAINER -->
-            <div style="width:100%; max-width:600px; margin:0 auto; text-align:center;">
-
-    @if(!empty($emailTicketImagePath) && file_exists($emailTicketImagePath))
-
-        @if(isset($message))
-
-            <img
-                src="{{ $message->embed($emailTicketImagePath) }}"
-                alt="Event Ticket"
-                width="600"
-                style="
-                    display:block;
-                    width:100%;
-                    max-width:600px;
-                    height:auto;
-                    margin:0 auto;
-                    border:0;
-                    outline:none;
-                    text-decoration:none;
-                "
-            >
-
-        @else
-
-            <img
-                src="{{ asset('storage/email-tickets/' . basename($emailTicketImagePath)) }}"
-                alt="Event Ticket"
-                width="600"
-                style="
-                    display:block;
-                    width:100%;
-                    max-width:600px;
-                    height:auto;
-                    margin:0 auto;
-                    border:0;
-                    outline:none;
-                    text-decoration:none;
-                "
-            >
-
-        @endif
-
-    @endif
-
-</div>
+            @isset($bannerPath)
+                <div class="ticket-banner-wrapper">
+                    @if(isset($message))
+                        <img class="ticket-banner-img" src="{{ $message->embed($bannerPath) }}" alt="{{ $event->title }}">
+                    @else
+                        <img class="ticket-banner-img" src="{{ asset('storage/' . $event->image) }}" alt="{{ $event->title }}">
+                    @endif
+                </div>
+            @endisset
 
             <!-- MAIN EMAIL CONTENT -->
             <div class="content">
