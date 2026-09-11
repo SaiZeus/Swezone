@@ -1245,17 +1245,58 @@
 
                                         @foreach($event->ticketCategories as $category)
 
-                                            @php
-                                                $isCategorySoldOut = false;
-                                            @endphp
+    @php
+        $categoryRemaining = $category->capacity !== null
+            ? max(0, $category->capacity - $category->tickets_sold)
+            : null;
+
+        $eventRemainingForCategory = $overallTicketsRemaining !== null
+            ? $overallTicketsRemaining
+            : null;
+
+        if ($categoryRemaining !== null && $eventRemainingForCategory !== null) {
+            $categoryMax = min(
+                $categoryRemaining,
+                $eventRemainingForCategory
+            );
+        } elseif ($categoryRemaining !== null) {
+            $categoryMax = $categoryRemaining;
+        } elseif ($eventRemainingForCategory !== null) {
+            $categoryMax = $eventRemainingForCategory;
+        } else {
+            $categoryMax = 999;
+        }
+
+        $isCategorySoldOut = $categoryMax <= 0;
+    @endphp
 
                                             <tr>
 
                                                 <td>
-                                                    <strong>
-                                                        {{ $category->name }}
-                                                    </strong>
-                                                </td>
+    <strong>
+        {{ $category->name }}
+    </strong>
+
+    @if($isCategorySoldOut)
+
+        <span
+            class="badge bg-danger ms-2"
+            style="font-size: .65rem;"
+        >
+            SOLD OUT
+        </span>
+
+    @elseif($categoryRemaining !== null)
+
+        <span
+            class="badge bg-success ms-2"
+            style="font-size: .65rem;"
+        >
+            {{ $categoryRemaining }} LEFT
+        </span>
+
+    @endif
+</td>
 
                                                 <td>
                                                     {{ number_format($category->local_price) }}
@@ -1283,26 +1324,28 @@
                                                         </button>
 
                                                         <input
-                                                            type="number"
-                                                            class="form-control text-center ticket-qty"
-                                                            id="qty-{{ $category->id }}"
-                                                            data-id="{{ $category->id }}"
-                                                            data-name="{{ $category->name }}"
-                                                            data-local-price="{{ $category->local_price }}"
-                                                            data-foreign-price="{{ $category->foreign_price ?? '' }}"
-                                                            data-max="999"
-                                                            value="0"
-                                                            min="0"
-                                                            readonly
-                                                        >
+    type="number"
+    class="form-control text-center ticket-qty"
+    id="qty-{{ $category->id }}"
+    data-id="{{ $category->id }}"
+    data-name="{{ $category->name }}"
+    data-local-price="{{ $category->local_price }}"
+    data-foreign-price="{{ $category->foreign_price ?? '' }}"
+    data-max="{{ $categoryMax }}"
+    data-event-max="{{ $overallTicketsRemaining !== null ? $overallTicketsRemaining : 999 }}"
+    value="0"
+    min="0"
+    readonly
+>
 
                                                         <button
-                                                            class="btn btn-plus"
-                                                            type="button"
-                                                            data-id="{{ $category->id }}"
-                                                        >
-                                                            +
-                                                        </button>
+    class="btn btn-plus"
+    type="button"
+    data-id="{{ $category->id }}"
+    @if($isCategorySoldOut) disabled @endif
+>
+    +
+</button>
 
                                                     </div>
 
@@ -1755,49 +1798,83 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function updateButtonStates() {
 
-        document.querySelectorAll('.btn-plus').forEach(button => {
-
-            const id =
-                button.getAttribute('data-id');
-
-            const input =
-                document.getElementById('qty-' + id);
-
-            const categoryMax =
-                parseInt(
-                    input.getAttribute('data-max') || 999
-                );
-
-            const currentVal =
-                parseInt(input.value);
+    const totalSelectedTickets =
+        getTotalSelectedTickets();
 
 
-            let isCategoryFull =
-                currentVal >= categoryMax;
+    document.querySelectorAll('.btn-plus').forEach(button => {
 
-            if (isCategoryFull) {
-                button.disabled = true;
-            } else {
-                button.disabled = false;
-            }
+        const id =
+            button.getAttribute('data-id');
 
-        });
+        const input =
+            document.getElementById('qty-' + id);
+
+        if (!input) {
+            return;
+        }
 
 
-        document.querySelectorAll('.btn-minus').forEach(button => {
+        const categoryMax =
+            parseInt(
+                input.getAttribute('data-max') || 999
+            );
 
-            const id =
-                button.getAttribute('data-id');
 
-            const input =
-                document.getElementById('qty-' + id);
+        const eventMax =
+            parseInt(
+                input.getAttribute('data-event-max') || 999
+            );
 
-            button.disabled =
-                parseInt(input.value) <= 0;
 
-        });
+        const currentVal =
+            parseInt(input.value || 0);
 
-    }
+
+        /*
+        Category capacity check
+        */
+
+        const categoryFull =
+            currentVal >= categoryMax;
+
+
+        /*
+        Overall event capacity check
+
+        We subtract the tickets already selected across
+        all categories, then allow this category to add one.
+        */
+
+        const eventFull =
+            totalSelectedTickets >= eventMax;
+
+
+        button.disabled =
+            categoryFull || eventFull;
+
+    });
+
+
+    document.querySelectorAll('.btn-minus').forEach(button => {
+
+        const id =
+            button.getAttribute('data-id');
+
+        const input =
+            document.getElementById('qty-' + id);
+
+        if (!input) {
+            return;
+        }
+
+
+        button.disabled =
+            parseInt(input.value || 0) <= 0;
+
+    });
+
+}
 
 
     /*
@@ -1808,39 +1885,64 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.querySelectorAll('.btn-plus').forEach(button => {
 
-        button.addEventListener('click', () => {
+    button.addEventListener('click', () => {
 
-            const id =
-                button.getAttribute('data-id');
+        const id =
+            button.getAttribute('data-id');
 
-            const input =
-                document.getElementById('qty-' + id);
+        const input =
+            document.getElementById('qty-' + id);
 
-            const categoryMax =
-                parseInt(
-                    input.getAttribute('data-max') || 999
-                );
+        if (!input) {
+            return;
+        }
 
-            const currentVal =
-                parseInt(input.value);
 
-            const canAddCategory =
-                currentVal < categoryMax;
+        const categoryMax =
+            parseInt(
+                input.getAttribute('data-max') || 999
+            );
 
-            if (canAddCategory) {
 
-                input.value =
-                    currentVal + 1;
+        const eventMax =
+            parseInt(
+                input.getAttribute('data-event-max') || 999
+            );
 
-                renderForms();
 
-                updateButtonStates();
+        const currentVal =
+            parseInt(input.value || 0);
 
-            }
 
-        });
+        const totalSelected =
+            getTotalSelectedTickets();
+
+
+        const canAddCategory =
+            currentVal < categoryMax;
+
+
+        const canAddEvent =
+            totalSelected < eventMax;
+
+
+        if (
+            canAddCategory &&
+            canAddEvent
+        ) {
+
+            input.value =
+                currentVal + 1;
+
+            renderForms();
+
+            updateButtonStates();
+
+        }
 
     });
+
+});
 
 
     /*
@@ -3611,10 +3713,13 @@ document.addEventListener('DOMContentLoaded', function () {
                                             >
 
                                                 <option value="">Select</option>
-                                                <option value="none">none</option>
+                                                <option value="none">None</option>
                                                 <option value="10KM">10KM</option>
                                                 <option value="21KM">21KM</option>
                                                 <option value="42KM">42KM</option>
+                                                <option value="ULTRA">ULTRA</option>
+                                                <option value="TRIATHLON">TRIATHLON</option>
+
 
                                             </select>
 
