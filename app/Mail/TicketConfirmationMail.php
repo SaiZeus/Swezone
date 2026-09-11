@@ -47,9 +47,32 @@ class TicketConfirmationMail extends Mailable implements ShouldQueue
         $bgPath = public_path('assets/img/ticket/ticket.jpg');
         $ticketBgBase64 = file_exists($bgPath) ? 'data:image/jpeg;base64,' . base64_encode(file_get_contents($bgPath)) : null;
 
-        // Generate local QR code matching the ticket reference instead of external API
-        $qrSvg = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')->size(310)->errorCorrection('H')->generate($formattedTicketRef);
-        $qrBase64 = 'data:image/svg+xml;base64,' . base64_encode($qrSvg);
+        // Generate QR code using the same verification URL as the working PDF ticket
+        $verificationUrl = route(
+            'ticket.verify',
+            [
+                'token' => $attendee->verification_token
+            ]
+        );
+
+        $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=310x310&data='
+            . urlencode($verificationUrl);
+
+        $context = stream_context_create([
+            'http' => [
+                'timeout' => 5
+            ]
+        ]);
+
+        $qrImageData = @file_get_contents(
+            $qrApiUrl,
+            false,
+            $context
+        );
+
+        $qrBase64 = $qrImageData
+            ? 'data:image/png;base64,' . base64_encode($qrImageData)
+            : null;
 
         $data = [
             'attendee' => $attendee,
