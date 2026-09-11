@@ -1203,8 +1203,13 @@ class AdminEventController extends Controller
         $position = Attendee::whereHas('ticketCategory', function ($q) use ($eventId) {
                 $q->where('event_id', $eventId);
             })
-            ->where('created_at', '<=', $attendee->created_at)
-            ->where('id', '<=', $attendee->id)
+            ->where(function ($q) use ($attendee) {
+                $q->where('created_at', '<', $attendee->created_at)
+                ->orWhere(function ($q) use ($attendee) {
+                    $q->where('created_at', $attendee->created_at)
+                        ->where('id', '<=', $attendee->id);
+                });
+            })
             ->count();
 
         $sequentialTicketNumber = 'BGR26' . str_pad($position, 4, '0', STR_PAD_LEFT);

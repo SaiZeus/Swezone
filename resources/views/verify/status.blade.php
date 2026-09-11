@@ -423,7 +423,7 @@
                 <div class="info-content">
                     <span class="info-label">Reg Code / Ticket Ref</span>
                     <span class="info-value">
-                        {{ $formattedTicketRef ?? ($attendee->ticket_code ?? 'BGR26' . str_pad($attendee->id, 4, '0', STR_PAD_LEFT)) }}
+                        BGR{{ now()->format('y') }}{{ str_pad($attendee->id, 4, '0', STR_PAD_LEFT) }}
                     </span>
                 </div>
             </div>
