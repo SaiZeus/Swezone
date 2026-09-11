@@ -920,15 +920,7 @@
             }
 
             // Calculate sequential ticket number
-            $eventId = $attendee->ticketCategory->event_id;
-            $position = \App\Models\Attendee::whereHas('ticketCategory', function ($q) use ($eventId) {
-                    $q->where('event_id', $eventId);
-                })
-                ->where('created_at', '<=', $attendee->created_at)
-                ->where('id', '<=', $attendee->id)
-                ->count();
-
-            $sequentialTicketNumber = 'BGR26' . str_pad($position, 4, '0', STR_PAD_LEFT);
+            $sequentialTicketNumber = $attendee->ticket_code;
 
             // Encode background image safely
             $ticketBgPath = public_path('assets/img/ticket/ticket1.jpg');
