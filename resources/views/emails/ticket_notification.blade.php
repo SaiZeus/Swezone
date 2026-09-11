@@ -3,7 +3,7 @@
     $formattedTicketRef = 'BGR' . str_pad($attendee->id, 5, '0', STR_PAD_LEFT);
     
     // Generate base64 background and QR for email embedding matching the PDF layout
-    $bgPath = public_path('assets/img/img/ticket/ticket.jpg');
+    $bgPath = public_path('assets/img/ticket/ticket.jpg');
     $ticketBgBase64 = file_exists($bgPath) ? 'data:image/jpeg;base64,' . base64_encode(file_get_contents($bgPath)) : null;
     $qrSvg = SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')->size(310)->errorCorrection('H')->generate($formattedTicketRef);
     $qrBase64 = 'data:image/svg+xml;base64,' . base64_encode($qrSvg);
