@@ -62,8 +62,8 @@
     );
 
     $qrBase64 = $qrImageData
-        ? 'data:image/png;base64,' . base64_encode($qrImageData)
-        : null;
+    ? $qrApiUrl
+    : null;
 @endphp
 <!DOCTYPE html>
 <html>
@@ -116,80 +116,104 @@
         position: relative;
         width: 100%;
         max-width: 600px;
-        height: auto;
-        aspect-ratio: 1600 / 517;
         margin: 0 auto;
         overflow: hidden;
+        line-height: normal;
     }
 
     .email-ticket-bg {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
         display: block;
+        width: 100%;
+        height: auto;
+        border: 0;
+        margin: 0;
+        padding: 0;
     }
 
+    /* QR */
     .email-ticket-qr {
         position: absolute;
         top: 24.37%;
         left: 59.37%;
         width: 19.37%;
         height: auto;
+        display: block;
     }
 
+    /* Ticket Number */
     .email-ticket-number-area {
         position: absolute;
         top: 58.03%;
         left: 86.87%;
-        width: 3.75%;
-        height: 69.63%;
     }
 
     .email-ticket-number {
-        font-size: 9px;
-        font-weight: 800;
-        color: #000000;
-        transform: rotate(270deg);
-        transform-origin: top left;
         position: absolute;
         top: 0;
         left: 0;
+
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 9px;
+        font-weight: 800;
+        color: #000000;
+
         white-space: nowrap;
+
+        -webkit-transform: rotate(270deg);
+        transform: rotate(270deg);
+
+        -webkit-transform-origin: top left;
+        transform-origin: top left;
     }
 
+    /* Buyer Name + Phone */
     .email-buyer-data-area {
         position: absolute;
         top: 75.43%;
         left: 92.5%;
-        width: 3.75%;
-        height: 96.71%;
     }
 
     .email-buyer-info-group {
-        transform: rotate(270deg);
-        transform-origin: top left;
         position: absolute;
         top: 0;
         left: 0;
+
         white-space: nowrap;
+
+        -webkit-transform: rotate(270deg);
+        transform: rotate(270deg);
+
+        -webkit-transform-origin: top left;
+        transform-origin: top left;
     }
 
     .email-buyer-name {
+        display: block;
+
+        font-family: Arial, Helvetica, sans-serif;
         font-size: 11px;
         font-weight: 700;
         color: #FFFFFF;
+
         text-transform: uppercase;
-        display: block;
-        margin-bottom: 3px;
+        white-space: nowrap;
+
+        margin: 0 0 3px 0;
+        padding: 0;
     }
 
     .email-buyer-phone {
+        display: block;
+
+        font-family: Arial, Helvetica, sans-serif;
         font-size: 10px;
         font-weight: 600;
         color: #FFFFFF;
-        display: block;
+
+        white-space: nowrap;
+
+        margin: 0;
+        padding: 0;
     }
 </style>
 </head>
