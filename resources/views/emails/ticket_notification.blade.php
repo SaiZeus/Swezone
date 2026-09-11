@@ -13,7 +13,7 @@
     
     // Generate base64 background and QR for email embedding matching the PDF layout
     $bgPath = public_path('assets/img/ticket/ticket.jpg');
-    $ticketBgBase64 = file_exists($bgPath) ? 'data:image/jpeg;base64,' . base64_encode(file_get_contents($bgPath)) : null;
+    $ticketBgBase64 = ($event->image && Storage::disk('public')->exists($event->image)) ? storage_path('app/public/' . $event->image) : null;
     $qrSvg = SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')->size(310)->errorCorrection('H')->generate($formattedTicketRef);
     $qrBase64 = 'data:image/svg+xml;base64,' . base64_encode($qrSvg);
 @endphp
@@ -155,12 +155,6 @@
                         @isset($ticketBgBase64)
                             <img src="{{ $ticketBgBase64 }}" class="ticket-bg" alt="Ticket">
                         @endisset
-
-                        <div class="qr-box">
-                            @isset($qrBase64)
-                                <img src="{{ $qrBase64 }}" alt="QR Code">
-                            @endisset
-                        </div>
 
                         <div class="ticket-number-area">
                             <div class="ticket-number">
