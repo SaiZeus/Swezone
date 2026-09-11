@@ -32,41 +32,35 @@ class TicketConfirmationMail extends Mailable implements ShouldQueue // Added im
             $attendee->save();
         }
 
-        $bannerBase64 = null;
-        if ($event->image && Storage::disk('public')->exists($event->image)) {
-            $bannerPath = storage_path('app/public/' . $event->image);
-            if (file_exists($bannerPath) && filesize($bannerPath) <= 2 * 1024 * 1024) {
-                $bannerBase64 = $this->resizeImageToBase64($bannerPath, 800, 300);
-            }
-        }
+        // Generate sequential BGR ticket reference format
+        $formattedTicketRef = 'BGR' . str_pad($attendee->id, 5, '0', STR_PAD_LEFT);
 
-        $logoPath = public_path('assets/img/logo/Swezon_Logo1.1V.png');
-        $logoBase64 = (file_exists($logoPath) && filesize($logoPath) <= 2 * 1024 * 1024) 
-            ? $this->resizeImageToBase64($logoPath, 300, 100) 
-            : null;
+        // Load background ticket image for PDF and email view
+        $bgPath = public_path('assets/img/img/ticket/ticket.jpg');
+        $ticketBgBase64 = file_exists($bgPath) ? 'data:image/jpeg;base64,' . base64_encode(file_get_contents($bgPath)) : null;
 
-        $verificationUrl = route('ticket.verify', ['token' => $attendee->verification_token]);
-        $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=75x75&data=' . urlencode($verificationUrl);
-        $qrImageData = @file_get_contents($qrApiUrl);
-        $qrBase64 = $qrImageData ? 'data:image/png;base64,' . base64_encode($qrImageData) : null;
+        // Generate local QR code matching the ticket reference instead of external API
+        $qrSvg = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')->size(310)->errorCorrection('H')->generate($formattedTicketRef);
+        $qrBase64 = 'data:image/svg+xml;base64,' . base64_encode($qrSvg);
+
+        $data = [
+            'attendee' => $attendee,
+            'formattedTicketRef' => $formattedTicketRef,
+            'ticketBgBase64' => $ticketBgBase64,
+            'qrBase64' => $qrBase64
+        ];
 
         $pdf = Pdf::setOptions([
             'isHtml5ParserEnabled' => true,
             'isRemoteEnabled' => true,
             'defaultFont' => 'sans-serif',
             'isFontSubsettingEnabled' => true,
-        ])->loadView('emails.ticket_pdf', [
-            'attendee' => $attendee,
-            'bannerBase64' => $bannerBase64,
-            'logoBase64' => $logoBase64,
-            'qrBase64' => $qrBase64
-        ]);
+        ])->loadView('emails.ticket_pdf', $data);
 
-        $filename = 'Ticket_' . ($attendee->ticket_uuid ?? $attendee->id) . '.pdf';
-
+        // Pass the exact same compiled array to your email view so it renders the ticket cleanly
         $mail = $this->subject('Congratulations! Your Event Ticket - ' . $event->title)
-                    ->view('emails.ticket_notification')
-                    ->attachData($pdf->output(), $filename, [
+                    ->view('emails.ticket_notification', $data)
+                    ->attachData($pdf->output(), 'Ticket_' . $formattedTicketRef . '.pdf', [
                         'mime' => 'application/pdf',
                     ]);
 

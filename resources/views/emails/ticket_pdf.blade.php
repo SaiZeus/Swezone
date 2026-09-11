@@ -1,164 +1,125 @@
-@php
-    $event = $attendee->ticketCategory->event;
-@endphp
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
     <title>Event Ticket</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;700&display=swap');
+        @page {
+            margin: 0;
+            size: 1600px 517px;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Helvetica', 'Arial', sans-serif;
+        }
+        .ticket-wrapper {
+            position: relative;
+            width: 1600px;
+            height: 517px;
+        }
+        .ticket-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1600px;
+            height: 517px;
+        }
+        .qr-box {
+            position: absolute;
+            top: 126px;
+            left: 950px;
+            width: 310px;
+            height: 310px;
+        }
+        .qr-box img {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
         
-        body { 
-            font-family: 'Noto Sans Myanmar', 'Helvetica', 'Arial', sans-serif; 
-            margin: 0; 
-            padding: 10px; 
-            background-color: #f8fafc; 
-            color: #1e293b; 
+        /* Ticket Number Area */
+        .ticket-number-area {
+            position: absolute;
+            top: 300px;
+            left: 1390px;
+            width: 60px;
+            height: 360px;
         }
-        .ticket-wrapper { 
-            width: 100%; 
-            max-width: 540px; 
-            margin: 0 auto; 
-            background: #ffffff; 
-            border: 1px solid #cbd5e1; 
-            border-radius: 12px; 
-            overflow: hidden; 
+        .ticket-number {
+            font-size: 24px;
+            font-weight: 800;
+            color: #000000;
+            -webkit-transform: rotate(270deg);
+            transform: rotate(270deg);
+            -webkit-transform-origin: top left;
+            transform-origin: top left;
+            position: absolute;
+            top: 0;
+            left: 0;
+            white-space: nowrap;
         }
-        .banner-container { 
-            width: 540px; 
-            height: 304px; 
-            overflow: hidden; 
-            background: #0f172a; 
+
+        /* Name & Phone Area */
+        .buyer-data-area {
+            position: absolute;
+            top: 400px;
+            left: 1520px;
+            width: 60px;
+            height: 500px;
         }
-        .banner-container img { 
-            width: 540px; 
-            height: 304px; 
-            object-fit: cover; 
-            display: block; 
+        .buyer-info-group {
+            -webkit-transform: rotate(270deg);
+            transform: rotate(270deg);
+            -webkit-transform-origin: top left;
+            transform-origin: top left;
+            position: absolute;
+            top: 0;
+            left: 0;
+            white-space: nowrap;
         }
-        .ticket-body { 
-            padding: 16px 20px; 
+        .buyer-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #FFFFFF;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 10px;
         }
-        .top-row { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-bottom: 10px; 
-        }
-        .title { 
-            font-size: 16px; 
-            font-weight: 800; 
-            color: #4f46e5; 
-            margin-bottom: 2px; 
-            line-height: 1.2; 
-        }
-        .category { 
-            font-size: 12px; 
-            color: #64748b; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-        }
-        .qr-box { 
-            border: 1px solid #e2e8f0; 
-            border-radius: 8px; 
-            padding: 3px; 
-            background: #ffffff; 
-            text-align: center; 
-            width: 65px; 
-            height: 65px; 
-            vertical-align: middle; 
-        }
-        .divider { 
-            border: 0; 
-            border-top: 1px dashed #cbd5e1; 
-            margin: 10px 0; 
-        }
-        .info-table { 
-            width: 100%; 
-            border-collapse: collapse; 
-        }
-        .info-table td { 
-            padding: 4px 2px; 
-            font-size: 11px; 
-            vertical-align: top; 
-            color: #475569; 
-        }
-        .info-table td strong { 
-            color: #0f172a; 
-        }
-        .logo-footer { 
-            text-align: center; 
-            padding: 10px 0; 
-            background: #f8fafc; 
-            border-top: 1px solid #e2e8f0; 
+        .buyer-phone {
+            font-size: 18px;
+            font-weight: 600;
+            color: #FFFFFF;
+            display: block;
         }
     </style>
 </head>
 <body>
     <div class="ticket-wrapper">
-        @isset($bannerBase64)
-        <table width="540" cellpadding="0" cellspacing="0" border="0" style="width: 100%; border-collapse: collapse;">
-            <tr>
-                <td class="banner-container" style="padding: 0; line-height: 0; font-size: 0;">
-                    <img src="{{ $bannerBase64 }}" width="540" height="304" alt="{{ $event->title }}" style="width: 100%; height: auto; display: block;">
-                </td>
-            </tr>
-        </table>
+        @isset($ticketBgBase64)
+            <img src="{{ $ticketBgBase64 }}" class="ticket-bg" alt="Ticket">
         @endisset
 
-        <div class="ticket-body">
-            <table class="top-row">
-                <tr>
-                    <td>
-                        <div class="title">{{ $event->title }}</div>
-                        <div class="category">Category: {{ $attendee->ticketCategory->name }}</div>
-                    </td>
-                    <td align="right">
-                        <div class="qr-box">
-                            @isset($qrBase64)
-                                <img src="{{ $qrBase64 }}" width="65" height="65" alt="QR Code">
-                            @endisset
-                        </div>
-                    </td>
-                </tr>
-            </table>
-
-            <hr class="divider">
-
-            <table class="info-table">
-                <tr>
-                    <td style="width: 50%;"><strong>Runner Name:</strong> {{ $attendee->full_name }}</td>
-                    <td style="width: 50%;">
-                        <strong>NRC / Passport:</strong> 
-                        @if($attendee->nrc_passport)
-                            <span>{{ $attendee->nrc_passport }}</span>
-                        @else
-                            N/A
-                        @endif
-                    </td>
-                </tr>
-                <tr>
-                    <td><strong>Date:</strong> {{ \Carbon\Carbon::parse($event->event_date)->format('F d, Y') }}</td>
-                    <td><strong>Location:</strong> {{ $event->location }}</td>
-                </tr>
-                <tr>
-                    <td><strong>Start Time:</strong> {{ \Carbon\Carbon::parse($event->event_date)->format('h:i A') }}</td>
-                    <td><strong>Ticket Ref:</strong> {{ $attendee->ticket_uuid ?? $attendee->id }}</td>
-                </tr>
-                @if($attendee->tshirt_size)
-                <tr>
-                    <td><strong>T-Shirt Size:</strong> {{ $attendee->tshirt_size }}</td>
-                    <td></td>
-                </tr>
-                @endif
-            </table>
+        <div class="qr-box">
+            @isset($qrBase64)
+                <img src="{{ $qrBase64 }}" alt="QR Code">
+            @endisset
         </div>
 
-        @isset($logoBase64)
-        <div class="logo-footer">
-            <img src="{{ $logoBase64 }}" alt="Logo" width="100" style="height: auto; display: block; margin: 0 auto;">
+        <!-- Ticket Number Area -->
+        <div class="ticket-number-area">
+            <div class="ticket-number">
+                {{ $formattedTicketRef ?? '' }}
+            </div>
         </div>
-        @endisset
+
+        <!-- Name & Phone Area -->
+        <div class="buyer-data-area">
+            <div class="buyer-info-group">
+                <span class="buyer-name">{{ $attendee->full_name ?? '' }}</span>
+                <span class="buyer-phone">{{ $attendee->phone ?? '' }}</span>
+            </div>
+        </div>
     </div>
 </body>
 </html>

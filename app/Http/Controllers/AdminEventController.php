@@ -1150,41 +1150,40 @@ class AdminEventController extends Controller
     }
 
     public function destroyAttendee($id)
-{
-    $attendee = Attendee::with('ticketCategory', 'order')->findOrFail($id);
+    {
+        $attendee = Attendee::with('ticketCategory', 'order')->findOrFail($id);
 
-    if (
-        $attendee->ticketCategory &&
-        $attendee->ticketCategory->tickets_sold > 0
-    ) {
-        $attendee->ticketCategory->decrement('tickets_sold');
-    }
-
-    if ($attendee->order) {
-        $order = $attendee->order;
-        
-        // Determine price paid based on nationality or category price
-        $ticketPrice = (strtolower($attendee->nationality) === 'foreigner') 
-            ? ($attendee->ticketCategory->foreign_price ?? $attendee->ticketCategory->local_price) 
-            : $attendee->ticketCategory->local_price;
-
-        // Subtract this ticket's price from the order total
-        $newTotal = max(0, $order->total_amount - $ticketPrice);
-        
-        if ($newTotal == 0 || $order->attendees()->count() <= 1) {
-            $order->delete(); // Remove order entirely if empty or zero
-        } else {
-            $order->update(['total_amount' => $newTotal]);
+        if (
+            $attendee->ticketCategory &&
+            $attendee->ticketCategory->tickets_sold > 0
+        ) {
+            $attendee->ticketCategory->decrement('tickets_sold');
         }
+
+        if ($attendee->order) {
+            $order = $attendee->order;
+            
+            $ticketPrice = (strtolower($attendee->nationality) === 'foreigner') 
+                ? ($attendee->ticketCategory->foreign_price ?? $attendee->ticketCategory->local_price) 
+                : $attendee->ticketCategory->local_price;
+
+            $newTotal = max(0, $order->total_amount - $ticketPrice);
+            
+            if ($newTotal == 0 || $order->attendees()->count() <= 1) {
+                $order->delete();
+            } else {
+                $order->update(['total_amount' => $newTotal]);
+            }
+        }
+
+        $attendee->delete();
+
+        return back()->with(
+            'success',
+            'Attendee deleted and revenue updated successfully!'
+        );
     }
 
-    $attendee->delete();
-
-    return back()->with(
-        'success',
-        'Attendee deleted and revenue updated successfully!'
-    );
-}
     public function downloadAttendeeTicket($id)
     {
         ini_set('memory_limit', '1024M');
@@ -1194,101 +1193,61 @@ class AdminEventController extends Controller
         )->findOrFail($id);
 
         if (empty($attendee->verification_token)) {
-
-            $attendee->verification_token =
-                Str::random(64);
-
+            $attendee->verification_token = Str::random(64);
             $attendee->save();
         }
 
-        $event = $attendee->ticketCategory->event;
+        // Calculate sequential ticket number based on creation order (ignoring deleted records)
+        $eventId = $attendee->ticketCategory->event_id;
+        
+        $position = Attendee::whereHas('ticketCategory', function ($q) use ($eventId) {
+                $q->where('event_id', $eventId);
+            })
+            ->where('created_at', '<=', $attendee->created_at)
+            ->where('id', '<=', $attendee->id)
+            ->count();
 
-        $bannerBase64 = null;
+        $sequentialTicketNumber = 'BGR26' . str_pad($position, 4, '0', STR_PAD_LEFT);
 
-        if (
-            $event->image &&
-            Storage::disk('public')->exists(
-                $event->image
-            )
-        ) {
+        // Encode local ticket background image safely
+        $ticketBgPath = public_path('assets/img/ticket/ticket.jpg');
+        $ticketBgBase64 = null;
 
-            $bannerPath = storage_path(
-                'app/public/' . $event->image
-            );
-
-            if (
-                file_exists($bannerPath) &&
-                filesize($bannerPath) <= 2 * 1024 * 1024
-            ) {
-
-                $bannerBase64 =
-                    $this->resizeImageToBase64(
-                        $bannerPath,
-                        800,
-                        300
-                    );
-            }
+        if (file_exists($ticketBgPath) && filesize($ticketBgPath) <= 2 * 1024 * 1024) {
+            $ticketBgBase64 = 'data:image/jpeg;base64,' . base64_encode(file_get_contents($ticketBgPath));
         }
-
-        $logoPath = public_path(
-            'assets/img/logo/Swezon_Logo1.1V.png'
-        );
-
-        $logoBase64 =
-            (
-                file_exists($logoPath) &&
-                filesize($logoPath) <= 2 * 1024 * 1024
-            )
-                ? $this->resizeImageToBase64(
-                    $logoPath,
-                    300,
-                    100
-                )
-                : null;
 
         $verificationUrl = route(
             'ticket.verify',
             [
-                'token' =>
-                    $attendee->verification_token
+                'token' => $attendee->verification_token
             ]
         );
 
-        $qrApiUrl =
-            'https://api.qrserver.com/v1/create-qr-code/?size=75x75&data=' .
-            urlencode($verificationUrl);
-
-        $qrImageData = @file_get_contents(
-            $qrApiUrl
-        );
+        $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' . urlencode($verificationUrl);
+        $context = stream_context_create(['http' => ['timeout' => 3]]);
+        $qrImageData = @file_get_contents($qrApiUrl, false, $context);
 
         $qrBase64 = $qrImageData
-            ? 'data:image/png;base64,' .
-                base64_encode($qrImageData)
+            ? 'data:image/png;base64,' . base64_encode($qrImageData)
             : null;
 
         $pdf = Pdf::setOptions([
             'isHtml5ParserEnabled' => true,
-            'isRemoteEnabled' => true,
+            'isRemoteEnabled' => false,
             'defaultFont' => 'sans-serif',
             'isFontSubsettingEnabled' => true,
         ])->loadView(
             'emails.ticket_pdf',
             [
                 'attendee' => $attendee,
-                'bannerBase64' => $bannerBase64,
-                'logoBase64' => $logoBase64,
-                'qrBase64' => $qrBase64
+                'ticketBgBase64' => $ticketBgBase64,
+                'qrBase64' => $qrBase64,
+                'formattedTicketRef' => $sequentialTicketNumber
             ]
-        );
+        )->setPaper('a4', 'landscape'); // Forces 16:9-ish widescreen landscape presentation
 
-        $filename =
-            'Ticket_' .
-            (
-                $attendee->ticket_uuid ??
-                $attendee->id
-            ) .
-            '.pdf';
+        $filename = 'Ticket_' . $sequentialTicketNumber . '.pdf';
 
         return $pdf->download($filename);
     }

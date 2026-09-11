@@ -543,6 +543,105 @@
     }
 
     /* =========================================================
+       HIDDEN TICKET RENDERING CONTAINER
+       ========================================================= */
+    .hidden-ticket-container {
+        position: absolute;
+        left: -9999px;
+        top: -9999px;
+        visibility: visible;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .ticket-wrapper {
+        position: relative;
+        width: 1600px;
+        height: 517px;
+    }
+
+    .ticket-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 1600px;
+        height: 517px;
+    }
+
+    .qr-box {
+        position: absolute;
+        top: 126px;
+        left: 950px;
+        width: 310px;
+        height: 310px;
+    }
+
+    .qr-box img {
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+    
+    /* Ticket Number Area */
+    .ticket-number-area {
+        position: absolute;
+        top: 300px;
+        left: 1390px;
+        width: 60px;
+        height: 360px;
+    }
+
+    .ticket-number {
+        font-size: 24px;
+        font-weight: 800;
+        color: #000000;
+        -webkit-transform: rotate(270deg);
+        transform: rotate(270deg);
+        -webkit-transform-origin: top left;
+        transform-origin: top left;
+        position: absolute;
+        top: 0;
+        left: 0;
+        white-space: nowrap;
+    }
+
+    /* Name & Phone Area */
+    .buyer-data-area {
+        position: absolute;
+        top: 400px;
+        left: 1520px;
+        width: 60px;
+        height: 500px;
+    }
+
+    .buyer-info-group {
+        -webkit-transform: rotate(270deg);
+        transform: rotate(270deg);
+        -webkit-transform-origin: top left;
+        transform-origin: top left;
+        position: absolute;
+        top: 0;
+        left: 0;
+        white-space: nowrap;
+    }
+
+    .buyer-name {
+        font-size: 20px;
+        font-weight: 700;
+        color: #FFFFFF;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    .buyer-phone {
+        font-size: 18px;
+        font-weight: 600;
+        color: #FFFFFF;
+        display: block;
+    }
+
+    /* =========================================================
        MOBILE
        ========================================================= */
 
@@ -716,7 +815,7 @@
 
 
             {{-- =================================================
-                 ONLY THE INFORMATION YOU NEED
+                 INFORMATION DETAILS
                  ================================================= --}}
             <div class="receipt-details">
 
@@ -788,7 +887,7 @@
             <div class="receipt-actions">
                 <button type="button" id="download-receipt-btn" class="btn-swezon-download">
                     <i class="fas fa-download"></i>
-                    <span>Download Image</span>
+                    <span>Download Ticket</span>
                 </button>
 
                 <a
@@ -811,41 +910,147 @@
 
 </section>
 
-{{-- Include html2canvas CDN for image generation --}}
+{{-- Hidden Ticket Render Nodes synced with backend fields --}}
+<div class="hidden-ticket-container" id="ticket-nodes-wrapper">
+    @foreach($order->attendees as $index => $attendee)
+        @php
+            // Pull backend fields: BIB Number -> Ticket Code -> Fallback Sequence
+            $ticketRef = $attendee->bib_number 
+                ?? $attendee->ticket_code 
+                ?? ('BGR26' . str_pad($attendee->id, 4, '0', STR_PAD_LEFT));
+        @endphp
+        <div class="ticket-wrapper" id="render-ticket-node-{{ $index }}">
+            <img src="{{ asset('assets/img/ticket/ticket.jpg') }}" class="ticket-bg" alt="Ticket" crossorigin="anonymous">
+
+            <div class="qr-box">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=310x310&data={{ urlencode($ticketRef) }}" alt="QR Code" crossorigin="anonymous">
+            </div>
+
+            <!-- Ticket Number Area -->
+            <div class="ticket-number-area">
+                <div class="ticket-number">
+                    {{ $ticketRef }}
+                </div>
+            </div>
+
+            <!-- Name & Phone Area -->
+            <div class="buyer-data-area">
+                <div class="buyer-info-group">
+                    <span class="buyer-name">{{ $attendee->full_name ?? '' }}</span>
+                    <span class="buyer-phone">{{ $attendee->phone ?? '' }}</span>
+                </div>
+            </div>
+        </div>
+    @endforeach
+</div>
+
+{{-- Include html2canvas, jspdf, and JSZip CDNs --}}
 @push('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.2/jszip.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const downloadBtn = document.getElementById('download-receipt-btn');
+    const attendeeCount = {{ $order->attendees->count() }};
+
     if (downloadBtn) {
-        downloadBtn.addEventListener('click', function () {
-            const receiptElement = document.getElementById('receipt-capture-area');
-            
-            // Temporarily update button state to indicate loading
+        const spanEl = downloadBtn.querySelector('span');
+        if (spanEl) {
+            spanEl.textContent = attendeeCount > 1 ? 'Download All Tickets (ZIP)' : 'Download Ticket';
+        }
+
+        downloadBtn.addEventListener('click', async function () {
             const originalHtml = downloadBtn.innerHTML;
-            downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Generating...</span>';
             downloadBtn.style.pointerEvents = 'none';
 
-            html2canvas(receiptElement, {
-                scale: 2, // Higher quality image resolution
-                useCORS: true,
-                allowTaint: true,
-                backgroundColor: null
-            }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = 'Swezon_Receipt_{{ $order->order_number }}.png';
-                link.href = canvas.toDataURL('image/png');
-                link.click();
+            try {
+                const attendees = @json($order->attendees);
+                const { jsPDF } = window.jspdf;
 
-                // Restore button state
+                if (attendeeCount === 1) {
+                    downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Generating Ticket PDF...</span>';
+                    const ticketNode = document.getElementById('render-ticket-node-0');
+                    
+                    // --- DEBUG LOGGING ---
+                    console.log('--- DEBUG: Single Ticket Node ---', ticketNode);
+                    if (ticketNode) {
+                        console.log('Node innerHTML length:', ticketNode.innerHTML.length);
+                        console.log('Node children count:', ticketNode.children.length);
+                    }
+                    // ---------------------
+
+                    const canvas = await html2canvas(ticketNode, {
+                        scale: 2,
+                        useCORS: true,
+                        allowTaint: false,
+                        backgroundColor: '#ffffff'
+                    });
+
+                    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                    const pdf = new jsPDF({
+                        orientation: 'landscape',
+                        unit: 'px',
+                        format: [canvas.width, canvas.height]
+                    });
+                    pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width, canvas.height);
+
+                    const ticketNumText = ticketNode.querySelector('.ticket-number').textContent.trim();
+                    const sanitizedName = attendees[0].full_name ? attendees[0].full_name.replace(/[^a-zA-Z0-9]/g, '_') : 'Attendee';
+                    pdf.save(`Ticket_${ticketNumText}_${sanitizedName}.pdf`);
+                } else {
+                    const zip = new JSZip();
+
+                    for (let i = 0; i < attendees.length; i++) {
+                        downloadBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> <span>Packing PDF (${i + 1}/${attendeeCount})...</span>`;
+                        
+                        const ticketNode = document.getElementById('render-ticket-node-' + i);
+                        
+                        // --- DEBUG LOGGING ---
+                        console.log(`--- DEBUG: Ticket Node ${i} ---`, ticketNode);
+                        if (ticketNode) {
+                            console.log(`Node ${i} innerHTML length:`, ticketNode.innerHTML.length);
+                        }
+                        // ---------------------
+
+                        const canvas = await html2canvas(ticketNode, {
+                            scale: 2,
+                            useCORS: true,
+                            allowTaint: false,
+                            backgroundColor: '#ffffff'
+                        });
+
+                        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                        const pdf = new jsPDF({
+                            orientation: 'landscape',
+                            unit: 'px',
+                            format: [canvas.width, canvas.height]
+                        });
+                        pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width, canvas.height);
+
+                        const pdfBlob = pdf.output('blob');
+                        const ticketNumText = ticketNode.querySelector('.ticket-number').textContent.trim();
+                        const sanitizedName = attendees[i].full_name ? attendees[i].full_name.replace(/[^a-zA-Z0-9]/g, '_') : `Attendee_${i+1}`;
+                        
+                        zip.file(`Ticket_${ticketNumText}_${sanitizedName}.pdf`, pdfBlob);
+                    }
+
+                    downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Compiling ZIP...</span>';
+                    const content = await zip.generateAsync({ type: 'blob' });
+                    
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(content);
+                    link.download = 'Swezon_Tickets_{{ $order->order_number }}.zip';
+                    link.click();
+                    URL.revokeObjectURL(link.href);
+                }
+            } catch (err) {
+                console.error('Download processing error:', err);
+                alert('Failed to package ticket PDFs. Please try again.');
+            } finally {
                 downloadBtn.innerHTML = originalHtml;
                 downloadBtn.style.pointerEvents = 'auto';
-            }).catch(err => {
-                console.error('Receipt download error:', err);
-                downloadBtn.innerHTML = originalHtml;
-                downloadBtn.style.pointerEvents = 'auto';
-                alert('Failed to download receipt image. Please try again.');
-            });
+            }
         });
     }
 });
