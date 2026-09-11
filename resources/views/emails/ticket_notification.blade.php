@@ -13,8 +13,57 @@
     
     // Banner asset logic
     $bannerPath = ($event->image && Storage::disk('public')->exists($event->image)) ? storage_path('app/public/' . $event->image) : null;
-    $qrSvg = SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')->size(310)->errorCorrection('H')->generate($formattedTicketRef);
-    $qrBase64 = 'data:image/svg+xml;base64,' . base64_encode($qrSvg);
+    /*
+    |--------------------------------------------------------------------------
+    | Verification Token
+    |--------------------------------------------------------------------------
+    */
+
+    if (empty($attendee->verification_token)) {
+        $attendee->verification_token = \Illuminate\Support\Str::random(64);
+        $attendee->save();
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Verification URL
+    |--------------------------------------------------------------------------
+    */
+
+    $verificationUrl = route('ticket.verify', [
+        'token' => $attendee->verification_token
+    ]);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | QR CODE
+    |--------------------------------------------------------------------------
+    | Same method as the working downloadAttendeeTicket().
+    | Uses QRServer PNG.
+    | Does NOT require Imagick.
+    |--------------------------------------------------------------------------
+    */
+
+    $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=310x310&data='
+        . urlencode($verificationUrl);
+
+    $context = stream_context_create([
+        'http' => [
+            'timeout' => 5
+        ]
+    ]);
+
+    $qrImageData = @file_get_contents(
+        $qrApiUrl,
+        false,
+        $context
+    );
+
+    $qrBase64 = $qrImageData
+        ? 'data:image/png;base64,' . base64_encode($qrImageData)
+        : null;
 @endphp
 <!DOCTYPE html>
 <html>

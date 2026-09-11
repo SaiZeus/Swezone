@@ -914,7 +914,12 @@
 <div class="hidden-ticket-container" id="ticket-nodes-wrapper">
     @foreach($order->attendees as $index => $attendee)
         @php
-            // Calculate sequential ticket number matching the backend controller logic
+            if (empty($attendee->verification_token)) {
+                $attendee->verification_token = \Illuminate\Support\Str::random(64);
+                $attendee->save();
+            }
+
+            // Calculate sequential ticket number
             $eventId = $attendee->ticketCategory->event_id;
             $position = \App\Models\Attendee::whereHas('ticketCategory', function ($q) use ($eventId) {
                     $q->where('event_id', $eventId);
@@ -923,19 +928,54 @@
                 ->where('id', '<=', $attendee->id)
                 ->count();
 
-            $ticketRef = 'BGR26' . str_pad($position, 4, '0', STR_PAD_LEFT);
+            $sequentialTicketNumber = 'BGR26' . str_pad($position, 4, '0', STR_PAD_LEFT);
+
+            // Encode background image safely
+            $ticketBgPath = public_path('assets/img/ticket/ticket.jpg');
+            $ticketBgBase64 = (file_exists($ticketBgPath) && filesize($ticketBgPath) <= 2 * 1024 * 1024)
+                ? 'data:image/jpeg;base64,' . base64_encode(file_get_contents($ticketBgPath))
+                : null;
+
+            // Verification URL
+            $verificationUrl = route('ticket.verify', ['token' => $attendee->verification_token]);
+
+            $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=310x310&data='
+                    . urlencode($verificationUrl);
+
+                $context = stream_context_create([
+                    'http' => [
+                        'timeout' => 5
+                    ]
+                ]);
+
+                $qrImageData = @file_get_contents(
+                    $qrApiUrl,
+                    false,
+                    $context
+                );
+
+                $qrBase64 = $qrImageData
+                    ? 'data:image/png;base64,' . base64_encode($qrImageData)
+                    : null;
         @endphp
+
         <div class="ticket-wrapper" id="render-ticket-node-{{ $index }}">
-            <img src="{{ asset('assets/img/ticket/ticket.jpg') }}" class="ticket-bg" alt="Ticket" crossorigin="anonymous">
+            @if($ticketBgBase64)
+                <img src="{{ $ticketBgBase64 }}" class="ticket-bg" alt="Ticket BG">
+            @endif
 
             <div class="qr-box">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=310x310&data={{ urlencode($ticketRef) }}" alt="QR Code" crossorigin="anonymous">
+                <img
+                    src="{{ $qrBase64 }}"
+                    class="ticket-qr"
+                    alt="QR Code"
+                >
             </div>
 
             <!-- Ticket Number Area -->
             <div class="ticket-number-area">
                 <div class="ticket-number">
-                    {{ $ticketRef }}
+                    {{ $sequentialTicketNumber }}
                 </div>
             </div>
 
@@ -955,6 +995,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.2/jszip.min.js"></script>
+<script>
+    // 1. Log the raw SVG markup string to check paths and attributes
+    console.log("Verification URL:", @json($verificationUrl));
+</script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const downloadBtn = document.getElementById('download-receipt-btn');
