@@ -131,91 +131,12 @@
 
             <!-- 19:6 TICKET GRAPHIC CONTAINER -->
             @if($ticketBase64)
-                <div style="
-                    width: 100%;
-                    max-width: 800px;
-                    margin: 20px auto;
-                    position: relative;
-                    line-height: 0;
-                    overflow: hidden;
-                ">
-
-                    <!-- TICKET BACKGROUND -->
+                <div style="text-align:center; margin:20px 0;">
                     <img
                         src="{{ $ticketBase64 }}"
                         alt="Event Ticket"
-                        style="
-                            display: block;
-                            width: 100%;
-                            height: auto;
-                            border: 0;
-                        "
+                        style="display:block; width:100%; max-width:800px; height:auto; margin:0 auto;"
                     >
-
-                    <!-- QR CODE -->
-                    @if($qrBase64)
-                        <img
-                            src="{{ $qrBase64 }}"
-                            alt="QR Code"
-                            style="
-                                position: absolute;
-                                width: 19.375%;
-                                height: auto;
-                                top: 24.37%;
-                                left: 59.375%;
-                                display: block;
-                            "
-                        >
-                    @endif
-
-                    <!-- TICKET NUMBER -->
-                    <div style="
-                        position: absolute;
-                        top: 58%;
-                        left: 86.8%;
-                        width: 4%;
-                        font-family: Arial, Helvetica, sans-serif;
-                        font-size: 13px;
-                        font-weight: 800;
-                        color: #000000;
-                        white-space: nowrap;
-                        transform: rotate(270deg);
-                        transform-origin: top left;
-                        line-height: 1;
-                    ">
-                        {{ $formattedTicketRef }}
-                    </div>
-
-                    <!-- NAME + PHONE -->
-                    <div style="
-                        position: absolute;
-                        top: 80%;
-                        left: 92.5%;
-                        width: 4%;
-                        font-family: Arial, Helvetica, sans-serif;
-                        color: #ffffff;
-                        white-space: nowrap;
-                        transform: rotate(270deg);
-                        transform-origin: top left;
-                        line-height: 1.2;
-                    ">
-                        <div style="
-                            font-size: 12px;
-                            font-weight: 700;
-                            text-transform: uppercase;
-                            margin-bottom: 5px;
-                        ">
-                            {{ $attendee->full_name }}
-                        </div>
-
-                        <div style="
-                            font-size: 10px;
-                            font-weight: 600;
-                        ">
-                            {{ $attendee->phone }}
-                        </div>
-                    </div>
-
                 </div>
             @endif
 
