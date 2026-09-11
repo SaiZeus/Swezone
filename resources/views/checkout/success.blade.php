@@ -915,9 +915,7 @@
     @foreach($order->attendees as $index => $attendee)
         @php
             // Pull backend fields: BIB Number -> Ticket Code -> Fallback Sequence
-            $ticketRef = $attendee->bib_number 
-                ?? $attendee->ticket_code 
-                ?? ('BGR26' . str_pad($attendee->id, 4, '0', STR_PAD_LEFT));
+            $ticketRef = ('BGR26' . str_pad($attendee->id, 4, '0', STR_PAD_LEFT));
         @endphp
         <div class="ticket-wrapper" id="render-ticket-node-{{ $index }}">
             <img src="{{ asset('assets/img/ticket/ticket.jpg') }}" class="ticket-bg" alt="Ticket" crossorigin="anonymous">

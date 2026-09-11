@@ -1,6 +1,6 @@
 @php
     $event = $attendee->ticketCategory->event;
-    $formattedTicketRef = 'BGR' . str_pad($attendee->id, 5, '0', STR_PAD_LEFT);
+    $formattedTicketRef = 'BGR26' . str_pad($attendee->id, 4, '0', STR_PAD_LEFT);
     
     // Generate base64 background and QR for email embedding matching the PDF layout
     $bgPath = public_path('assets/img/ticket/ticket.jpg');
