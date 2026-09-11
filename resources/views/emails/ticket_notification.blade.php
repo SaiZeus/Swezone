@@ -31,19 +31,22 @@
         
         /* Responsive 19:6 Ticket Banner Styling */
         .ticket-banner-wrapper {
-            width: 100%;
-            background-color: #111111;
-            text-align: center;
-            overflow: hidden;
-        }
-        .ticket-banner-img {
-            width: 100%;
-            height: auto;
-            aspect-ratio: 19 / 6;
-            object-fit: cover;
-            display: block;
-            border: 0;
-        }
+    width: 100%;
+    background-color: #111111;
+    text-align: center;
+    overflow: hidden;
+    /* Height removed so wrapper shrinks/grows to fit full image height */
+}
+
+.ticket-banner-img {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important; /* Forces vertical scale without cropping */
+    display: block;
+    border: 0;
+    outline: none;
+    text-decoration: none;
+}
 
         .content { padding: 30px; color: #1f2937; }
         .footer { text-align: center; font-size: 11px; color: #98a2b3; padding: 20px; background: #fafbfc; border-top: 1px solid #e9ebf1; }
