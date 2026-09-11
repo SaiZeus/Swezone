@@ -914,8 +914,16 @@
 <div class="hidden-ticket-container" id="ticket-nodes-wrapper">
     @foreach($order->attendees as $index => $attendee)
         @php
-            // Pull backend fields: BIB Number -> Ticket Code -> Fallback Sequence
-            $ticketRef = ('BGR26' . str_pad($attendee->id, 4, '0', STR_PAD_LEFT));
+            // Calculate sequential ticket number matching the backend controller logic
+            $eventId = $attendee->ticketCategory->event_id;
+            $position = \App\Models\Attendee::whereHas('ticketCategory', function ($q) use ($eventId) {
+                    $q->where('event_id', $eventId);
+                })
+                ->where('created_at', '<=', $attendee->created_at)
+                ->where('id', '<=', $attendee->id)
+                ->count();
+
+            $ticketRef = 'BGR26' . str_pad($position, 4, '0', STR_PAD_LEFT);
         @endphp
         <div class="ticket-wrapper" id="render-ticket-node-{{ $index }}">
             <img src="{{ asset('assets/img/ticket/ticket.jpg') }}" class="ticket-bg" alt="Ticket" crossorigin="anonymous">
