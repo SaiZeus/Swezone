@@ -2,14 +2,7 @@
     $event = $attendee->ticketCategory->event;
     $eventId = $attendee->ticketCategory->event_id;
 
-    $position = \App\Models\Attendee::whereHas('ticketCategory', function ($q) use ($eventId) {
-            $q->where('event_id', $eventId);
-        })
-        ->where('created_at', '<=', $attendee->created_at)
-        ->where('id', '<=', $attendee->id)
-        ->count();
-
-    $formattedTicketRef = 'BGR26' . str_pad($position, 4, '0', STR_PAD_LEFT);
+    $formattedTicketRef = $attendee->ticket_code;
     
     // Banner asset logic
     $bannerPath = ($event->image && Storage::disk('public')->exists($event->image)) ? storage_path('app/public/' . $event->image) : null;

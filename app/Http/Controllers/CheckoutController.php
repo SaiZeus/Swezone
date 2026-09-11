@@ -162,7 +162,7 @@ class CheckoutController extends Controller
                 })
                 ->pluck('ticket_code')
                 ->map(function ($code) {
-                    $clean = str_replace('REG-', '', $code);
+                    $clean = str_replace('BGR26', '', $code);
                     return is_numeric($clean) ? (int)$clean : null;
                 })
                 ->filter()
@@ -180,7 +180,7 @@ class CheckoutController extends Controller
                 }
             }
             $allocatedRegNumbers[$event->id][] = $nextRegNum;
-            $registrationCode = 'REG-' . $nextRegNum;
+            $registrationCode = 'BGR26' . str_pad($nextRegNum, 4, '0', STR_PAD_LEFT);
 
             $user = User::firstOrCreate(
                 ['email' => $attendeeData['email']],

@@ -32,16 +32,7 @@ class TicketConfirmationMail extends Mailable implements ShouldQueue
             $attendee->save();
         }
 
-        // Calculate sequential ticket number matching controller & blade logic
-        $eventId = $attendee->ticketCategory->event_id;
-        $position = Attendee::whereHas('ticketCategory', function ($q) use ($eventId) {
-                $q->where('event_id', $eventId);
-            })
-            ->where('created_at', '<=', $attendee->created_at)
-            ->where('id', '<=', $attendee->id)
-            ->count();
-
-        $formattedTicketRef = 'BGR26' . str_pad($position, 4, '0', STR_PAD_LEFT);
+        $formattedTicketRef = $attendee->ticket_code;
 
         // Load background ticket image for PDF and email view
         $bgPath = public_path('assets/img/ticket/ticket.jpg');

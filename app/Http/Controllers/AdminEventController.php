@@ -1198,21 +1198,7 @@ class AdminEventController extends Controller
         }
 
         // Calculate sequential ticket number based on creation order (ignoring deleted records)
-        $eventId = $attendee->ticketCategory->event_id;
-        
-        $position = Attendee::whereHas('ticketCategory', function ($q) use ($eventId) {
-                $q->where('event_id', $eventId);
-            })
-            ->where(function ($q) use ($attendee) {
-                $q->where('created_at', '<', $attendee->created_at)
-                ->orWhere(function ($q) use ($attendee) {
-                    $q->where('created_at', $attendee->created_at)
-                        ->where('id', '<=', $attendee->id);
-                });
-            })
-            ->count();
-
-        $sequentialTicketNumber = 'BGR26' . str_pad($position, 4, '0', STR_PAD_LEFT);
+        $sequentialTicketNumber = $attendee->ticket_code;
 
         // Encode local ticket background image safely
         $ticketBgPath = public_path('assets/img/ticket/ticket1.jpg');
