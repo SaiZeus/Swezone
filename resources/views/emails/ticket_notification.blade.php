@@ -111,6 +111,87 @@
         ul.attachments-list li { margin-bottom: 6px; font-size: 13px; color: #4f46e5; font-weight: 600; }
         .highlight-text { color: #4f46e5; font-weight: bold; }
     </style>
+<style>
+    .email-ticket-wrapper {
+        position: relative;
+        width: 100%;
+        max-width: 600px;
+        height: auto;
+        aspect-ratio: 1600 / 517;
+        margin: 0 auto;
+        overflow: hidden;
+    }
+
+    .email-ticket-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+
+    .email-ticket-qr {
+        position: absolute;
+        top: 24.37%;
+        left: 59.37%;
+        width: 19.37%;
+        height: auto;
+    }
+
+    .email-ticket-number-area {
+        position: absolute;
+        top: 58.03%;
+        left: 86.87%;
+        width: 3.75%;
+        height: 69.63%;
+    }
+
+    .email-ticket-number {
+        font-size: 9px;
+        font-weight: 800;
+        color: #000000;
+        transform: rotate(270deg);
+        transform-origin: top left;
+        position: absolute;
+        top: 0;
+        left: 0;
+        white-space: nowrap;
+    }
+
+    .email-buyer-data-area {
+        position: absolute;
+        top: 75.43%;
+        left: 92.5%;
+        width: 3.75%;
+        height: 96.71%;
+    }
+
+    .email-buyer-info-group {
+        transform: rotate(270deg);
+        transform-origin: top left;
+        position: absolute;
+        top: 0;
+        left: 0;
+        white-space: nowrap;
+    }
+
+    .email-buyer-name {
+        font-size: 11px;
+        font-weight: 700;
+        color: #FFFFFF;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 3px;
+    }
+
+    .email-buyer-phone {
+        font-size: 10px;
+        font-weight: 600;
+        color: #FFFFFF;
+        display: block;
+    }
+</style>
 </head>
 <body>
     <div class="wrapper">
@@ -126,15 +207,41 @@
             </div>
 
             <!-- 19:6 TICKET GRAPHIC CONTAINER -->
-            @isset($bannerPath)
-                <div class="ticket-banner-wrapper">
-                    @if(isset($message))
-                        <img class="ticket-banner-img" src="{{ $message->embed($bannerPath) }}" alt="{{ $event->title }}">
-                    @else
-                        <img class="ticket-banner-img" src="{{ asset('storage/' . $event->image) }}" alt="{{ $event->title }}">
-                    @endif
-                </div>
+            <div class="email-ticket-wrapper">
+
+            <img
+                src="{{ asset('assets/img/ticket/ticket1.jpg') }}"
+                alt="Event Ticket"
+                style="display:block; width:100%; height:auto; border:0;"
+            >
+
+            @isset($qrBase64)
+                <img
+                    src="{{ $qrBase64 }}"
+                    class="email-ticket-qr"
+                    alt="QR Code"
+                >
             @endisset
+
+            <div class="email-ticket-number-area">
+                <div class="email-ticket-number">
+                    {{ $formattedTicketRef ?? '' }}
+                </div>
+            </div>
+
+            <div class="email-buyer-data-area">
+                <div class="email-buyer-info-group">
+                    <span class="email-buyer-name">
+                        {{ $attendee->full_name ?? '' }}
+                    </span>
+
+                    <span class="email-buyer-phone">
+                        {{ $attendee->phone ?? '' }}
+                    </span>
+                </div>
+            </div>
+
+        </div>
 
             <!-- MAIN EMAIL CONTENT -->
             <div class="content">
