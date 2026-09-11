@@ -2,7 +2,7 @@
     $event = $attendee->ticketCategory->event;
     $eventId = $attendee->ticketCategory->event_id;
 
-    $position = Attendee::whereHas('ticketCategory', function ($q) use ($eventId) {
+    $position = \App\Models\Attendee::whereHas('ticketCategory', function ($q) use ($eventId) {
             $q->where('event_id', $eventId);
         })
         ->where('created_at', '<=', $attendee->created_at)
