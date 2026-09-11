@@ -1210,7 +1210,7 @@ class AdminEventController extends Controller
         $sequentialTicketNumber = 'BGR26' . str_pad($position, 4, '0', STR_PAD_LEFT);
 
         // Encode local ticket background image safely
-        $ticketBgPath = public_path('assets/img/ticket/ticket.jpg');
+        $ticketBgPath = public_path('assets/img/ticket/ticket1.jpg');
         $ticketBgBase64 = null;
 
         if (file_exists($ticketBgPath) && filesize($ticketBgPath) <= 2 * 1024 * 1024) {

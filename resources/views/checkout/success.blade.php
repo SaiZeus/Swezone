@@ -931,7 +931,7 @@
             $sequentialTicketNumber = 'BGR26' . str_pad($position, 4, '0', STR_PAD_LEFT);
 
             // Encode background image safely
-            $ticketBgPath = public_path('assets/img/ticket/ticket.jpg');
+            $ticketBgPath = public_path('assets/img/ticket/ticket1.jpg');
             $ticketBgBase64 = (file_exists($ticketBgPath) && filesize($ticketBgPath) <= 2 * 1024 * 1024)
                 ? 'data:image/jpeg;base64,' . base64_encode(file_get_contents($ticketBgPath))
                 : null;

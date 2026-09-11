@@ -12,7 +12,7 @@
     $formattedTicketRef = 'BGR26' . str_pad($position, 4, '0', STR_PAD_LEFT);
     
     // Banner asset logic
-    $ticketPath = public_path('assets/img/ticket/ticket.jpg');
+    $ticketPath = public_path('assets/img/ticket/ticket1.jpg');
 
     $ticketBase64 = file_exists($ticketPath)
     ? 'data:image/jpeg;base64,' . base64_encode(file_get_contents($ticketPath))
