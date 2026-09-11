@@ -11,12 +11,59 @@
 
     $formattedTicketRef = 'BGR26' . str_pad($position, 4, '0', STR_PAD_LEFT);
     
-    // Banner asset logic - Using the Event banner
-    $bannerPath = $event->image ? public_path('storage/' . $event->image) : null;
+    // Banner asset logic
+    $bannerPath = ($event->image && Storage::disk('public')->exists($event->image)) ? storage_path('app/public/' . $event->image) : null;
+    /*
+    |--------------------------------------------------------------------------
+    | Verification Token
+    |--------------------------------------------------------------------------
+    */
 
-    $bannerBase64 = ($bannerPath && file_exists($bannerPath))
-    ? 'data:image/jpeg;base64,' . base64_encode(file_get_contents($bannerPath))
-    : null;
+    if (empty($attendee->verification_token)) {
+        $attendee->verification_token = \Illuminate\Support\Str::random(64);
+        $attendee->save();
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Verification URL
+    |--------------------------------------------------------------------------
+    */
+
+    $verificationUrl = route('ticket.verify', [
+        'token' => $attendee->verification_token
+    ]);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | QR CODE
+    |--------------------------------------------------------------------------
+    | Same method as the working downloadAttendeeTicket().
+    | Uses QRServer PNG.
+    | Does NOT require Imagick.
+    |--------------------------------------------------------------------------
+    */
+
+    $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=310x310&data='
+        . urlencode($verificationUrl);
+
+    $context = stream_context_create([
+        'http' => [
+            'timeout' => 5
+        ]
+    ]);
+
+    $qrImageData = @file_get_contents(
+        $qrApiUrl,
+        false,
+        $context
+    );
+
+    $qrBase64 = $qrImageData
+        ? 'data:image/png;base64,' . base64_encode($qrImageData)
+        : null;
 @endphp
 <!DOCTYPE html>
 <html>
@@ -31,23 +78,24 @@
         .container { max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e7eaf0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         .header { text-align: center; background: #f8f9ff; padding: 30px 20px; border-bottom: 1px solid #e9ebf1; }
         
-        /* Responsive 16:9 Event Banner Styling */
+        /* Responsive 19:6 Ticket Banner Styling */
         .ticket-banner-wrapper {
-            width: 100%;
-            background-color: #111111;
-            text-align: center;
-            overflow: hidden;
-        }
+    width: 100%;
+    background-color: #111111;
+    text-align: center;
+    overflow: hidden;
+    /* Height removed so wrapper shrinks/grows to fit full image height */
+}
 
-        .ticket-banner-img {
-            width: 100% !important;
-            max-width: 100% !important;
-            height: auto !important;
-            display: block;
-            border: 0;
-            outline: none;
-            text-decoration: none;
-        }
+.ticket-banner-img {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important; /* Forces vertical scale without cropping */
+    display: block;
+    border: 0;
+    outline: none;
+    text-decoration: none;
+}
 
         .content { padding: 30px; color: #1f2937; }
         .footer { text-align: center; font-size: 11px; color: #98a2b3; padding: 20px; background: #fafbfc; border-top: 1px solid #e9ebf1; }
@@ -77,16 +125,16 @@
                 @endif
             </div>
 
-            <!-- 16:9 EVENT BANNER GRAPHIC CONTAINER -->
-            @if($bannerBase64)
+            <!-- 19:6 TICKET GRAPHIC CONTAINER -->
+            @isset($bannerPath)
                 <div class="ticket-banner-wrapper">
-                    <img
-                        src="{{ $bannerBase64 }}"
-                        alt="{{ $event->title }} Banner"
-                        class="ticket-banner-img"
-                    >
+                    @if(isset($message))
+                        <img class="ticket-banner-img" src="{{ $message->embed($bannerPath) }}" alt="{{ $event->title }}">
+                    @else
+                        <img class="ticket-banner-img" src="{{ asset('storage/' . $event->image) }}" alt="{{ $event->title }}">
+                    @endif
                 </div>
-            @endif
+            @endisset
 
             <!-- MAIN EMAIL CONTENT -->
             <div class="content">
@@ -129,7 +177,8 @@
 
                 <p><strong>Documents Attached:</strong></p>
                 <ul class="attachments-list">
-                    <li>Ticket PDF (Includes Verification QR) &gt; Attached</li>
+                    <li>Participant’s QR &gt; Attached</li>
+                    <li>Ticket PDF &gt; Attached</li>
                     @if($event->items && $event->items->count() > 0)
                         <li>Event Items &amp; T-Shirt Size Chart &gt; Attached</li>
                     @endif

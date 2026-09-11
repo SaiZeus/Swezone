@@ -44,7 +44,7 @@ class TicketConfirmationMail extends Mailable implements ShouldQueue
         $formattedTicketRef = 'BGR26' . str_pad($position, 4, '0', STR_PAD_LEFT);
 
         // Load background ticket image for PDF and email view
-        $bgPath = public_path('assets/img/ticket/ticket1.jpg');
+        $bgPath = public_path('assets/img/ticket/ticket.jpg');
         $ticketBgBase64 = file_exists($bgPath) ? 'data:image/jpeg;base64,' . base64_encode(file_get_contents($bgPath)) : null;
 
         // Generate QR code using the same verification URL as the working PDF ticket
@@ -78,7 +78,7 @@ class TicketConfirmationMail extends Mailable implements ShouldQueue
             'attendee' => $attendee,
             'formattedTicketRef' => $formattedTicketRef,
             'ticketBgBase64' => $ticketBgBase64,
-            'qrBase64' => $qrBase64,
+            'qrBase64' => $qrBase64
         ];
 
         $pdf = Pdf::setOptions([
