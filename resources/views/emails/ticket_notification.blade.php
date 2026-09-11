@@ -12,7 +12,11 @@
     $formattedTicketRef = 'BGR26' . str_pad($position, 4, '0', STR_PAD_LEFT);
     
     // Banner asset logic
-    $bannerPath = ($event->image && Storage::disk('public')->exists($event->image)) ? storage_path('app/public/' . $event->image) : null;
+    $ticketPath = public_path('assets/img/ticket/ticket.jpg');
+
+    $ticketBase64 = file_exists($ticketPath)
+    ? 'data:image/jpeg;base64,' . base64_encode(file_get_contents($ticketPath))
+    : null;
     /*
     |--------------------------------------------------------------------------
     | Verification Token
@@ -126,15 +130,94 @@
             </div>
 
             <!-- 19:6 TICKET GRAPHIC CONTAINER -->
-            @isset($bannerPath)
-                <div class="ticket-banner-wrapper">
-                    @if(isset($message))
-                        <img class="ticket-banner-img" src="{{ $message->embed($bannerPath) }}" alt="{{ $event->title }}">
-                    @else
-                        <img class="ticket-banner-img" src="{{ asset('storage/' . $event->image) }}" alt="{{ $event->title }}">
+            @if($ticketBase64)
+                <div style="
+                    width: 100%;
+                    max-width: 800px;
+                    margin: 20px auto;
+                    position: relative;
+                    line-height: 0;
+                    overflow: hidden;
+                ">
+
+                    <!-- TICKET BACKGROUND -->
+                    <img
+                        src="{{ $ticketBase64 }}"
+                        alt="Event Ticket"
+                        style="
+                            display: block;
+                            width: 100%;
+                            height: auto;
+                            border: 0;
+                        "
+                    >
+
+                    <!-- QR CODE -->
+                    @if($qrBase64)
+                        <img
+                            src="{{ $qrBase64 }}"
+                            alt="QR Code"
+                            style="
+                                position: absolute;
+                                width: 19.375%;
+                                height: auto;
+                                top: 24.37%;
+                                left: 59.375%;
+                                display: block;
+                            "
+                        >
                     @endif
+
+                    <!-- TICKET NUMBER -->
+                    <div style="
+                        position: absolute;
+                        top: 58%;
+                        left: 86.8%;
+                        width: 4%;
+                        font-family: Arial, Helvetica, sans-serif;
+                        font-size: 13px;
+                        font-weight: 800;
+                        color: #000000;
+                        white-space: nowrap;
+                        transform: rotate(270deg);
+                        transform-origin: top left;
+                        line-height: 1;
+                    ">
+                        {{ $formattedTicketRef }}
+                    </div>
+
+                    <!-- NAME + PHONE -->
+                    <div style="
+                        position: absolute;
+                        top: 80%;
+                        left: 92.5%;
+                        width: 4%;
+                        font-family: Arial, Helvetica, sans-serif;
+                        color: #ffffff;
+                        white-space: nowrap;
+                        transform: rotate(270deg);
+                        transform-origin: top left;
+                        line-height: 1.2;
+                    ">
+                        <div style="
+                            font-size: 12px;
+                            font-weight: 700;
+                            text-transform: uppercase;
+                            margin-bottom: 5px;
+                        ">
+                            {{ $attendee->full_name }}
+                        </div>
+
+                        <div style="
+                            font-size: 10px;
+                            font-weight: 600;
+                        ">
+                            {{ $attendee->phone }}
+                        </div>
+                    </div>
+
                 </div>
-            @endisset
+            @endif
 
             <!-- MAIN EMAIL CONTENT -->
             <div class="content">
