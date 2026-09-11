@@ -22,6 +22,17 @@
     <link rel="stylesheet" href="{{ asset('assets/css/magnific-popup.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/jquery-ui.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/main.css') }}">
+    <style>
+        @media (max-width: 991.98px) {
+    #xb-header-area {
+        display: none;
+    }
+
+    #xb-header-area.header-visible {
+        display: block;
+    }
+}
+    </style>
 </head>
 
 <body class="@yield('body-class', 'design-conference')">

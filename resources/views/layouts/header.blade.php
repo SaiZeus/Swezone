@@ -46,4 +46,19 @@
         </div>
     </div>
 </header>
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const header = document.getElementById('xb-header-area');
+
+    window.addEventListener('scroll', function () {
+        if (window.scrollY > 10) {
+            header.classList.add('header-visible');
+        } else {
+            header.classList.remove('header-visible');
+        }
+    });
+});
+</script>
+@endpush
 <!-- header end -->

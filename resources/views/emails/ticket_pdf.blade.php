@@ -63,8 +63,8 @@
         /* Name & Phone Area */
         .buyer-data-area {
             position: absolute;
-            top: 400px;
-            left: 1520px;
+            top: 390px;
+            left: 1480px;
             width: 60px;
             height: 500px;
         }
@@ -79,7 +79,7 @@
             white-space: nowrap;
         }
         .buyer-name {
-            font-size: 20px;
+            font-size: 30px;
             font-weight: 700;
             color: #FFFFFF;
             text-transform: uppercase;
@@ -87,7 +87,7 @@
             margin-bottom: 10px;
         }
         .buyer-phone {
-            font-size: 18px;
+            font-size: 28px;
             font-weight: 600;
             color: #FFFFFF;
             display: block;
