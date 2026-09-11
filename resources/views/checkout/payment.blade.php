@@ -78,14 +78,14 @@
                 </div>
 
                 {{-- SIMULATE PAYMENT BUTTON (HIDDEN) --}}
-                <div class="mt-4" style="max-width: 340px; margin: 0 auto; display: show;">
+                <!-- <div class="mt-4" style="max-width: 340px; margin: 0 auto; display: show;">
                     <form action="{{ route('checkout.complete', $order) }}" method="POST">
                         @csrf
                         <button type="submit" class="btn btn-primary w-100 py-2" style="font-size: 14px; font-weight: bold;">
                             Done (Simulate Paid)
                         </button>
                     </form>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>
