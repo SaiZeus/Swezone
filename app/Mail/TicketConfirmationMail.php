@@ -77,17 +77,9 @@ class TicketConfirmationMail extends Mailable implements ShouldQueue
         $data = [
             'attendee' => $attendee,
             'formattedTicketRef' => $formattedTicketRef,
-
-            // For PDF
             'ticketBgBase64' => $ticketBgBase64,
             'qrBase64' => $qrBase64,
-
-            // For Gmail
-            'ticketBgPath' => $bgPath,
-            'qrImageData' => $qrImageData,
         ];
-
-        \Log::info('Email view data prepared.', [ 'ticketBgPath' => $bgPath, 'ticketBgPath_exists' => file_exists($bgPath), 'ticketBgData_size' => $ticketBgData ? strlen($ticketBgData) : 0, 'qrImageData_size' => $qrImageData ? strlen($qrImageData) : 0, 'ticketBgBase64' => !empty($ticketBgBase64), 'qrBase64' => !empty($qrBase64), ]);
 
         $pdf = Pdf::setOptions([
             'isHtml5ParserEnabled' => true,

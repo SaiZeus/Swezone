@@ -11,63 +11,12 @@
 
     $formattedTicketRef = 'BGR26' . str_pad($position, 4, '0', STR_PAD_LEFT);
     
-    // Banner asset logic - Changed to use the Event banner instead of ticket1.jpg
+    // Banner asset logic - Using the Event banner
     $bannerPath = $event->image ? public_path('storage/' . $event->image) : null;
 
     $bannerBase64 = ($bannerPath && file_exists($bannerPath))
     ? 'data:image/jpeg;base64,' . base64_encode(file_get_contents($bannerPath))
     : null;
-    /*
-    |--------------------------------------------------------------------------
-    | Verification Token
-    |--------------------------------------------------------------------------
-    */
-
-    if (empty($attendee->verification_token)) {
-        $attendee->verification_token = \Illuminate\Support\Str::random(64);
-        $attendee->save();
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Verification URL
-    |--------------------------------------------------------------------------
-    */
-
-    $verificationUrl = route('ticket.verify', [
-        'token' => $attendee->verification_token
-    ]);
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | QR CODE
-    |--------------------------------------------------------------------------
-    | Same method as the working downloadAttendeeTicket().
-    | Uses QRServer PNG.
-    | Does NOT require Imagick.
-    |--------------------------------------------------------------------------
-    */
-
-    $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=310x310&data='
-        . urlencode($verificationUrl);
-
-    $context = stream_context_create([
-        'http' => [
-            'timeout' => 5
-        ]
-    ]);
-
-    $qrImageData = @file_get_contents(
-        $qrApiUrl,
-        false,
-        $context
-    );
-
-    $qrBase64 = $qrImageData
-        ? 'data:image/png;base64,' . base64_encode($qrImageData)
-        : null;
 @endphp
 <!DOCTYPE html>
 <html>
@@ -180,8 +129,7 @@
 
                 <p><strong>Documents Attached:</strong></p>
                 <ul class="attachments-list">
-                    <li>Participant’s QR &gt; Attached</li>
-                    <li>Ticket PDF &gt; Attached</li>
+                    <li>Ticket PDF (Includes Verification QR) &gt; Attached</li>
                     @if($event->items && $event->items->count() > 0)
                         <li>Event Items &amp; T-Shirt Size Chart &gt; Attached</li>
                     @endif
