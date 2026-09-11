@@ -4,14 +4,14 @@ namespace App\Mail;
 
 use App\Models\Attendee;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue; // Added ShouldQueue contract
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
 
-class TicketConfirmationMail extends Mailable implements ShouldQueue // Added implements ShouldQueue[cite: 9]
+class TicketConfirmationMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -32,8 +32,16 @@ class TicketConfirmationMail extends Mailable implements ShouldQueue // Added im
             $attendee->save();
         }
 
-        // Generate sequential BGR ticket reference format
-        $formattedTicketRef = 'BGR' . str_pad($attendee->id, 5, '0', STR_PAD_LEFT);
+        // Calculate sequential ticket number matching controller & blade logic
+        $eventId = $attendee->ticketCategory->event_id;
+        $position = Attendee::whereHas('ticketCategory', function ($q) use ($eventId) {
+                $q->where('event_id', $eventId);
+            })
+            ->where('created_at', '<=', $attendee->created_at)
+            ->where('id', '<=', $attendee->id)
+            ->count();
+
+        $formattedTicketRef = 'BGR26' . str_pad($position, 4, '0', STR_PAD_LEFT);
 
         // Load background ticket image for PDF and email view
         $bgPath = public_path('assets/img/ticket/ticket.jpg');
