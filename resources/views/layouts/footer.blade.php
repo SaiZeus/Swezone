@@ -2,7 +2,7 @@
 <footer class="footer footer-style-two pt-140 bg_img" data-background="{{ asset('assets/img/bg/footer-bg.jpg') }}">
     <div class="container">
         <div class="xb-footer-wrap ul_li_between align-items-start">
-            <div class="xb-footer_widget mt-30">
+            <div class="xb-footer_widget mt-30" style="display: none;">
                 <h3 class="xb-widget-title">Quick Links</h3>
                 <ul class="xb-list list-unstyled">
                     <li><a href="{{ url('/contact') }}">Registration</a></li>
@@ -15,7 +15,7 @@
                     <img src="{{ asset('assets/img/logo/Swezon_Logo1.1V.svg') }}" alt="Swezon Logo" style="max-height: 350px; width: auto; object-fit: contain;">
                 </div>
             </div>
-            <div class="xb-footer_info mt-30">
+            <div class="xb-footer_info mt-30" style="display: none;">
                 <h3 class="xb-widget-title">Get in touch</h3>
                 <ul class="xb-contact list-unstyled">
                     <li><img src="{{ asset('assets/img/icon/location-icon03.svg') }}" alt=""> Yangon, Myanmar</li>
@@ -35,7 +35,7 @@
         <div class="container">
             <div class="xb-footer-bottom-inner ul_li_between">
                 <p>Copyright © 2026 <a href="{{ url('/') }}">Swezon,</a> All rights reserved.</p>
-                <div class="xb-social_media">
+                <div class="xb-social_media" style="display: none;">
                     <ul class="social-link list-unstyled ul_li">
                         <li>Follow us :</li>
                         <li><a href="#!"><i class="fa-brands fa-facebook-f"></i></a></li>
