@@ -1,7 +1,7 @@
 <!-- footer start -->
 <footer class="footer footer-style-two pt-140 bg_img" data-background="{{ asset('assets/img/bg/footer-bg.jpg') }}">
     <div class="container">
-        <div class="xb-footer-wrap ul_li_between align-items-start">
+        <div class="xb-footer-wrap position-relative d-flex justify-content-center align-items-center">
             <div class="xb-footer_widget mt-30" style="display: none;">
                 <h3 class="xb-widget-title">Quick Links</h3>
                 <ul class="xb-list list-unstyled">
@@ -10,7 +10,7 @@
                     <li><a href="{{ url('/about') }}">About SWEZON</a></li>
                 </ul>
             </div>
-            <div class="xb-newsletter mt-30">
+            <div class="xb-newsletter mt-30 text-center">
                 <div class="xb-item--logo">
                     <img src="{{ asset('assets/img/logo/Swezon_Logo1.1V.svg') }}" alt="Swezon Logo" style="max-height: 350px; width: auto; object-fit: contain;">
                 </div>
