@@ -89,99 +89,7 @@ class CheckoutController extends Controller
             'payment_status' => 'pending',
         ]);
 
-        $allocatedRegNumbers = [];
-        $allocatedSharedBibs = [];
-        $allocatedCategoryBibs = [];
-
         foreach ($request->attendees as $attendeeData) {
-            $category = TicketCategory::with('event')->findOrFail($attendeeData['ticket_category_id']);
-            $event = $category->event;
-
-            $generatedBib = $attendeeData['bib_name'] ?? null;
-
-            if ($event && $event->enable_bib_number) {
-                if ($event->share_bib_prefix) {
-                    $prefix = !empty($event->event_bib_prefix) ? $event->event_bib_prefix : 'BIB';
-                    $startNum = $event->event_bib_start_number ?? 1;
-                    
-                    $dbBibs = Attendee::whereHas('ticketCategory', function ($q) use ($event) {
-                            $q->where('event_id', $event->id);
-                        })
-                        ->pluck('bib_name')
-                        ->map(function ($bib) use ($prefix) {
-                            $clean = str_replace(strtoupper($prefix) . '-', '', strtoupper($bib));
-                            return is_numeric($clean) ? (int)$clean : null;
-                        })
-                        ->filter()
-                        ->toArray();
-
-                    $usedBibs = array_merge($dbBibs, $allocatedSharedBibs[$event->id] ?? []);
-                    sort($usedBibs);
-
-                    $nextNum = $startNum;
-                    foreach ($usedBibs as $num) {
-                        if ($num == $nextNum) {
-                            $nextNum++;
-                        } elseif ($num > $nextNum) {
-                            break;
-                        }
-                    }
-                    $allocatedSharedBibs[$event->id][] = $nextNum;
-                } else {
-                    $prefix = !empty($category->bib_prefix) ? $category->bib_prefix : 'BIB';
-                    $startNum = $category->bib_start_number ?? 1;
-                    
-                    $dbBibs = Attendee::where('ticket_category_id', $category->id)
-                        ->pluck('bib_name')
-                        ->map(function ($bib) use ($prefix) {
-                            $clean = str_replace(strtoupper($prefix) . '-', '', strtoupper($bib));
-                            return is_numeric($clean) ? (int)$clean : null;
-                        })
-                        ->filter()
-                        ->toArray();
-
-                    $usedBibs = array_merge($dbBibs, $allocatedCategoryBibs[$category->id] ?? []);
-                    sort($usedBibs);
-
-                    $nextNum = $startNum;
-                    foreach ($usedBibs as $num) {
-                        if ($num == $nextNum) {
-                            $nextNum++;
-                        } elseif ($num > $nextNum) {
-                            break;
-                        }
-                    }
-                    $allocatedCategoryBibs[$category->id][] = $nextNum;
-                }
-
-                $generatedBib = strtoupper($prefix) . '-' . str_pad($nextNum, 4, '0', STR_PAD_LEFT);
-            }
-
-            $dbRegs = Attendee::whereHas('ticketCategory', function ($q) use ($event) {
-                    $q->where('event_id', $event->id);
-                })
-                ->pluck('ticket_code')
-                ->map(function ($code) {
-                    $clean = str_replace('BGR26', '', $code);
-                    return is_numeric($clean) ? (int)$clean : null;
-                })
-                ->filter()
-                ->toArray();
-
-            $usedRegs = array_merge($dbRegs, $allocatedRegNumbers[$event->id] ?? []);
-            sort($usedRegs);
-
-            $nextRegNum = 1;
-            foreach ($usedRegs as $num) {
-                if ($num == $nextRegNum) {
-                    $nextRegNum++;
-                } elseif ($num > $nextRegNum) {
-                    break;
-                }
-            }
-            $allocatedRegNumbers[$event->id][] = $nextRegNum;
-            $registrationCode = 'BGR26' . str_pad($nextRegNum, 4, '0', STR_PAD_LEFT);
-
             $user = User::firstOrCreate(
                 ['email' => $attendeeData['email']],
                 [
@@ -192,6 +100,7 @@ class CheckoutController extends Controller
 
             $userCode = 'SWE-' . str_pad($user->id, 4, '0', STR_PAD_LEFT);
 
+            // Create attendee record with NULL codes while pending
             Attendee::create([
                 'order_id'              => $order->id,
                 'ticket_category_id'    => $attendeeData['ticket_category_id'],
@@ -207,7 +116,7 @@ class CheckoutController extends Controller
                 'country'               => $attendeeData['country'] ?? null,
                 'gender'                => $attendeeData['gender'] ?? null,
                 'date_of_birth'         => !empty($attendeeData['date_of_birth']) ? $attendeeData['date_of_birth'] : null,
-                'bib_name'              => $generatedBib,
+                'bib_name'              => null, // Generated upon payment completion
                 'tshirt_size'           => $attendeeData['tshirt_size'] ?? null,
                 'blood_type'            => $attendeeData['blood_type'] ?? null,
                 'has_medical_condition' => !empty($attendeeData['has_medical_condition']) ? $attendeeData['has_medical_condition'] : 'no',
@@ -217,7 +126,7 @@ class CheckoutController extends Controller
                 'address'               => $attendeeData['address'] ?? null,
                 'experience'            => $attendeeData['experience'] ?? null,
                 'ticket_uuid'           => (string) Str::uuid(),
-                'ticket_code'           => $registrationCode,
+                'ticket_code'           => null, // Generated upon payment completion
                 'user_code'             => $userCode,
             ]);
         }
@@ -239,7 +148,6 @@ class CheckoutController extends Controller
             if (!$tokenResponse->successful() || empty($tokenResponse['token'])) {
                 Log::error('MMQR Auth Token Failed', ['response' => $tokenResponse->json()]);
                 
-                // Send failure notice to admin audit email
                 try {
                     Mail::raw("MMQR Auth Token Failed for Order: {$orderNumber}. Response: " . json_encode($tokenResponse->json()), function ($message) {
                         $message->to('swezonticketing@gmail.com')
@@ -275,7 +183,6 @@ class CheckoutController extends Controller
 
             Log::error('MMQR Dynamic QR Generation Failed', ['response' => $qrResponse->json()]);
             
-            // Send failure notice to admin audit email
             try {
                 Mail::raw("MMQR QR Generation Failed for Order: {$orderNumber}. Response: " . json_encode($qrResponse->json()), function ($message) {
                     $message->to('swezonticketing@gmail.com')
@@ -289,7 +196,6 @@ class CheckoutController extends Controller
         } catch (Exception $e) {
             Log::error('MMQR Exception Encountered', ['error' => $e->getMessage()]);
             
-            // Send exception notice to admin audit email
             try {
                 Mail::raw("MMQR Exception Encountered for Order: {$orderNumber}. Error: " . $e->getMessage(), function ($message) {
                     $message->to('swezonticketing@gmail.com')
@@ -305,15 +211,11 @@ class CheckoutController extends Controller
 
     public function showPayment(Order $order)
     {
-        // Prevent going back to payment if already paid
         if ($order->payment_status === 'paid') {
             return redirect()->route('checkout.success', $order);
         }
 
-        // Check if order is pending and older than 3 minutes
         if ($order->payment_status === 'pending' && $order->created_at->lt(now()->subMinutes(3))) {
-            
-            // Send expiration notice to admin audit email before deleting order data
             try {
                 $orderInfoText = "Order Number: {$order->order_number}\nTotal Amount: {$order->total_amount}\nStatus: Expired (Pending > 3 mins)";
                 Mail::raw("Payment session expired for order:\n\n{$orderInfoText}", function ($message) use ($order) {
@@ -343,12 +245,117 @@ class CheckoutController extends Controller
         $order->update(['payment_status' => 'paid']);
 
         $attendeeSummary = [];
+        $allocatedRegNumbers = [];
+        $allocatedSharedBibs = [];
+        $allocatedCategoryBibs = [];
 
         foreach ($order->attendees as $attendee) {
             $category = $attendee->ticketCategory;
+            $event = $category->event ?? null;
+
             if ($category) {
                 $category->increment('tickets_sold');
             }
+
+            // 1. Generate Bib Name upon payment success (if enabled)
+            $generatedBib = $attendee->bib_name;
+            if (empty($generatedBib) && $event && $event->enable_bib_number) {
+                if ($event->share_bib_prefix) {
+                    $prefix = !empty($event->event_bib_prefix) ? $event->event_bib_prefix : 'BIB';
+                    $startNum = $event->event_bib_start_number ?? 1;
+                    
+                    $dbBibs = Attendee::whereHas('ticketCategory', function ($q) use ($event) {
+                            $q->where('event_id', $event->id);
+                        })
+                        ->whereNotNull('bib_name')
+                        ->pluck('bib_name')
+                        ->map(function ($bib) use ($prefix) {
+                            $clean = str_replace(strtoupper($prefix) . '-', '', strtoupper($bib));
+                            return is_numeric($clean) ? (int)$clean : null;
+                        })
+                        ->filter()
+                        ->toArray();
+
+                    $usedBibs = array_merge($dbBibs, $allocatedSharedBibs[$event->id] ?? []);
+                    sort($usedBibs);
+
+                    $nextNum = $startNum;
+                    foreach ($usedBibs as $num) {
+                        if ($num == $nextNum) {
+                            $nextNum++;
+                        } elseif ($num > $nextNum) {
+                            break;
+                        }
+                    }
+                    $allocatedSharedBibs[$event->id][] = $nextNum;
+                } else {
+                    $prefix = !empty($category->bib_prefix) ? $category->bib_prefix : 'BIB';
+                    $startNum = $category->bib_start_number ?? 1;
+                    
+                    $dbBibs = Attendee::where('ticket_category_id', $category->id)
+                        ->whereNotNull('bib_name')
+                        ->pluck('bib_name')
+                        ->map(function ($bib) use ($prefix) {
+                            $clean = str_replace(strtoupper($prefix) . '-', '', strtoupper($bib));
+                            return is_numeric($clean) ? (int)$clean : null;
+                        })
+                        ->filter()
+                        ->toArray();
+
+                    $usedBibs = array_merge($dbBibs, $allocatedCategoryBibs[$category->id] ?? []);
+                    sort($usedBibs);
+
+                    $nextNum = $startNum;
+                    foreach ($usedBibs as $num) {
+                        if ($num == $nextNum) {
+                            $nextNum++;
+                        } elseif ($num > $nextNum) {
+                            break;
+                        }
+                    }
+                    $allocatedCategoryBibs[$category->id][] = $nextNum;
+                }
+
+                $generatedBib = strtoupper($prefix) . '-' . str_pad($nextNum, 4, '0', STR_PAD_LEFT);
+            }
+
+            // 2. Generate Ticket Code upon payment success
+            $ticketCode = $attendee->ticket_code;
+            if (empty($ticketCode) && $event) {
+                $ticketPrefix = !empty($event->event_bib_prefix) ? $event->event_bib_prefix : 'BGR26';
+
+                $dbRegs = Attendee::whereHas('ticketCategory', function ($q) use ($event) {
+                        $q->where('event_id', $event->id);
+                    })
+                    ->whereNotNull('ticket_code')
+                    ->pluck('ticket_code')
+                    ->map(function ($code) use ($ticketPrefix) {
+                        $clean = str_replace(strtoupper($ticketPrefix), '', strtoupper($code));
+                        return is_numeric($clean) ? (int)$clean : null;
+                    })
+                    ->filter()
+                    ->toArray();
+
+                $usedRegs = array_merge($dbRegs, $allocatedRegNumbers[$event->id] ?? []);
+                sort($usedRegs);
+
+                $nextRegNum = 1;
+                foreach ($usedRegs as $num) {
+                    if ($num == $nextRegNum) {
+                        $nextRegNum++;
+                    } elseif ($num > $nextNum) {
+                        break;
+                    }
+                }
+                $allocatedRegNumbers[$event->id][] = $nextRegNum;
+                $ticketCode = strtoupper($ticketPrefix) . str_pad($nextRegNum, 4, '0', STR_PAD_LEFT);
+            }
+
+            // Save the generated codes to the attendee record
+            $attendee->update([
+                'bib_name'    => $generatedBib,
+                'ticket_code' => $ticketCode,
+            ]);
 
             // Increment promo code usage count only after successful payment completion
             if (!empty($attendee->promo_code_id)) {

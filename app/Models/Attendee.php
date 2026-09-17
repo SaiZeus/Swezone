@@ -39,25 +39,6 @@ class Attendee extends Model
         'user_code'
     ];
 
-    protected static function booted()
-    {
-        static::creating(function ($attendee) {
-            if (empty($attendee->ticket_code)) {
-                $eventId = null;
-                if ($attendee->ticket_category_id) {
-                    $category = TicketCategory::find($attendee->ticket_category_id);
-                    $eventId = $category ? $category->event_id : null;
-                }
-                
-                $count = self::whereHas('ticketCategory', function ($q) use ($eventId) {
-                    $q->where('event_id', $eventId);
-                })->count() + 1;
-
-                $attendee->ticket_code = 'BGR26' . str_pad($count, 4, '0', STR_PAD_LEFT);
-            }
-        });
-    }
-
     public function order()
     {
         return $this->belongsTo(Order::class);

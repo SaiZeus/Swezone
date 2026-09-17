@@ -33,7 +33,7 @@ class AdminController extends Controller
         // 3. Active Events Count
         $activeEventsCount = Event::whereIn('status', ['upcoming', 'live'])->count();
 
-        // 4. Runner Leaderboard with Purchased Events Details
+        // 4. Runner Leaderboard with Purchased Events Details & Pagination
         $loyaltyRunners = Attendee::select(
                 'email',
                 DB::raw('MAX(full_name) as full_name'),
@@ -44,8 +44,7 @@ class AdminController extends Controller
             ->whereHas('ticketCategory.event') // Ensures deleted events are excluded
             ->groupBy('email')
             ->orderBy('ticket_count', 'desc')
-            ->take(15)
-            ->get();
+            ->paginate(15);
 
         // Attach purchased event list to each runner for modal display
         foreach ($loyaltyRunners as $runner) {

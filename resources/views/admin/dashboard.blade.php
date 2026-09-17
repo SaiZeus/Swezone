@@ -463,10 +463,13 @@
                 </thead>
                 <tbody>
                     @forelse($loyaltyRunners as $index => $runner)
+                    @php
+                        $globalIndex = ($loyaltyRunners->currentPage() - 1) * $loyaltyRunners->perPage() + $index;
+                    @endphp
                     <tr>
                         <td class="dashboard-runner-name">
                             <div class="flex items-center gap-2">
-                                <span class="user-code-badge">{{ $runner->user_code ?? 'SWE-' . str_pad($index + 1, 4, '0', STR_PAD_LEFT) }}</span>
+                                <span class="user-code-badge">{{ $runner->user_code ?? 'SWE-' . str_pad($globalIndex + 1, 4, '0', STR_PAD_LEFT) }}</span>
                                 <span>{{ $runner->full_name }}</span>
                             </div>
                         </td>
@@ -476,7 +479,7 @@
                             <span class="dashboard-ticket-number">{{ $runner->ticket_count }}</span>
                         </td>
                         <td class="text-right">
-                            <button type="button" onclick="openModal('runnerEventsModal-{{ $index }}')" class="btn-view-events">
+                            <button type="button" onclick="openModal('runnerEventsModal-{{ $globalIndex }}')" class="btn-view-events">
                                 <i class="fa-solid fa-calendar-check"></i>
                                 View Events ({{ count($runner->purchased_events) }})
                             </button>
@@ -493,18 +496,28 @@
                 </tbody>
             </table>
         </div>
+
+        {{-- PAGINATION LINKS --}}
+        @if($loyaltyRunners->hasPages())
+        <div class="p-4 border-t border-gray-100 bg-gray-50/50">
+            {{ $loyaltyRunners->links() }}
+        </div>
+        @endif
     </div>
 
     {{-- RUNNER EVENTS MODALS --}}
     @foreach($loyaltyRunners as $index => $runner)
-    <div id="runnerEventsModal-{{ $index }}" class="dashboard-modal fixed inset-0 hidden items-center justify-center z-50 p-4">
+    @php
+        $globalIndex = ($loyaltyRunners->currentPage() - 1) * $loyaltyRunners->perPage() + $index;
+    @endphp
+    <div id="runnerEventsModal-{{ $globalIndex }}" class="dashboard-modal fixed inset-0 hidden items-center justify-center z-50 p-4">
         <div class="dashboard-modal-panel max-w-2xl w-full">
             <div class="dashboard-modal-header flex justify-between items-center">
                 <h3 class="dashboard-modal-title">
                     <i class="fa-solid fa-user-tag text-indigo-600"></i>
-                    Events Joined by {{ $runner->full_name }} ({{ $runner->user_code ?? 'SWE-' . str_pad($index + 1, 4, '0', STR_PAD_LEFT) }})
+                    Events Joined by {{ $runner->full_name }} ({{ $runner->user_code ?? 'SWE-' . str_pad($globalIndex + 1, 4, '0', STR_PAD_LEFT) }})
                 </h3>
-                <button onclick="closeModal('runnerEventsModal-{{ $index }}')" class="dashboard-modal-close">&times;</button>
+                <button onclick="closeModal('runnerEventsModal-{{ $globalIndex }}')" class="dashboard-modal-close">&times;</button>
             </div>
 
             <div class="dashboard-modal-body pt-4">
@@ -545,7 +558,7 @@
             </div>
 
             <div class="dashboard-modal-footer text-right">
-                <button onclick="closeModal('runnerEventsModal-{{ $index }}')" class="dashboard-close-button">Close</button>
+                <button onclick="closeModal('runnerEventsModal-{{ $globalIndex }}')" class="dashboard-close-button">Close</button>
             </div>
         </div>
     </div>
