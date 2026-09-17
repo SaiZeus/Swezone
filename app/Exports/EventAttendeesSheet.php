@@ -73,6 +73,9 @@ class EventAttendeesSheet implements
                 $query = Attendee::with(['ticketCategory', 'promoCode', 'order'])
                     ->whereHas('ticketCategory', function ($q) {
                         $q->where('event_id', $this->event->id);
+                    })
+                    ->whereHas('order', function ($q) {
+                        $q->whereIn(\DB::raw('LOWER(payment_status)'), ['paid', 'approved', 'completed']);
                     });
 
                 if (!is_null($this->categoryId)) {
@@ -103,6 +106,8 @@ class EventAttendeesSheet implements
 
                 $totalParticipants = Attendee::whereHas('ticketCategory', function ($q) {
                     $q->where('event_id', $this->event->id);
+                })->whereHas('order', function ($q) {
+                    $q->whereIn(\DB::raw('LOWER(payment_status)'), ['paid', 'approved', 'completed']);
                 })->count();
 
                 // Title
@@ -143,7 +148,10 @@ class EventAttendeesSheet implements
 
                 $currentRow = 6;
                 foreach ($this->event->ticketCategories as $category) {
-                    $soldCount = Attendee::where('ticket_category_id', $category->id)->count();
+                    $soldCount = Attendee::where('ticket_category_id', $category->id)
+                        ->whereHas('order', function ($q) {
+                            $q->whereIn(\DB::raw('LOWER(payment_status)'), ['paid', 'approved', 'completed']);
+                        })->count();
                     $catRevenue = $soldCount * $category->local_price;
 
                     $sheet->setCellValue('A' . $currentRow, $category->name);

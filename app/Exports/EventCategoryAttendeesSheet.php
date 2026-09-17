@@ -34,6 +34,9 @@ class EventCategoryAttendeesSheet implements FromCollection, WithTitle, WithMapp
     {
         $attendees = Attendee::with(['ticketCategory', 'promoCode', 'order'])
             ->where('ticket_category_id', $this->categoryId)
+            ->whereHas('order', function ($q) {
+                $q->whereIn(\DB::raw('LOWER(payment_status)'), ['paid', 'approved', 'completed']);
+            })
             ->get();
 
         return $attendees->sort(function ($a, $b) {
@@ -90,7 +93,7 @@ class EventCategoryAttendeesSheet implements FromCollection, WithTitle, WithMapp
         return [
             $attendee->ticket_code ?? '',
             $attendee->full_name ?? '',
-            $attendee->father_name ?? '',
+            $attend_father = $attendee->father_name ?? '',
             $bib,
             optional($attendee->ticketCategory)->name ?? '',
             $promoText,
