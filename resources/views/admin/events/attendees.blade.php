@@ -661,8 +661,8 @@
                         {{-- Runner Info --}}
                         <td>
                             <span class="runner-code">
-    BGR{{ now()->format('y') }}{{ str_pad($loop->iteration, 4, '0', STR_PAD_LEFT) }}
-</span>
+                                {{ $attendee->ticket_code }}
+                            </span>
                             <p class="runner-name">{{ $attendee->full_name }}</p>
                             @if($attendee->father_name)
                                 <p class="text-xs text-gray-500 mt-1"><i class="fa-solid fa-user-group me-1"></i> Father: {{ $attendee->father_name }}</p>
