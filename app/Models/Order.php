@@ -47,6 +47,8 @@ class Order extends Model
                         // 1. Generate Bib Name if enabled
                         $generatedBib = $attendee->bib_name;
                         if (empty($generatedBib) && $event->enable_bib_number) {
+                            $nextNum = 1; // Default fallback initialization to prevent undefined variable errors
+                            
                             if ($event->share_bib_prefix) {
                                 $prefix = !empty($event->event_bib_prefix) ? $event->event_bib_prefix : 'BIB';
                                 $startNum = $event->event_bib_start_number ?? 1;
