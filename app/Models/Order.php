@@ -125,7 +125,7 @@ class Order extends Model
                             foreach ($dbRegs as $num) {
                                 if ($num == $nextRegNum) {
                                     $nextRegNum++;
-                                } elseif ($num > $nextNum) {
+                                } elseif ($num > $nextRegNum) { // Fixed: safely compares against $nextRegNum now
                                     break;
                                 }
                             }
